@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomPickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/default_btn_color</item>
+        <item name="android:colorAccent">@color/default_btn_color</item>
+    </style>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque"> <!-- opacity 추가 -->
+
+    <!-- 배경색을 splash_layout과 동일하게 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" /> <!-- 또는 원하는 색상 -->
+        </shape>
+    </item>
+
+    <!-- 로고 -->
+    <item
+        android:width="200dp"
+        android:height="200dp"
+        android:gravity="center">
+    <bitmap
+        android:src="@drawable/logo_2"
+        android:gravity="center" />
+</item>
+    </layer-list>
