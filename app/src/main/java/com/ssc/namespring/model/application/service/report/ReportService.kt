@@ -18,7 +18,6 @@ class ReportService(
     private val scoreCalculationService: ScoreCalculationService
 ) {
     init {
-        // JSON 데이터 초기화
         ReportDataHolder.initialize(context)
     }
 

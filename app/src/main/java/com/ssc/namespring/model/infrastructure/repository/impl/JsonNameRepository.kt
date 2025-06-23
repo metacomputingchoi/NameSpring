@@ -3,10 +3,12 @@ package com.ssc.namespring.model.infrastructure.repository.impl
 
 import android.content.Context
 import com.ssc.namespring.model.infrastructure.repository.NameRepository
+import com.ssc.namespring.model.infrastructure.util.JsonAssetLoader
 import org.json.JSONObject
 
-class JsonNameRepository(private val context: Context) : NameRepository {
+class JsonNameRepository(context: Context) : NameRepository {
 
+    private val jsonLoader = JsonAssetLoader(context)
     private lateinit var hangulGivenNames: Map<String, JSONObject>
     private lateinit var surnameMapping: Map<String, List<String>>
     private lateinit var validHanjaSet: Set<String>
@@ -23,8 +25,7 @@ class JsonNameRepository(private val context: Context) : NameRepository {
         hanja2Stroke = loadHanja2Stroke()
 
         // 유효한 한자 세트 생성
-        val hanjaString = context.assets.open("df_name_hanja.json").bufferedReader().use { it.readText() }
-        val hanjaArray = org.json.JSONArray(hanjaString)
+        val hanjaArray = jsonLoader.loadJsonArray("df_name_hanja.json")
         validHanjaSet = (0 until hanjaArray.length())
             .map { hanjaArray.getJSONObject(it).optString("한자", "") }
             .filter { it.isNotEmpty() }
@@ -43,8 +44,7 @@ class JsonNameRepository(private val context: Context) : NameRepository {
     }
 
     private fun loadHangulGivenNames(): Map<String, JSONObject> {
-        val jsonString = context.assets.open("dict_hangul_given_names.json").bufferedReader().use { it.readText() }
-        val jsonObject = JSONObject(jsonString)
+        val jsonObject = jsonLoader.loadJsonObject("dict_hangul_given_names.json")
         val map = mutableMapOf<String, JSONObject>()
 
         jsonObject.keys().forEach { key ->
@@ -58,8 +58,7 @@ class JsonNameRepository(private val context: Context) : NameRepository {
     }
 
     private fun loadSurnameMapping(): Map<String, List<String>> {
-        val jsonString = context.assets.open("surname_mapping.json").bufferedReader().use { it.readText() }
-        val jsonObject = JSONObject(jsonString)
+        val jsonObject = jsonLoader.loadJsonObject("surname_mapping.json")
         val map = mutableMapOf<String, List<String>>()
         jsonObject.keys().forEach { key ->
             val array = jsonObject.getJSONArray(key)
@@ -69,8 +68,7 @@ class JsonNameRepository(private val context: Context) : NameRepository {
     }
 
     private fun loadHanja2Stroke(): Map<String, Int> {
-        val jsonString = context.assets.open("dict_hanja2stroke.json").bufferedReader().use { it.readText() }
-        val jsonObject = JSONObject(jsonString)
+        val jsonObject = jsonLoader.loadJsonObject("dict_hanja2stroke.json")
         val map = mutableMapOf<String, Int>()
         jsonObject.keys().forEach { key ->
             map[key] = jsonObject.getInt(key)

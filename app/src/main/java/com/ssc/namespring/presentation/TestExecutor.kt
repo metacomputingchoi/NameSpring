@@ -2,8 +2,8 @@
 package com.ssc.namespring.presentation
 
 import android.content.Context
-import com.ssc.namespring.model.application.test.TestCaseRunner
 import com.ssc.namespring.model.data.TestSuiteResult
+import com.ssc.namespring.model.test.TestCaseRunner
 import kotlinx.coroutines.*
 
 class TestExecutor(context: Context) {

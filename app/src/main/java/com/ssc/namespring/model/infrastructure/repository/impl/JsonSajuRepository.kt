@@ -4,10 +4,11 @@ package com.ssc.namespring.model.infrastructure.repository.impl
 import android.content.Context
 import com.ssc.namespring.model.infrastructure.data.YMDRecord
 import com.ssc.namespring.model.infrastructure.repository.SajuRepository
-import org.json.JSONArray
+import com.ssc.namespring.model.infrastructure.util.JsonAssetLoader
 
-class JsonSajuRepository(private val context: Context) : SajuRepository {
+class JsonSajuRepository(context: Context) : SajuRepository {
 
+    private val jsonLoader = JsonAssetLoader(context)
     private lateinit var ymdData: List<YMDRecord>
 
     init {
@@ -19,8 +20,7 @@ class JsonSajuRepository(private val context: Context) : SajuRepository {
     }
 
     private fun loadYmdData(): List<YMDRecord> {
-        val jsonString = context.assets.open("ymd_data.json").bufferedReader().use { it.readText() }
-        val jsonArray = JSONArray(jsonString)
+        val jsonArray = jsonLoader.loadJsonArray("ymd_data.json")
         return (0 until jsonArray.length()).map { i ->
             val obj = jsonArray.getJSONObject(i)
             YMDRecord(

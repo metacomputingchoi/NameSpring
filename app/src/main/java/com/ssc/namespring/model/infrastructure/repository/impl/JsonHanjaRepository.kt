@@ -4,11 +4,12 @@ package com.ssc.namespring.model.infrastructure.repository.impl
 import android.content.Context
 import com.ssc.namespring.model.domain.hanja.entity.Hanja
 import com.ssc.namespring.model.infrastructure.repository.HanjaRepository
+import com.ssc.namespring.model.infrastructure.util.JsonAssetLoader
 import org.json.JSONArray
-import org.json.JSONObject
 
-class JsonHanjaRepository(private val context: Context) : HanjaRepository {
+class JsonHanjaRepository(context: Context) : HanjaRepository {
 
+    private val jsonLoader = JsonAssetLoader(context)
     private lateinit var hanjaList: List<Hanja>
     private lateinit var hanja2Stroke: Map<String, Int>
 
@@ -22,8 +23,7 @@ class JsonHanjaRepository(private val context: Context) : HanjaRepository {
     }
 
     private fun loadHanjaInfo(): List<Hanja> {
-        val jsonString = context.assets.open("df_name_hanja.json").bufferedReader().use { it.readText() }
-        val jsonArray = JSONArray(jsonString)
+        val jsonArray = jsonLoader.loadJsonArray("df_name_hanja.json")
         val list = mutableListOf<Hanja>()
 
         for (i in 0 until jsonArray.length()) {
@@ -45,8 +45,7 @@ class JsonHanjaRepository(private val context: Context) : HanjaRepository {
     }
 
     private fun loadHanja2Stroke(): Map<String, Int> {
-        val jsonString = context.assets.open("dict_hanja2stroke.json").bufferedReader().use { it.readText() }
-        val jsonObject = JSONObject(jsonString)
+        val jsonObject = jsonLoader.loadJsonObject("dict_hanja2stroke.json")
         val map = mutableMapOf<String, Int>()
         jsonObject.keys().forEach { key ->
             map[key] = jsonObject.getInt(key)
