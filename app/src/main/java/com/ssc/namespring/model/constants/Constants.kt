@@ -2,6 +2,8 @@
 package com.ssc.namespring.model.constants
 
 object Constants {
+    val ELEMENTS = listOf("木", "火", "土", "金", "水")
+
     val STEM_ELEMENTS = mapOf(
         "甲" to "木", "乙" to "木", "丙" to "火", "丁" to "火",
         "戊" to "土", "己" to "土", "庚" to "金", "辛" to "金",
@@ -77,4 +79,110 @@ object Constants {
         'ㅅ' to "金", 'ㅈ' to "金", 'ㅊ' to "金", 'ㅁ' to "水",
         'ㅂ' to "水", 'ㅍ' to "水"
     )
+
+    // NameAnalyzer 관련
+    const val DEFAULT_BIRTH_YEAR = 2025
+    const val DEFAULT_BIRTH_MONTH = 6
+    const val DEFAULT_BIRTH_DAY = 11
+    const val DEFAULT_BIRTH_HOUR = 14
+    const val DEFAULT_BIRTH_MINUTE = 30
+    const val SEPARATOR_LINE_LENGTH = 60
+    const val TOP_RESULTS_COUNT = 3
+    const val TARGET_CASE_INDEX = 8
+
+    // NameCombinationAnalyzer 관련
+    const val MIN_STROKE = 1
+    const val MAX_STROKE = 27
+    const val LUCK_ARRAY_SIZE = 82
+    const val MODULO_VALUE = 81
+    const val NAME_PN_SUM_INVALID_ZERO = 0
+    const val NAME_PN_SUM_INVALID_THREE = 3
+    const val ELEMENT_NORMALIZE_VALUE = 10
+    const val ELEMENT_LOOP_START = 1
+    const val ELEMENT_LOOP_END = 2
+    const val ELEMENT_DIFF_CONFLICT_1 = 4
+    const val ELEMENT_DIFF_CONFLICT_2 = -6
+    const val ELEMENT_DIFF_HARMONY_1 = 2
+    const val ELEMENT_DIFF_HARMONY_2 = -8
+    const val MIN_FINAL_SCORE = 4
+    const val TYPE_ELEMENT_LOOP_START = 1
+    const val TYPE_ELEMENT_LOOP_END = 3
+
+    // SajuCalculator 관련
+    const val LATE_NIGHT_HOUR = 23
+    const val LATE_NIGHT_MINUTE = 30
+    const val COL_INDEX_ADD = 1
+    const val COL_INDEX_MODULO = 5
+    val TIME_RANGES = listOf(
+        "23:30:00" to "01:30:00",
+        "01:30:00" to "03:30:00",
+        "03:30:00" to "05:30:00",
+        "05:30:00" to "07:30:00",
+        "07:30:00" to "09:30:00",
+        "09:30:00" to "11:30:00",
+        "11:30:00" to "13:30:00",
+        "13:30:00" to "15:30:00",
+        "15:30:00" to "17:30:00",
+        "17:30:00" to "19:30:00",
+        "19:30:00" to "21:30:00",
+        "21:30:00" to "23:30:00"
+    )
+
+    // ScoreCalculator 관련
+    const val SCORE_LUCK_PERFECT = 4
+    const val SCORE_LUCK_THREE = 3
+    const val SCORE_LUCK_TWO = 2
+    const val SCORE_LUCK_ONE = 1
+    const val SCORE_NAME_COEXIST_PERFECT = 2
+    const val SCORE_NAME_COEXIST_GOOD = 1
+    const val SCORE_TYPE_COEXIST_PERFECT = 3
+    const val SCORE_TYPE_COEXIST_GOOD = 2
+    const val SCORE_TYPE_COEXIST_NEUTRAL = 1
+    const val YIN_YANG_SET_SIZE = 2
+    const val PM_FIRST_INDEX = 0
+    const val PM_THIRD_INDEX = 2
+
+    // NameFilter 관련
+    const val NAME_LENGTH = 2
+    const val COMBINED_LENGTH = 3
+    const val MIN_PM_DIVERSITY = 1
+
+    // ReportGenerator 관련
+    const val GRADE_A_THRESHOLD = 80
+    const val GRADE_B_THRESHOLD = 70
+    const val GRADE_C_THRESHOLD = 60
+    const val MAX_SCORE = 100
+    const val REPORT_SEPARATOR_LENGTH = 80
+    const val TOTAL_SCORE_MAX = 90
+    const val SCORE_HIGH_THRESHOLD_1 = 7
+    const val SCORE_HIGH_THRESHOLD_2 = 15
+    const val SCORE_HIGH_THRESHOLD_3 = 10
+    const val SCORE_LOW_THRESHOLD_1 = 4
+    const val SCORE_LOW_THRESHOLD_2 = 0
+    const val YIN_COUNT_INDEX = '0'
+    const val YANG_COUNT_INDEX = '1'
+
+    // NameUtils 관련
+    const val HANGUL_BASE = '가'
+    const val HANGUL_CHO_DIVISOR = 588
+    const val HANGUL_JUNG_DIVISOR = 28
+    const val HANGUL_JUNG_COUNT = 21
+    const val HANGUL_CODE_OFFSET = 44032
+    const val ELEMENT_COUNT = 5
+    const val ELEMENT_HARMONY_DIFF_1 = 1
+    const val ELEMENT_HARMONY_DIFF_2 = 4
+    const val ELEMENT_CONFLICT_DIFF_1 = 2
+    const val ELEMENT_CONFLICT_DIFF_2 = 3
+
+    // 한글 자음 리스트
+    val HANGUL_CHO_LIST = listOf('ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ')
+
+    // 한글 모음 리스트
+    val HANGUL_JUNG_LIST = listOf('ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ')
+
+    // 한글 종성 리스트
+    val HANGUL_JONG_LIST = listOf("", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ")
+
+    // 양성 모음 리스트
+    val YANG_VOWELS = listOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')
 }

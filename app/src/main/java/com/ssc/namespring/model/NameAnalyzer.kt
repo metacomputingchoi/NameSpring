@@ -9,6 +9,7 @@ import com.ssc.namespring.model.analyzer.NameCombinationAnalyzer
 import com.ssc.namespring.model.filter.NameFilter
 import com.ssc.namespring.model.calculator.ScoreCalculator
 import com.ssc.namespring.model.report.ReportGenerator
+import com.ssc.namespring.model.constants.Constants
 
 class NameAnalyzer(private val context: Context) {
 
@@ -35,11 +36,11 @@ class NameAnalyzer(private val context: Context) {
         name2Hangul: String? = null,
         name2Hanja: String? = null,
         dictElementsCount: ElementCount? = null,
-        birthYear: Int = 2025,
-        birthMonth: Int = 6,
-        birthDay: Int = 11,
-        birthHour: Int = 14,
-        birthMinute: Int = 30
+        birthYear: Int = Constants.DEFAULT_BIRTH_YEAR,
+        birthMonth: Int = Constants.DEFAULT_BIRTH_MONTH,
+        birthDay: Int = Constants.DEFAULT_BIRTH_DAY,
+        birthHour: Int = Constants.DEFAULT_BIRTH_HOUR,
+        birthMinute: Int = Constants.DEFAULT_BIRTH_MINUTE
     ): List<NameResult> {
         // 한글 성씨가 없으면 한자 성씨에서 찾기
         val finalSurHangul = surHangul ?: dataLoader.getHangulSurnameFromHanja(surHanja)
@@ -104,16 +105,18 @@ class NameAnalyzer(private val context: Context) {
             TestCase("11. ㅁ/한자(姜), ㅁ/ㅁ, ㅁ/ㅁ (다중 한글 매핑)", null, "姜", null, null, null, null)
         )
 
-        val fourJu = get4Ju(2025, 6, 11, 14, 30)
+        val fourJu = get4Ju(Constants.DEFAULT_BIRTH_YEAR, Constants.DEFAULT_BIRTH_MONTH,
+            Constants.DEFAULT_BIRTH_DAY, Constants.DEFAULT_BIRTH_HOUR,
+            Constants.DEFAULT_BIRTH_MINUTE)
         val dictElementsCount = getDictElementsCount(fourJu)
 
         val targetName = "克訉"
-        val targetCaseIndex = 8
+        val targetCaseIndex = Constants.TARGET_CASE_INDEX
 
         testCases.forEachIndexed { idx, testCase ->
-            println("\n${"=".repeat(60)}")
+            println("\n${"=".repeat(Constants.SEPARATOR_LINE_LENGTH)}")
             println("테스트 케이스: ${testCase.name}")
-            println("=".repeat(60))
+            println("=".repeat(Constants.SEPARATOR_LINE_LENGTH))
 
             try {
                 val results = findNamesGeneralized(
@@ -148,8 +151,8 @@ class NameAnalyzer(private val context: Context) {
                 }
 
                 if (results.isNotEmpty() && idx != targetCaseIndex) {
-                    println("\n결과 샘플 (상위 3개):")
-                    results.take(3).forEachIndexed { i, result ->
+                    println("\n결과 샘플 (상위 ${Constants.TOP_RESULTS_COUNT}개):")
+                    results.take(Constants.TOP_RESULTS_COUNT).forEachIndexed { i, result ->
                         val score = calculateDetailedScore(result).total
                         println("${i + 1}. ${result.combinedHanja} ${result.combinedPronounciation} - 총점: ${score}점")
                     }
@@ -161,9 +164,9 @@ class NameAnalyzer(private val context: Context) {
             }
         }
 
-        println("\n${"=".repeat(60)}")
+        println("\n${"=".repeat(Constants.SEPARATOR_LINE_LENGTH)}")
         println("테스트 결과 요약")
-        println("=".repeat(60))
+        println("=".repeat(Constants.SEPARATOR_LINE_LENGTH))
         println("모든 테스트 케이스에서 김극범(克訉)이 포함되는지 확인하십시오.")
         println("\n※ 성명학 점수는 참고용이며, 실제 이름 선택은 가족의 뜻과 개인의 선호를 종합적으로 고려하시기 바랍니다.")
     }
