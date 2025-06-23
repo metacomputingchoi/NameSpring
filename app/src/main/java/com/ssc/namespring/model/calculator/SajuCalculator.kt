@@ -11,8 +11,8 @@ class SajuCalculator {
     fun get4Ju(year: Int, month: Int, day: Int, hour: Int, minute: Int, ymdData: List<YMDRecord>): FourJu {
         var colIdxAdd = 0
         val inputDateTime = LocalDateTime.of(year, month, day, hour, minute)
-        if (inputDateTime.hour == 23 && inputDateTime.minute >= 30) {
-            colIdxAdd = 1
+        if (inputDateTime.hour == Constants.LATE_NIGHT_HOUR && inputDateTime.minute >= Constants.LATE_NIGHT_MINUTE) {
+            colIdxAdd = Constants.COL_INDEX_ADD
         }
 
         val record = ymdData.find { it.year == year && it.month == month && it.day == day }
@@ -33,21 +33,21 @@ class SajuCalculator {
 
         val hourMinute = inputDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         val rowIdx = when {
-            hourMinute >= "23:30:00" || hourMinute < "01:30:00" -> 0
-            hourMinute < "03:30:00" -> 1
-            hourMinute < "05:30:00" -> 2
-            hourMinute < "07:30:00" -> 3
-            hourMinute < "09:30:00" -> 4
-            hourMinute < "11:30:00" -> 5
-            hourMinute < "13:30:00" -> 6
-            hourMinute < "15:30:00" -> 7
-            hourMinute < "17:30:00" -> 8
-            hourMinute < "19:30:00" -> 9
-            hourMinute < "21:30:00" -> 10
+            hourMinute >= Constants.TIME_RANGES[0].first || hourMinute < Constants.TIME_RANGES[0].second -> 0
+            hourMinute < Constants.TIME_RANGES[1].second -> 1
+            hourMinute < Constants.TIME_RANGES[2].second -> 2
+            hourMinute < Constants.TIME_RANGES[3].second -> 3
+            hourMinute < Constants.TIME_RANGES[4].second -> 4
+            hourMinute < Constants.TIME_RANGES[5].second -> 5
+            hourMinute < Constants.TIME_RANGES[6].second -> 6
+            hourMinute < Constants.TIME_RANGES[7].second -> 7
+            hourMinute < Constants.TIME_RANGES[8].second -> 8
+            hourMinute < Constants.TIME_RANGES[9].second -> 9
+            hourMinute < Constants.TIME_RANGES[10].second -> 10
             else -> 11
         }
 
-        val finalColIdx = (colIdx + colIdxAdd) % 5
+        val finalColIdx = (colIdx + colIdxAdd) % Constants.COL_INDEX_MODULO
         val sijuValue = Constants.SIJU[rowIdx][finalColIdx]
 
         return FourJu(yeonju, wolju, ilju, sijuValue)

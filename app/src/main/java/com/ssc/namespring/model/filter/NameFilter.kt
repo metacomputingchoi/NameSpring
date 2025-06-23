@@ -5,6 +5,7 @@ import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.loader.DataLoader
 import com.ssc.namespring.model.utils.NameUtils
 import com.ssc.namespring.model.analyzer.NameCombinationAnalyzer
+import com.ssc.namespring.model.constants.Constants
 
 class NameFilter(private val dataLoader: DataLoader) {
 
@@ -97,7 +98,7 @@ class NameFilter(private val dataLoader: DataLoader) {
         val combinedPronounciation = h1.inmyeongYongEum!! + h2.inmyeongYongEum!!
 
         // 길이 체크
-        if (combinedPronounciation.length != 2 || combinedHanja.length != 2) {
+        if (combinedPronounciation.length != Constants.NAME_LENGTH || combinedHanja.length != Constants.NAME_LENGTH) {
             result.filteringProcess.add(FilteringStep(
                 step = "length_check",
                 passed = false,
@@ -133,7 +134,7 @@ class NameFilter(private val dataLoader: DataLoader) {
         result.combinedPm = combinedPm
 
         // 길이 체크 2
-        if (combinedElement.length != 3 || combinedPm.length != 3) {
+        if (combinedElement.length != Constants.COMBINED_LENGTH || combinedPm.length != Constants.COMBINED_LENGTH) {
             result.filteringProcess.add(FilteringStep(
                 step = "combined_length_check",
                 passed = false,
@@ -146,7 +147,7 @@ class NameFilter(private val dataLoader: DataLoader) {
 
         // 음양 다양성 체크
         val pmSet = combinedPm.toSet()
-        if (pmSet.size <= 1) {
+        if (pmSet.size <= Constants.MIN_PM_DIVERSITY) {
             result.filteringProcess.add(FilteringStep(
                 step = "pm_diversity_check",
                 passed = false,
@@ -162,11 +163,11 @@ class NameFilter(private val dataLoader: DataLoader) {
         ))
 
         // 첫번째와 세번째 음양 체크
-        if (combinedPm[0] == combinedPm[2]) {
+        if (combinedPm[Constants.PM_FIRST_INDEX] == combinedPm[Constants.PM_THIRD_INDEX]) {
             result.filteringProcess.add(FilteringStep(
                 step = "pm_position_check",
                 passed = false,
-                reason = "pm[0]=${combinedPm[0]} == pm[2]=${combinedPm[2]}"
+                reason = "pm[0]=${combinedPm[Constants.PM_FIRST_INDEX]} == pm[2]=${combinedPm[Constants.PM_THIRD_INDEX]}"
             ))
             return false
         }

@@ -18,10 +18,10 @@ class ScoreCalculator {
         // 1. 사격 수리 길흉 점수
         val luckCount = result.combinationAnalysis.fourTypesLuck.sum()
         fourTypesLuck = when (luckCount) {
-            4 -> Constants.SCORING_RULES["four_types_luck"]!!["perfect"]!!
-            3 -> Constants.SCORING_RULES["four_types_luck"]!!["three"]!!
-            2 -> Constants.SCORING_RULES["four_types_luck"]!!["two"]!!
-            1 -> Constants.SCORING_RULES["four_types_luck"]!!["one"]!!
+            Constants.SCORE_LUCK_PERFECT -> Constants.SCORING_RULES["four_types_luck"]!!["perfect"]!!
+            Constants.SCORE_LUCK_THREE -> Constants.SCORING_RULES["four_types_luck"]!!["three"]!!
+            Constants.SCORE_LUCK_TWO -> Constants.SCORING_RULES["four_types_luck"]!!["two"]!!
+            Constants.SCORE_LUCK_ONE -> Constants.SCORING_RULES["four_types_luck"]!!["one"]!!
             else -> Constants.SCORING_RULES["four_types_luck"]!!["zero"]!!
         }
 
@@ -31,8 +31,8 @@ class ScoreCalculator {
 
         nameElementHarmony = when {
             hasNameConflict -> Constants.SCORING_RULES["name_element_harmony"]!!["conflict"]!!
-            nameCoexist == 2 -> Constants.SCORING_RULES["name_element_harmony"]!!["perfect"]!!
-            nameCoexist == 1 -> Constants.SCORING_RULES["name_element_harmony"]!!["good"]!!
+            nameCoexist == Constants.SCORE_NAME_COEXIST_PERFECT -> Constants.SCORING_RULES["name_element_harmony"]!!["perfect"]!!
+            nameCoexist == Constants.SCORE_NAME_COEXIST_GOOD -> Constants.SCORING_RULES["name_element_harmony"]!!["good"]!!
             else -> Constants.SCORING_RULES["name_element_harmony"]!!["neutral"]!!
         }
 
@@ -42,18 +42,18 @@ class ScoreCalculator {
 
         typeElementHarmony = when {
             hasTypeConflict -> Constants.SCORING_RULES["type_element_harmony"]!!["conflict"]!!
-            typeCoexist == 3 -> Constants.SCORING_RULES["type_element_harmony"]!!["perfect"]!!
-            typeCoexist == 2 -> Constants.SCORING_RULES["type_element_harmony"]!!["good"]!!
-            typeCoexist == 1 -> Constants.SCORING_RULES["type_element_harmony"]!!["neutral"]!!
+            typeCoexist == Constants.SCORE_TYPE_COEXIST_PERFECT -> Constants.SCORING_RULES["type_element_harmony"]!!["perfect"]!!
+            typeCoexist == Constants.SCORE_TYPE_COEXIST_GOOD -> Constants.SCORING_RULES["type_element_harmony"]!!["good"]!!
+            typeCoexist == Constants.SCORE_TYPE_COEXIST_NEUTRAL -> Constants.SCORING_RULES["type_element_harmony"]!!["neutral"]!!
             else -> Constants.SCORING_RULES["type_element_harmony"]!!["conflict"]!!
         }
 
         // 4. 음양 균형 점수
         val pmSet = result.combinedPm!!.toSet()
         yinYangBalance = when {
-            pmSet.size == 2 && result.combinedPm!![0] != result.combinedPm!![2] ->
+            pmSet.size == Constants.YIN_YANG_SET_SIZE && result.combinedPm!![Constants.PM_FIRST_INDEX] != result.combinedPm!![Constants.PM_THIRD_INDEX] ->
                 Constants.SCORING_RULES["yin_yang_balance"]!!["perfect"]!!
-            pmSet.size == 2 -> Constants.SCORING_RULES["yin_yang_balance"]!!["good"]!!
+            pmSet.size == Constants.YIN_YANG_SET_SIZE -> Constants.SCORING_RULES["yin_yang_balance"]!!["good"]!!
             else -> Constants.SCORING_RULES["yin_yang_balance"]!!["poor"]!!
         }
 

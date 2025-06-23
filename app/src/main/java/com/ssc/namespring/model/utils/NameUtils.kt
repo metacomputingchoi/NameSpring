@@ -12,43 +12,37 @@ object NameUtils {
 
     fun getHangulElement(char: Char?): String? {
         if (char == null) return null
-        val cho = (char.code - '가'.code) / 588
-        val choList = listOf('ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ')
-        return Constants.FIVE_ELEMENTS[choList[cho]]
+        val cho = (char.code - Constants.HANGUL_BASE.code) / Constants.HANGUL_CHO_DIVISOR
+        return Constants.FIVE_ELEMENTS[Constants.HANGUL_CHO_LIST[cho]]
     }
 
     fun getHangulPn(char: Char): Int {
-        val jung = (char.code - '가'.code) / 28 % 21
-        val jungList = listOf('ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ')
-        return if (jungList[jung] in listOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')) 1 else 0
+        val jung = (char.code - Constants.HANGUL_BASE.code) / Constants.HANGUL_JUNG_DIVISOR % Constants.HANGUL_JUNG_COUNT
+        return if (Constants.HANGUL_JUNG_LIST[jung] in Constants.YANG_VOWELS) 1 else 0
     }
 
     fun getHangulStrokeCount(char: Char): Int {
-        val charCode = char.code - 44032
-        val finaleOffset = charCode % 28
-        val medialOffset = (charCode / 28) % 21
-        val initialOffset = charCode / (28 * 21)
+        val charCode = char.code - Constants.HANGUL_CODE_OFFSET
+        val finaleOffset = charCode % Constants.HANGUL_JUNG_DIVISOR
+        val medialOffset = (charCode / Constants.HANGUL_JUNG_DIVISOR) % Constants.HANGUL_JUNG_COUNT
+        val initialOffset = charCode / (Constants.HANGUL_JUNG_DIVISOR * Constants.HANGUL_JUNG_COUNT)
 
-        val initials = listOf('ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ')
-        val medials = listOf('ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ')
-        val finales = listOf("", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ")
-
-        return (Constants.HANGUL_STROKES[initials[initialOffset].toString()] ?: 0) +
-                (Constants.HANGUL_STROKES[medials[medialOffset].toString()] ?: 0) +
-                (Constants.HANGUL_STROKES[finales[finaleOffset]] ?: 0)
+        return (Constants.HANGUL_STROKES[Constants.HANGUL_CHO_LIST[initialOffset].toString()] ?: 0) +
+                (Constants.HANGUL_STROKES[Constants.HANGUL_JUNG_LIST[medialOffset].toString()] ?: 0) +
+                (Constants.HANGUL_STROKES[Constants.HANGUL_JONG_LIST[finaleOffset]] ?: 0)
     }
 
     fun isHarmoniousElementCombination(elementCombination: String): Pair<Boolean, List<Map<String, Any>>> {
-        val elements = listOf("木", "火", "土", "金", "水")
+        val elements = Constants.ELEMENTS
         var scoreCoexist = 0
         val elementHarmonyDetails = mutableListOf<Map<String, Any>>()
 
         for (i in 1 until elementCombination.length) {
             val prevElement = elements.indexOf(elementCombination[i - 1].toString())
             val currElement = elements.indexOf(elementCombination[i].toString())
-            val diff = (currElement - prevElement + 5) % 5
+            val diff = (currElement - prevElement + Constants.ELEMENT_COUNT) % Constants.ELEMENT_COUNT
 
-            if (diff == 1 || diff == 4) {
+            if (diff == Constants.ELEMENT_HARMONY_DIFF_1 || diff == Constants.ELEMENT_HARMONY_DIFF_2) {
                 scoreCoexist++
                 elementHarmonyDetails.add(mapOf(
                     "position" to "${i-1}-$i",
@@ -56,7 +50,7 @@ object NameUtils {
                     "relation" to "harmonious",
                     "diff" to diff
                 ))
-            } else if (diff == 2 || diff == 3) {
+            } else if (diff == Constants.ELEMENT_CONFLICT_DIFF_1 || diff == Constants.ELEMENT_CONFLICT_DIFF_2) {
                 elementHarmonyDetails.add(mapOf(
                     "position" to "${i-1}-$i",
                     "elements" to "${elementCombination[i-1]}-${elementCombination[i]}",

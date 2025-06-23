@@ -11,19 +11,19 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
         val surHangulStroke = NameUtils.getHangulStrokeCount(surHangul[0])
         val surHanjaStroke = hanja2Stroke[surHanja] ?: 0
         val results = mutableListOf<Map<String, Any>>()
-        val luck = IntArray(82) { 0 }
+        val luck = IntArray(Constants.LUCK_ARRAY_SIZE) { 0 }
         Constants.GOOD_LUCK.forEach { luck[it] = 1 }
 
-        for (stroke1 in 1..27) {
-            for (stroke2 in 1..27) {
+        for (stroke1 in Constants.MIN_STROKE..Constants.MAX_STROKE) {
+            for (stroke2 in Constants.MIN_STROKE..Constants.MAX_STROKE) {
                 val fourTypes = listOf(
                     stroke1 + stroke2,
                     surHanjaStroke + stroke1,
                     surHanjaStroke + stroke2,
-                    (surHanjaStroke + stroke1 + stroke2) % 81
+                    (surHanjaStroke + stroke1 + stroke2) % Constants.MODULO_VALUE
                 )
 
-                var score = fourTypes.sumOf { if (it < 82) luck[it] else 0 }
+                var score = fourTypes.sumOf { if (it < Constants.LUCK_ARRAY_SIZE) luck[it] else 0 }
                 val namePn = listOf(surHanjaStroke % 2, stroke1 % 2, stroke2 % 2)
 
                 val analysisDetails = mutableMapOf<String, Any>(
@@ -31,29 +31,29 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
                     "stroke1" to stroke1,
                     "stroke2" to stroke2,
                     "four_types" to fourTypes,
-                    "four_types_luck" to fourTypes.map { if (it < 82) luck[it] else 0 },
+                    "four_types_luck" to fourTypes.map { if (it < Constants.LUCK_ARRAY_SIZE) luck[it] else 0 },
                     "initial_score" to score,
                     "name_pn" to namePn,
                     "name_pn_sum" to namePn.sum()
                 )
 
-                if (namePn.sum() == 0 || namePn.sum() == 3) {
+                if (namePn.sum() == Constants.NAME_PN_SUM_INVALID_ZERO || namePn.sum() == Constants.NAME_PN_SUM_INVALID_THREE) {
                     score = 0
                     analysisDetails["score_zero_reason"] = "name_pn_sum_is_0_or_3"
                 }
 
                 var nameElements = listOf(
-                    (surHanjaStroke % 10) + (surHanjaStroke % 10) % 2,
-                    (stroke1 % 10) + (stroke1 % 10) % 2,
-                    (stroke2 % 10) + (stroke2 % 10) % 2
-                ).map { if (it == 10) 0 else it }
+                    (surHanjaStroke % Constants.ELEMENT_NORMALIZE_VALUE) + (surHanjaStroke % Constants.ELEMENT_NORMALIZE_VALUE) % 2,
+                    (stroke1 % Constants.ELEMENT_NORMALIZE_VALUE) + (stroke1 % Constants.ELEMENT_NORMALIZE_VALUE) % 2,
+                    (stroke2 % Constants.ELEMENT_NORMALIZE_VALUE) + (stroke2 % Constants.ELEMENT_NORMALIZE_VALUE) % 2
+                ).map { if (it == Constants.ELEMENT_NORMALIZE_VALUE) 0 else it }
 
                 analysisDetails["name_elements"] = nameElements
 
                 var scoreCoexistName = 0
                 val nameElementChecks = mutableListOf<Map<String, Any>>()
 
-                for (k in 1..2) {
+                for (k in Constants.ELEMENT_LOOP_START..Constants.ELEMENT_LOOP_END) {
                     val diff = nameElements[k] - nameElements[k - 1]
                     val checkInfo = mutableMapOf<String, Any>(
                         "position" to "${k-1}-$k",
@@ -62,12 +62,12 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
                     )
 
                     when (diff) {
-                        4, -6 -> {
+                        Constants.ELEMENT_DIFF_CONFLICT_1, Constants.ELEMENT_DIFF_CONFLICT_2 -> {
                             score = 0
                             checkInfo["result"] = "conflicting"
                             analysisDetails["score_zero_reason"] = "name_elements_conflict_at_${k-1}_$k"
                         }
-                        2, -8 -> {
+                        Constants.ELEMENT_DIFF_HARMONY_1, Constants.ELEMENT_DIFF_HARMONY_2 -> {
                             scoreCoexistName++
                             checkInfo["result"] = "harmonious"
                         }
@@ -85,15 +85,15 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
                 }
 
                 var typeElements = fourTypes.map { ft ->
-                    val te = (ft % 10) + (ft % 10) % 2
-                    if (te == 10) 0 else te
+                    val te = (ft % Constants.ELEMENT_NORMALIZE_VALUE) + (ft % Constants.ELEMENT_NORMALIZE_VALUE) % 2
+                    if (te == Constants.ELEMENT_NORMALIZE_VALUE) 0 else te
                 }
                 analysisDetails["type_elements"] = typeElements
 
                 var scoreCoexistType = 0
                 val typeElementChecks = mutableListOf<Map<String, Any>>()
 
-                for (k in 1..3) {
+                for (k in Constants.TYPE_ELEMENT_LOOP_START..Constants.TYPE_ELEMENT_LOOP_END) {
                     val diff = typeElements[k - 1] - typeElements[k]
                     val checkInfo = mutableMapOf<String, Any>(
                         "position" to "${k-1}-$k",
@@ -102,12 +102,12 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
                     )
 
                     when (diff) {
-                        4, -6 -> {
+                        Constants.ELEMENT_DIFF_CONFLICT_1, Constants.ELEMENT_DIFF_CONFLICT_2 -> {
                             score = 0
                             checkInfo["result"] = "conflicting"
                             analysisDetails["score_zero_reason"] = "type_elements_conflict_at_${k-1}_$k"
                         }
-                        2, -8 -> {
+                        Constants.ELEMENT_DIFF_HARMONY_1, Constants.ELEMENT_DIFF_HARMONY_2 -> {
                             scoreCoexistType++
                             checkInfo["result"] = "harmonious"
                         }
@@ -126,7 +126,7 @@ class NameCombinationAnalyzer(private val hanja2Stroke: Map<String, Int>) {
 
                 analysisDetails["final_score"] = score
 
-                if (score >= 4) {
+                if (score >= Constants.MIN_FINAL_SCORE) {
                     results.add(mapOf(
                         "stroke1" to stroke1,
                         "stroke2" to stroke2,

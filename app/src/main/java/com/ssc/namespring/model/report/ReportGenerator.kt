@@ -3,6 +3,7 @@ package com.ssc.namespring.model.report
 
 import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.calculator.ScoreCalculator
+import com.ssc.namespring.model.constants.Constants
 
 class ReportGenerator {
 
@@ -13,12 +14,12 @@ class ReportGenerator {
 
         // 1. 요약
         val grade = when {
-            scores.total >= 80 -> "A"
-            scores.total >= 70 -> "B"
-            scores.total >= 60 -> "C"
+            scores.total >= Constants.GRADE_A_THRESHOLD -> "A"
+            scores.total >= Constants.GRADE_B_THRESHOLD -> "B"
+            scores.total >= Constants.GRADE_C_THRESHOLD -> "C"
             else -> "D"
         }
-        val summary = "'$fullName($fullHanja)'는 총점 ${scores.total}점(100점 만점)으로 ${grade}등급의 이름입니다."
+        val summary = "'$fullName($fullHanja)'는 총점 ${scores.total}점(${Constants.MAX_SCORE}점 만점)으로 ${grade}등급의 이름입니다."
 
         // 2. 사주 분석
         val elementCount = result.dictElementsCount.toMap()
@@ -59,11 +60,11 @@ class ReportGenerator {
 
         // 5. 음양 균형 분석
         val pmPattern = result.combinedPm!!
-        val yinCount = pmPattern.count { it == '0' }
-        val yangCount = pmPattern.count { it == '1' }
+        val yinCount = pmPattern.count { it == Constants.YIN_COUNT_INDEX }
+        val yangCount = pmPattern.count { it == Constants.YANG_COUNT_INDEX }
 
         val yinYangBalance = """음양 구성은 '$pmPattern'로 음($yinCount)과 양($yangCount)의 비율입니다.
-${if (pmPattern.toSet().size == 2) "균형잡힌 음양 배치로 조화롭습니다." else "음양이 치우쳐 있어 균형이 필요합니다."}"""
+${if (pmPattern.toSet().size == Constants.YIN_YANG_SET_SIZE) "균형잡힌 음양 배치로 조화롭습니다." else "음양이 치우쳐 있어 균형이 필요합니다."}"""
 
         // 6. 발음 분석
         val pronunciationAnalysis = "'${result.combinedPronounciation}'는 " +
@@ -77,14 +78,14 @@ ${if (pmPattern.toSet().size == 2) "균형잡힌 음양 배치로 조화롭습�
         val strengths = mutableListOf<String>()
         val weaknesses = mutableListOf<String>()
 
-        if (scores.fourTypesLuck >= 7) strengths.add("사격 수리가 대체로 길하여 운세가 좋습니다")
-        if (scores.sajuComplement >= 15) strengths.add("사주의 부족한 오행을 잘 보완합니다")
-        if (scores.nameElementHarmony >= 10) strengths.add("삼원오행이 조화롭게 상생합니다")
-        if (scores.yinYangBalance >= 7) strengths.add("음양이 균형잡혀 있습니다")
+        if (scores.fourTypesLuck >= Constants.SCORE_HIGH_THRESHOLD_1) strengths.add("사격 수리가 대체로 길하여 운세가 좋습니다")
+        if (scores.sajuComplement >= Constants.SCORE_HIGH_THRESHOLD_2) strengths.add("사주의 부족한 오행을 잘 보완합니다")
+        if (scores.nameElementHarmony >= Constants.SCORE_HIGH_THRESHOLD_3) strengths.add("삼원오행이 조화롭게 상생합니다")
+        if (scores.yinYangBalance >= Constants.SCORE_HIGH_THRESHOLD_1) strengths.add("음양이 균형잡혀 있습니다")
 
-        if (scores.fourTypesLuck < 4) weaknesses.add("사격 수리에 흉수가 많습니다")
-        if (scores.nameElementHarmony < 0) weaknesses.add("오행 간 상극이 존재합니다")
-        if (scores.yinYangBalance == 0) weaknesses.add("음양 균형이 맞지 않습니다")
+        if (scores.fourTypesLuck < Constants.SCORE_LOW_THRESHOLD_1) weaknesses.add("사격 수리에 흉수가 많습니다")
+        if (scores.nameElementHarmony < Constants.SCORE_LOW_THRESHOLD_2) weaknesses.add("오행 간 상극이 존재합니다")
+        if (scores.yinYangBalance == Constants.SCORE_LOW_THRESHOLD_2) weaknesses.add("음양 균형이 맞지 않습니다")
 
         val overallEvaluation = """[장점]
 ${if (strengths.isNotEmpty()) strengths.joinToString("\n") { "• $it" } else "• 특별한 장점을 찾기 어렵습니다."}
@@ -95,9 +96,9 @@ ${if (weaknesses.isNotEmpty()) weaknesses.joinToString("\n") { "• $it" } else 
         // 8. 추천사항
         val recommendations = mutableListOf<String>()
         when {
-            scores.total >= 80 -> recommendations.add("매우 좋은 이름으로 적극 추천합니다.")
-            scores.total >= 70 -> recommendations.add("좋은 이름으로 사용하기에 무난합니다.")
-            scores.total >= 60 -> recommendations.add("보통 수준의 이름으로 신중한 검토가 필요합니다.")
+            scores.total >= Constants.GRADE_A_THRESHOLD -> recommendations.add("매우 좋은 이름으로 적극 추천합니다.")
+            scores.total >= Constants.GRADE_B_THRESHOLD -> recommendations.add("좋은 이름으로 사용하기에 무난합니다.")
+            scores.total >= Constants.GRADE_C_THRESHOLD -> recommendations.add("보통 수준의 이름으로 신중한 검토가 필요합니다.")
             else -> recommendations.add("다른 이름을 고려해보시는 것을 권합니다.")
         }
 
@@ -110,9 +111,9 @@ ${if (weaknesses.isNotEmpty()) weaknesses.joinToString("\n") { "• $it" } else 
     }
 
     fun printDetailedNameReport(result: NameResult, scoreCalculator: ScoreCalculator) {
-        println("\n${"=".repeat(80)}")
+        println("\n${"=".repeat(Constants.REPORT_SEPARATOR_LENGTH)}")
         println("【 ${result.surHangul}${result.combinedPronounciation}(${result.surHanja}${result.combinedHanja}) 성명학 분석 보고서 】")
-        println("=".repeat(80))
+        println("=".repeat(Constants.REPORT_SEPARATOR_LENGTH))
 
         val (explanation, scores) = generateNameExplanation(result, scoreCalculator)
 
@@ -127,7 +128,7 @@ ${if (weaknesses.isNotEmpty()) weaknesses.joinToString("\n") { "• $it" } else 
         println("   • 발음 조화: ${scores.pronunciation}점/10점")
         println("   • 의미 조화: ${scores.meaning}점/10점")
         println("   ─────────────────────────")
-        println("   • 총점: ${scores.total}점/90점")
+        println("   • 총점: ${scores.total}점/${Constants.TOTAL_SCORE_MAX}점")
 
         // 2. 사주 분석
         println("\n▶ 사주 분석:")
@@ -167,6 +168,6 @@ ${if (weaknesses.isNotEmpty()) weaknesses.joinToString("\n") { "• $it" } else 
         println("     - 자원오행: ${result.hanja2Info.jawonOheng}, 발음오행: ${result.hanja2Info.baleumOheng}")
         result.hanja2Info.cautionBlue?.let { println("     - 참고: $it") }
 
-        println("\n${"=".repeat(80)}")
+        println("\n${"=".repeat(Constants.REPORT_SEPARATOR_LENGTH)}")
     }
 }
