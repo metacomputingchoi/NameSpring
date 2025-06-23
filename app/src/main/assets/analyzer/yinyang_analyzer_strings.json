@@ -1,0 +1,25 @@
+{
+  "error_message": "음양 정보를 분석할 수 없습니다.",
+  "balance_template": "음양 구성은 '{pattern}'로 음({yin})과 양({yang})의 비율입니다.\n{analysis}",
+  "balance_patterns": {
+    "balanced": "균형잡힌 음양 배치로 조화롭습니다.",
+    "unbalanced": "음양이 치우쳐 있어 균형이 필요합니다."
+  },
+  "default_pattern": "000",
+  "unique_pattern_message": "독특한 음양 패턴을 가지고 있습니다.",
+  "yin_char": "0",
+  "yang_char": "1",
+  "balance_scores": {
+    "perfect": 10,
+    "good": 8,
+    "fair": 5,
+    "poor": 2
+  },
+  "balance_thresholds": {
+    "good": 1,
+    "fair": 2
+  },
+  "magic_numbers": {
+    "yin_yang_set_size": 2
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "stroke_types": {
+    "personality": {
+      "prefix": "원격(",
+      "suffix": "수): "
+    },
+    "foundation": {
+      "prefix": "형격(",
+      "suffix": "수): "
+    },
+    "social": {
+      "prefix": "이격(",
+      "suffix": "수): "
+    },
+    "total": {
+      "prefix": "총격(",
+      "suffix": "수): "
+    }
+  },
+  "caution_format": "{stroke}수: {caution}",
+  "line_separator": "\n",
+  "modulo_base": 81
+}

@@ -1,0 +1,32 @@
+{
+  "base_analysis_template": "생년월일시를 기준으로 한 사주팔자는 {yeonju}년주, {wolju}월주, {ilju}일주, {siju}시주입니다.\n오행 분포는 목({wood}), 화({fire}), 토({earth}), 금({metal}), 수({water})로 구성되어 있습니다.",
+  "supplement_analysis": {
+    "zero_elements": "사주에서 부족한 {elements} 오행을 이름으로 보완하는 것이 중요합니다.",
+    "one_elements": "사주에서 상대적으로 약한 {elements} 오행을 이름으로 보강하는 것이 좋습니다."
+  },
+  "pillar_names": {
+    "year": "년주(年柱)",
+    "month": "월주(月柱)",
+    "day": "일주(日柱)",
+    "hour": "시주(時柱)"
+  },
+  "default_values": {
+    "none": "없음",
+    "season_error": "계절 판단 불가",
+    "analysis_error": "분석 불가"
+  },
+  "day_master_template": "일간(日干) '{stem}'는 {element} 오행으로,\n사주 내에 {count} 개 존재하여 {evaluation} 합니다.",
+  "pillar_format": "{name} - {interpretation}",
+  "dominant_element_format": "{element} ({count}개)",
+  "magic_numbers": {
+    "variance_very_balanced": 0.5,
+    "variance_balanced": 1.0,
+    "variance_slightly_unbalanced": 2.0,
+    "day_master_weak_max": 1,
+    "day_master_normal": 2,
+    "day_master_strong": 3,
+    "day_master_very_strong_min": 4,
+    "day_master_very_strong_max": 5,
+    "day_master_excessive": 6
+  }
+}

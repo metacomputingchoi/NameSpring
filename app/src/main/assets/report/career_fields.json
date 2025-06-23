@@ -1,0 +1,8 @@
+{
+  "avoidance_strokes": {
+    "high_risk": [2, 4, 9, 10, 12, 14, 19, 20],
+    "avoid_message": "고위험 투자나 투기성 사업",
+    "stability_unsuitable": [26, 27, 28, 34, 36],
+    "stability_message": "안정적인 공무원이나 대기업"
+  }
+}

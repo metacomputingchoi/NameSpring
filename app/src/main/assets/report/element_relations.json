@@ -1,0 +1,32 @@
+{
+  "relation_types": {
+    "same": {
+      "name": "비화(比和)",
+      "description": "같은 오행으로 서로 돕고 강화하는 관계. {element}의 특성이 배가됩니다."
+    },
+    "generative": {
+      "name": "상생(相生)",
+      "description": "자연스럽게 도와주는 관계."
+    },
+    "controlling": {
+      "name": "상극(相剋)",
+      "description": "제어하고 조절하는 관계."
+    },
+    "special": {
+      "name": "특수",
+      "description": "특수한 관계"
+    }
+  },
+  "position_labels": {
+    "surname_to_first": "성씨→이름1",
+    "first_to_second": "이름1→이름2",
+    "surname_to_second": "성씨→이름2"
+  },
+  "element_strength_descriptions": {
+    "0": "매우 약함 - 사주에 없어 보완 효과 극대화",
+    "1": "약함 - 사주에 부족하여 좋은 보완",
+    "2": "보통 - 적절한 균형",
+    "3": "강함 - 이미 충분하여 주의 필요",
+    "4_above": "매우 강함 - 과다하여 조절 필요"
+  }
+}

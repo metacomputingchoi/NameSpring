@@ -1,0 +1,33 @@
+{
+  "example_names": ["예시1", "예시2", "예시3"],
+  "life_periods": {
+    "early": "초년 (1-30세)",
+    "middle": "중년 (31-50세)",
+    "late": "말년 (51세 이후)"
+  },
+  "period_names": {
+    "personality": "중년기",
+    "foundation": "초년기",
+    "social": "대외관계",
+    "total": "말년기",
+    "default": "특정시기"
+  },
+  "lucky_element_format": "{element} 오행 관련 활동이나 색상",
+  "energy_format": "{element} 오행의 기운",
+  "challenge_format": "{period}: {challenge}",
+  "business_opportunity": "사업이나 투자 분야에서 좋은 기회",
+  "period_influence_format": "{type} {stroke}수의 영향으로 {influence}",
+  "thresholds": {
+    "overall_excellent": 80,
+    "overall_good": 70,
+    "overall_fair": 60,
+    "many_luck": 3
+  },
+  "element_cycle": {
+    "wood": "火",
+    "fire": "土",
+    "earth": "金",
+    "metal": "水",
+    "water": "木"
+  }
+}
