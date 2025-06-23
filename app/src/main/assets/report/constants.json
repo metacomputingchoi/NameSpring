@@ -1,0 +1,24 @@
+{
+  "report_constants": {
+    "TOTAL_SCORE_MAX": 100,
+    "REPORT_SEPARATOR_LENGTH": 60,
+    "GRADE_A_THRESHOLD": 80,
+    "GRADE_B_THRESHOLD": 70,
+    "GRADE_C_THRESHOLD": 60,
+    "SCORE_HIGH_THRESHOLD_1": 7,
+    "SCORE_HIGH_THRESHOLD_2": 15,
+    "SCORE_HIGH_THRESHOLD_3": 10,
+    "SCORE_LOW_THRESHOLD_1": 5,
+    "SCORE_LOW_THRESHOLD_2": 5,
+    "YIN_COUNT_INDEX": "0",
+    "YANG_COUNT_INDEX": "1",
+    "YIN_YANG_SET_SIZE": 2
+  },
+  "four_types_names": ["원격(元格)", "형격(亨格)", "이격(離格)", "정격(正格)"],
+  "name_positions": {
+    "0": "성씨",
+    "1": "이름1",
+    "2": "이름2",
+    "3": "기타"
+  }
+}

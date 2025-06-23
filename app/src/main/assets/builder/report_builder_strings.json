@@ -1,0 +1,27 @@
+{
+  "summary_format": "'{name}({hanja})'는 총점 {score}점(100점 만점)으로 {grade}등급의 이름입니다.",
+  "pronunciation_error": "발음 정보를 분석할 수 없습니다.",
+  "pronunciation_natural": "'{pronunciation}'는 자연스럽고 부르기 쉬운 발음입니다.",
+  "pronunciation_unnatural": "'{pronunciation}'는 다소 어색한 발음 조합입니다.",
+  "comprehensive_prefix": "종합적으로 ",
+  "score_categories": {
+    "four_types": "사격 수리 길흉",
+    "name_element": "삼원오행 조화",
+    "type_element": "사격오행 조화",
+    "yin_yang": "음양 균형",
+    "saju": "사주 보완",
+    "pronunciation": "발음 조화",
+    "meaning": "의미 조화"
+  },
+  "max_scores": {
+    "four_types": 10,
+    "name_element": 15,
+    "type_element": 15,
+    "yin_yang": 10,
+    "saju": 20,
+    "pronunciation": 10,
+    "meaning": 10
+  },
+  "total_max_score": 100,
+  "hangul_naturalness_step": "hangul_naturalness_check"
+}

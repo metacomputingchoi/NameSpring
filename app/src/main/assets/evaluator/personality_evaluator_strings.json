@@ -1,0 +1,10 @@
+{
+  "social_index": 2,
+  "thresholds": {
+    "top_traits": 5,
+    "top_strengths": 5,
+    "top_weaknesses": 3,
+    "yin_dominant": 2,
+    "yang_dominant": 0
+  }
+}

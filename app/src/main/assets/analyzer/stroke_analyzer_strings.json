@@ -1,0 +1,43 @@
+{
+  "basic_analysis": {
+    "stroke_details": "사격(四格) 수리는 {details}로 구성되어 있습니다.",
+    "luck_count": "길수 개수: {count}개/4개"
+  },
+  "stroke_names": {
+    "heaven": "천격(天格)",
+    "personality": "원격",
+    "foundation": "형격",
+    "social": "이격",
+    "total": "총격"
+  },
+  "stroke_format": "{name} {stroke}획({luck_type})",
+  "luck_types": {
+    "lucky": "길수",
+    "unlucky": "흉수",
+    "lucky_formal": "길수(吉數)",
+    "unlucky_formal": "흉수(凶數)"
+  },
+  "luck_analysis_format": "{stroke}획 - {luck_type}\n{summary}\n{details}",
+  "default_meaning": {
+    "number": 0,
+    "title": "특수격",
+    "summary": "특별한 의미의 수",
+    "detailed_explanation": "일반적인 수리 해석을 벗어난 특수한 운명",
+    "positive_aspects": "독특한 개성과 특별한 재능을 가지고 있습니다.",
+    "caution_points": "평범한 길보다는 자신만의 길을 개척하세요.",
+    "personality_traits": ["독특함", "개성적", "특별함", "창의적", "비범함"],
+    "suitable_career": ["발명가", "예술가", "혁신가", "연구원", "창업가"],
+    "life_period_influence": "특별한 시기에 특별한 일이 일어남"
+  },
+  "life_path_analysis": {
+    "total_flow": "인생의 전체적인 흐름은 총격 {total}획이 주도하며,\n{summary}의 특성을 띱니다.",
+    "personality_core": "\n\n중년기의 핵심은 원격 {personality}획으로,\n{summary}의 영향이 강하게 나타납니다.",
+    "overall_influence": "\n\n이는 인생 전반에 걸쳐 {interpretation}"
+  },
+  "magic_numbers": {
+    "modulo_base": 81,
+    "total_high": 50,
+    "total_medium": 30,
+    "total_low": 20
+  }
+}
