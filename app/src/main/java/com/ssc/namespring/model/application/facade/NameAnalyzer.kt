@@ -2,8 +2,7 @@
 package com.ssc.namespring.model.application.facade
 
 import android.content.Context
-import com.ssc.namespring.model.application.factory.ServiceFactory
-import com.ssc.namespring.model.application.service.impl.StandardNameAnalysisService
+import com.ssc.namespring.model.application.di.ServiceModule
 import com.ssc.namespring.model.common.constants.NameAnalyzerConstants
 import com.ssc.namespring.model.data.AnalysisResult
 import com.ssc.namespring.model.domain.name.builder.NameAnalysisRequestBuilder
@@ -15,17 +14,18 @@ import com.ssc.namespring.model.domain.name.value.NameScore
 
 class NameAnalyzer(context: Context) {
 
-    private val serviceFactory = ServiceFactory(context)
-    private val analysisService = StandardNameAnalysisService(serviceFactory)
-    private val reportService = serviceFactory.createReportService()
-    private val scoreCalculationService = serviceFactory.createScoreCalculationService()
+    private val serviceContainer = ServiceModule.provideServiceContainer(context)
+    private val analysisService = serviceContainer.standardNameAnalysisService
+    private val reportService = serviceContainer.reportService
+    private val scoreCalculationService = serviceContainer.scoreCalculationService
+    private val sajuService = serviceContainer.sajuService
 
     fun get4Ju(year: Int, month: Int, day: Int, hour: Int, minute: Int): Saju {
-        return serviceFactory.createSajuService().calculateSaju(year, month, day, hour, minute)
+        return sajuService.calculateSaju(year, month, day, hour, minute)
     }
 
     fun getDictElementsCount(fourJu: Saju): ElementBalance {
-        return serviceFactory.createSajuService().calculateElementBalance(fourJu)
+        return sajuService.calculateElementBalance(fourJu)
     }
 
     fun findNamesGeneralized(

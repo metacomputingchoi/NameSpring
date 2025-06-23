@@ -1,5 +1,5 @@
-// model/application/test/TestCaseRunner.kt
-package com.ssc.namespring.model.application.test
+// model/test/TestCaseRunner.kt
+package com.ssc.namespring.model.test
 
 import android.content.Context
 import com.ssc.namespring.model.application.facade.NameAnalyzer

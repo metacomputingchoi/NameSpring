@@ -1,5 +1,5 @@
-// model/application/test/TestCaseLoader.kt
-package com.ssc.namespring.model.application.test
+// model/test/TestCaseLoader.kt
+package com.ssc.namespring.model.test
 
 import android.content.Context
 import com.ssc.namespring.model.data.TestCase
