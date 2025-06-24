@@ -4,7 +4,7 @@ package com.ssc.namespring.model.application.service.filter.impl
 import com.ssc.namespring.model.application.service.filter.NameFilter
 import com.ssc.namespring.model.application.service.filter.FilterResult
 import com.ssc.namespring.model.domain.name.entity.Name
-import com.ssc.namespring.model.common.constants.FilterConstants
+import com.ssc.namespring.model.common.constants.Constants
 
 class YinYangPositionFilter : NameFilter() {
 
@@ -14,10 +14,10 @@ class YinYangPositionFilter : NameFilter() {
             reason = "combined_pm_is_null"
         )
 
-        if (combinedPm[FilterConstants.PM_FIRST_INDEX] == combinedPm[FilterConstants.PM_THIRD_INDEX]) {
+        if (combinedPm[Constants.PM_FIRST_INDEX] == combinedPm[Constants.PM_THIRD_INDEX]) {
             return FilterResult(
                 passed = false,
-                reason = "pm[0]=${combinedPm[FilterConstants.PM_FIRST_INDEX]} == pm[2]=${combinedPm[FilterConstants.PM_THIRD_INDEX]}"
+                reason = "pm[0]=${combinedPm[Constants.PM_FIRST_INDEX]} == pm[2]=${combinedPm[Constants.PM_THIRD_INDEX]}"
             )
         }
 

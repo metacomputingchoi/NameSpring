@@ -4,7 +4,7 @@ package com.ssc.namespring.model.application.service
 import com.ssc.namespring.model.domain.saju.entity.Saju
 import com.ssc.namespring.model.domain.element.entity.ElementBalance
 import com.ssc.namespring.model.infrastructure.repository.SajuRepository
-import com.ssc.namespring.model.common.constants.SajuConstants
+import com.ssc.namespring.model.common.constants.Constants
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -13,8 +13,8 @@ class SajuService(private val sajuRepository: SajuRepository) {
     fun calculateSaju(year: Int, month: Int, day: Int, hour: Int, minute: Int): Saju {
         var colIdxAdd = 0
         val inputDateTime = LocalDateTime.of(year, month, day, hour, minute)
-        if (inputDateTime.hour == SajuConstants.LATE_NIGHT_HOUR && inputDateTime.minute >= SajuConstants.LATE_NIGHT_MINUTE) {
-            colIdxAdd = SajuConstants.COL_INDEX_ADD
+        if (inputDateTime.hour == Constants.LATE_NIGHT_HOUR && inputDateTime.minute >= Constants.LATE_NIGHT_MINUTE) {
+            colIdxAdd = Constants.COL_INDEX_ADD
         }
 
         val record = sajuRepository.findByDate(year, month, day)
@@ -35,36 +35,36 @@ class SajuService(private val sajuRepository: SajuRepository) {
 
         val hourMinute = inputDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         val rowIdx = when {
-            hourMinute >= SajuConstants.TIME_RANGES[0].first || hourMinute < SajuConstants.TIME_RANGES[0].second -> 0
-            hourMinute < SajuConstants.TIME_RANGES[1].second -> 1
-            hourMinute < SajuConstants.TIME_RANGES[2].second -> 2
-            hourMinute < SajuConstants.TIME_RANGES[3].second -> 3
-            hourMinute < SajuConstants.TIME_RANGES[4].second -> 4
-            hourMinute < SajuConstants.TIME_RANGES[5].second -> 5
-            hourMinute < SajuConstants.TIME_RANGES[6].second -> 6
-            hourMinute < SajuConstants.TIME_RANGES[7].second -> 7
-            hourMinute < SajuConstants.TIME_RANGES[8].second -> 8
-            hourMinute < SajuConstants.TIME_RANGES[9].second -> 9
-            hourMinute < SajuConstants.TIME_RANGES[10].second -> 10
+            hourMinute >= Constants.TIME_RANGES[0].first || hourMinute < Constants.TIME_RANGES[0].second -> 0
+            hourMinute < Constants.TIME_RANGES[1].second -> 1
+            hourMinute < Constants.TIME_RANGES[2].second -> 2
+            hourMinute < Constants.TIME_RANGES[3].second -> 3
+            hourMinute < Constants.TIME_RANGES[4].second -> 4
+            hourMinute < Constants.TIME_RANGES[5].second -> 5
+            hourMinute < Constants.TIME_RANGES[6].second -> 6
+            hourMinute < Constants.TIME_RANGES[7].second -> 7
+            hourMinute < Constants.TIME_RANGES[8].second -> 8
+            hourMinute < Constants.TIME_RANGES[9].second -> 9
+            hourMinute < Constants.TIME_RANGES[10].second -> 10
             else -> 11
         }
 
-        val finalColIdx = (colIdx + colIdxAdd) % SajuConstants.COL_INDEX_MODULO
-        val sijuValue = SajuConstants.SIJU[rowIdx][finalColIdx]
+        val finalColIdx = (colIdx + colIdxAdd) % Constants.COL_INDEX_MODULO
+        val sijuValue = Constants.SIJU[rowIdx][finalColIdx]
 
         return Saju(yeonju, wolju, ilju, sijuValue)
     }
 
     fun calculateElementBalance(saju: Saju): ElementBalance {
         val elements = listOf(
-            SajuConstants.STEM_ELEMENTS[saju.yeonju[0].toString()],
-            SajuConstants.BRANCH_ELEMENTS[saju.yeonju[1].toString()],
-            SajuConstants.STEM_ELEMENTS[saju.wolju[0].toString()],
-            SajuConstants.BRANCH_ELEMENTS[saju.wolju[1].toString()],
-            SajuConstants.STEM_ELEMENTS[saju.ilju[0].toString()],
-            SajuConstants.BRANCH_ELEMENTS[saju.ilju[1].toString()],
-            SajuConstants.STEM_ELEMENTS[saju.siju[0].toString()],
-            SajuConstants.BRANCH_ELEMENTS[saju.siju[1].toString()]
+            Constants.STEM_ELEMENTS[saju.yeonju[0].toString()],
+            Constants.BRANCH_ELEMENTS[saju.yeonju[1].toString()],
+            Constants.STEM_ELEMENTS[saju.wolju[0].toString()],
+            Constants.BRANCH_ELEMENTS[saju.wolju[1].toString()],
+            Constants.STEM_ELEMENTS[saju.ilju[0].toString()],
+            Constants.BRANCH_ELEMENTS[saju.ilju[1].toString()],
+            Constants.STEM_ELEMENTS[saju.siju[0].toString()],
+            Constants.BRANCH_ELEMENTS[saju.siju[1].toString()]
         )
 
         return ElementBalance(

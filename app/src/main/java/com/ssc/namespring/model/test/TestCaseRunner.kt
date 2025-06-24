@@ -2,45 +2,39 @@
 package com.ssc.namespring.model.test
 
 import android.content.Context
-import com.ssc.namespring.model.application.facade.NameAnalyzer
-import com.ssc.namespring.model.common.constants.NameAnalyzerConstants
+import com.ssc.namespring.model.application.service.AnalysisService
+import com.ssc.namespring.model.application.service.report.ReportService
+import com.ssc.namespring.model.application.service.ScoreCalculationService
+import com.ssc.namespring.model.common.constants.Constants
 import com.ssc.namespring.model.data.*
-import com.ssc.namespring.model.domain.element.entity.ElementBalance
-import com.ssc.namespring.model.domain.name.entity.Name
+import com.ssc.namespring.presentation.presenter.TestPresenter
+import com.ssc.namespring.presentation.presenter.AnalysisPresenter
 
 class TestCaseRunner(context: Context) {
-
-    private val nameAnalyzer = NameAnalyzer(context)
+    private val analysisService = AnalysisService(context)
     private val testCaseLoader = TestCaseLoader(context)
+    private val testPresenter = TestPresenter()
+    private val reportService = ReportService(context, ScoreCalculationService())
+    private val analysisPresenter = AnalysisPresenter(analysisService, reportService)
 
     fun runTestCases(configFileName: String = "testcases.json"): TestSuiteResult {
         val config = testCaseLoader.loadTestConfig(configFileName)
         val suiteStartTime = System.currentTimeMillis()
 
-        val fourJu = nameAnalyzer.get4Ju(
+        val fourJu = analysisService.getSaju(
             config.birthInfo.year,
             config.birthInfo.month,
             config.birthInfo.day,
             config.birthInfo.hour,
             config.birthInfo.minute
         )
-        val dictElementsCount = nameAnalyzer.getDictElementsCount(fourJu)
+        val dictElementsCount = analysisService.getElementBalance(fourJu)
 
-        val testResults = mutableListOf<TestCaseResult>()
+        testPresenter.presentTestSummary(config.targetName)
 
-        config.testCases.forEachIndexed { idx, testCase ->
-            val result = runSingleTestCase(
-                testCase,
-                idx,
-                dictElementsCount,
-                config.targetName,
-                config.targetCaseIndex,
-                config.birthInfo
-            )
-            testResults.add(result)
+        val testResults = config.testCases.mapIndexed { idx, testCase ->
+            runSingleTestCase(testCase, idx, config)
         }
-
-        printSummary(testResults, config.targetName)
 
         val summary = TestSummary(
             totalTests = testResults.size,
@@ -63,44 +57,57 @@ class TestCaseRunner(context: Context) {
     private fun runSingleTestCase(
         testCase: TestCase,
         index: Int,
-        dictElementsCount: ElementBalance,
-        targetName: String,
-        targetCaseIndex: Int,
-        birthInfo: BirthInfo
+        config: TestConfig
     ): TestCaseResult {
         val testStartTime = System.currentTimeMillis()
-
-        println("\n${"=".repeat(NameAnalyzerConstants.SEPARATOR_LINE_LENGTH)}")
-        println("테스트 케이스: ${testCase.name}")
-        println("=".repeat(NameAnalyzerConstants.SEPARATOR_LINE_LENGTH))
+        testPresenter.presentTestCaseStart(testCase)
 
         return try {
-            val results = nameAnalyzer.findNamesGeneralized(
+            val result = analysisService.analyzeNames(
                 testCase.surHangul, testCase.surHanja,
                 testCase.name1Hangul, testCase.name1Hanja,
                 testCase.name2Hangul, testCase.name2Hanja,
-                dictElementsCount,
-                birthInfo.year, birthInfo.month, birthInfo.day,
-                birthInfo.hour, birthInfo.minute
+                config.birthInfo.year, config.birthInfo.month,
+                config.birthInfo.day, config.birthInfo.hour,
+                config.birthInfo.minute, config.targetName
             )
 
-            println("총 결과 수: ${results.size}")
+            testPresenter.presentTotalResults(result.totalNames)
 
-            val targetResult = findTargetName(results, targetName, index, targetCaseIndex)
-            val topResults = getTopResults(results, index, targetCaseIndex)
+            if (result.targetFound) {
+                testPresenter.presentTargetFound(config.targetName)
+                if (index == config.targetCaseIndex) {
+                    analysisPresenter.presentDetailedNameReport(result.targetNameInfo!!)
+                } else {
+                    testPresenter.presentTargetScore(result.targetNameInfo!!, result.targetScore!!.total)
+                }
+            } else {
+                testPresenter.presentTargetNotFound(config.targetName)
+            }
+
+            val topResults = if (index != config.targetCaseIndex && result.names.isNotEmpty()) {
+                result.names.take(Constants.TOP_RESULTS_COUNT).map { name ->
+                    val score = analysisService.calculateDetailedScore(name)
+                    NameSummary(
+                        hanja = name.combinedHanja,
+                        pronunciation = name.combinedPronounciation,
+                        score = score.total
+                    )
+                }.also { testPresenter.presentTopResults(it) }
+            } else emptyList()
 
             TestCaseResult(
                 testCase = testCase,
                 index = index,
-                totalResults = results.size,
-                targetFound = targetResult.first,
-                targetNameInfo = targetResult.second,
-                targetScore = targetResult.third,
+                totalResults = result.totalNames,
+                targetFound = result.targetFound,
+                targetNameInfo = result.targetNameInfo,
+                targetScore = result.targetScore?.total,
                 topResults = topResults,
                 executionTimeMs = System.currentTimeMillis() - testStartTime
             )
         } catch (e: Exception) {
-            println("오류 발생: ${e.message}")
+            testPresenter.presentError(e.message)
             e.printStackTrace()
 
             TestCaseResult(
@@ -112,59 +119,5 @@ class TestCaseRunner(context: Context) {
                 executionTimeMs = System.currentTimeMillis() - testStartTime
             )
         }
-    }
-
-    private fun findTargetName(
-        results: List<Name>,
-        targetName: String,
-        index: Int,
-        targetCaseIndex: Int
-    ): Triple<Boolean, Name?, Int?> {
-        for (result in results) {
-            if (result.combinedHanja == targetName) {
-                println("\n✓ ${targetName} 발견!")
-
-                if (index == targetCaseIndex) {
-                    nameAnalyzer.printDetailedNameReport(result)
-                    return Triple(true, result, null)
-                } else {
-                    val score = nameAnalyzer.calculateDetailedScore(result).total
-                    println("  ${result.combinedHanja} ${result.combinedPronounciation} - 총점: ${score}점")
-                    return Triple(true, result, score)
-                }
-            }
-        }
-
-        println("\n✗ ${targetName}이 결과에 포함되지 않음!")
-        return Triple(false, null, null)
-    }
-
-    private fun getTopResults(
-        results: List<Name>,
-        index: Int,
-        targetCaseIndex: Int
-    ): List<NameSummary> {
-        if (results.isEmpty() || index == targetCaseIndex) {
-            return emptyList()
-        }
-
-        println("\n결과 샘플 (상위 ${NameAnalyzerConstants.TOP_RESULTS_COUNT}개):")
-        return results.take(NameAnalyzerConstants.TOP_RESULTS_COUNT).mapIndexed { i, result ->
-            val score = nameAnalyzer.calculateDetailedScore(result).total
-            println("${i + 1}. ${result.combinedHanja} ${result.combinedPronounciation} - 총점: ${score}점")
-            NameSummary(
-                hanja = result.combinedHanja,
-                pronunciation = result.combinedPronounciation,
-                score = score
-            )
-        }
-    }
-
-    private fun printSummary(testResults: List<TestCaseResult>, targetName: String) {
-        println("\n${"=".repeat(NameAnalyzerConstants.SEPARATOR_LINE_LENGTH)}")
-        println("테스트 결과 요약")
-        println("=".repeat(NameAnalyzerConstants.SEPARATOR_LINE_LENGTH))
-        println("모든 테스트 케이스에서 ${targetName}이 포함되는지 확인하십시오.")
-        println("\n※ 성명학 점수는 참고용이며, 실제 이름 선택은 가족의 뜻과 개인의 선호를 종합적으로 고려하시기 바랍니다.")
     }
 }

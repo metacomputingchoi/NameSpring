@@ -4,7 +4,7 @@ package com.ssc.namespring.model.application.service.filter.impl
 import com.ssc.namespring.model.application.service.filter.NameFilter
 import com.ssc.namespring.model.application.service.filter.FilterResult
 import com.ssc.namespring.model.domain.name.entity.Name
-import com.ssc.namespring.model.common.constants.FilterConstants
+import com.ssc.namespring.model.common.constants.Constants
 
 class CombinedLengthFilter : NameFilter() {
 
@@ -19,8 +19,8 @@ class CombinedLengthFilter : NameFilter() {
             )
         }
 
-        if (combinedElement.length != FilterConstants.COMBINED_LENGTH ||
-            combinedPm.length != FilterConstants.COMBINED_LENGTH) {
+        if (combinedElement.length != Constants.COMBINED_LENGTH ||
+            combinedPm.length != Constants.COMBINED_LENGTH) {
             return FilterResult(
                 passed = false,
                 reason = "combined_element_length=${combinedElement.length}, combined_pm_length=${combinedPm.length}"

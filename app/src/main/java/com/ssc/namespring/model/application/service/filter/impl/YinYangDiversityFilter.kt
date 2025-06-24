@@ -4,7 +4,7 @@ package com.ssc.namespring.model.application.service.filter.impl
 import com.ssc.namespring.model.application.service.filter.NameFilter
 import com.ssc.namespring.model.application.service.filter.FilterResult
 import com.ssc.namespring.model.domain.name.entity.Name
-import com.ssc.namespring.model.common.constants.FilterConstants
+import com.ssc.namespring.model.common.constants.Constants
 
 class YinYangDiversityFilter : NameFilter() {
 
@@ -16,7 +16,7 @@ class YinYangDiversityFilter : NameFilter() {
 
         val pmSet = combinedPm.toSet()
 
-        if (pmSet.size <= FilterConstants.MIN_PM_DIVERSITY) {
+        if (pmSet.size <= Constants.MIN_PM_DIVERSITY) {
             return FilterResult(
                 passed = false,
                 reason = "pm_set=$pmSet"

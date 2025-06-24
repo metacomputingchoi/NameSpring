@@ -9,8 +9,6 @@ import com.ssc.namespring.model.domain.name.value.DetailedNameReport
 import com.ssc.namespring.model.application.service.ScoreCalculationService
 import com.ssc.namespring.model.application.service.report.builder.ReportBuilder
 import com.ssc.namespring.model.application.service.report.builder.DetailedReportBuilder
-import com.ssc.namespring.model.application.service.report.formatter.BasicReportFormatter
-import com.ssc.namespring.model.application.service.report.formatter.DetailedReportFormatter
 import com.ssc.namespring.model.application.service.report.data.ReportDataHolder
 
 class ReportService(
@@ -23,8 +21,6 @@ class ReportService(
 
     private val reportBuilder = ReportBuilder()
     private val detailedReportBuilder = DetailedReportBuilder()
-    private val basicFormatter = BasicReportFormatter()
-    private val detailedFormatter = DetailedReportFormatter()
 
     fun generateBasicReport(result: Name): Pair<NameReport, NameScore> {
         val scores = scoreCalculationService.calculateDetailedScore(result)
@@ -36,15 +32,5 @@ class ReportService(
         val scores = scoreCalculationService.calculateDetailedScore(result)
         val report = detailedReportBuilder.build(result, scores)
         return report to scores
-    }
-
-    fun printBasicReport(result: Name) {
-        val (report, scores) = generateBasicReport(result)
-        basicFormatter.print(result, report, scores)
-    }
-
-    fun printDetailedReport(result: Name) {
-        val (report, scores) = generateDetailedReport(result)
-        detailedFormatter.print(result, report, scores)
     }
 }

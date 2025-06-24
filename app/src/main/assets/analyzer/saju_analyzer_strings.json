@@ -1,11 +1,11 @@
 {
-  "base_analysis_template": "생년월일시를 기준으로 한 사주팔자는 {yeonju}년주, {wolju}월주, {ilju}일주, {siju}시주입니다.\n오행 분포는 목({wood}), 화({fire}), 토({earth}), 금({metal}), 수({water})로 구성되어 있습니다.",
+  "base_analysis_template": "생년월일시를 기준으로 한 사주팔자는 {yeonju}연주, {wolju}월주, {ilju}일주, {siju}시주입니다.\n오행 분포는 목({wood}), 화({fire}), 토({earth}), 금({metal}), 수({water})로 구성되어 있습니다.",
   "supplement_analysis": {
     "zero_elements": "사주에서 부족한 {elements} 오행을 이름으로 보완하는 것이 중요합니다.",
     "one_elements": "사주에서 상대적으로 약한 {elements} 오행을 이름으로 보강하는 것이 좋습니다."
   },
   "pillar_names": {
-    "year": "년주(年柱)",
+    "year": "연주(年柱)",
     "month": "월주(月柱)",
     "day": "일주(日柱)",
     "hour": "시주(時柱)"

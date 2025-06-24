@@ -1,13 +1,14 @@
 // model/application/service/report/analyzer/core/ElementAnalyzer.kt
 package com.ssc.namespring.model.application.service.report.analyzer.core
 
+import com.ssc.namespring.model.application.service.report.analyzer.BaseAnalyzer
 import com.ssc.namespring.model.domain.name.entity.Name
 import com.ssc.namespring.model.domain.name.value.ElementDetail
 import com.ssc.namespring.model.domain.name.value.ElementRelation
-import com.ssc.namespring.model.common.constants.ElementConstants
+import com.ssc.namespring.model.common.constants.Constants
 import com.ssc.namespring.model.application.service.report.data.ReportDataHolder
 
-class ElementAnalyzer {
+class ElementAnalyzer : BaseAnalyzer() {
     private val elementData = ReportDataHolder.elementCharacteristicsData
     private val elementRelationsData = ReportDataHolder.elementRelationsData
     private val strings = ReportDataHolder.elementAnalyzerStrings
@@ -70,24 +71,27 @@ class ElementAnalyzer {
 
         // 성씨와 이름1의 관계
         if (elements.size >= 2) {
-            relations.add(analyzeRelation(elements[0], elements[1], positionLabels["surname_to_first"] ?: strings.positionLabels["surname_to_first"]!!))
+            relations.add(analyzeRelation(elements[0], elements[1],
+                positionLabels["surname_to_first"] ?: strings.positionLabels["surname_to_first"]!!))
         }
 
         // 이름1과 이름2의 관계
         if (elements.size >= strings.magicNumbers["min_elements_for_cycle"]!!) {
-            relations.add(analyzeRelation(elements[1], elements[2], positionLabels["first_to_second"] ?: strings.positionLabels["first_to_second"]!!))
+            relations.add(analyzeRelation(elements[1], elements[2],
+                positionLabels["first_to_second"] ?: strings.positionLabels["first_to_second"]!!))
         }
 
         // 성씨와 이름2의 관계
         if (elements.size >= strings.magicNumbers["min_elements_for_cycle"]!!) {
-            relations.add(analyzeRelation(elements[0], elements[2], positionLabels["surname_to_second"] ?: strings.positionLabels["surname_to_second"]!!))
+            relations.add(analyzeRelation(elements[0], elements[2],
+                positionLabels["surname_to_second"] ?: strings.positionLabels["surname_to_second"]!!))
         }
 
         return relations
     }
 
     private fun analyzeRelation(from: String, to: String, position: String): ElementRelation {
-        val elementsOrder = ElementConstants.ELEMENTS
+        val elementsOrder = Constants.ELEMENTS
         val fromIdx = elementsOrder.indexOf(from)
         val toIdx = elementsOrder.indexOf(to)
 
@@ -192,7 +196,7 @@ class ElementAnalyzer {
     }
 
     private fun isGenerative(from: String, to: String): Boolean {
-        val elementsOrder = ElementConstants.ELEMENTS
+        val elementsOrder = Constants.ELEMENTS
         val fromIdx = elementsOrder.indexOf(from)
         val toIdx = elementsOrder.indexOf(to)
         val elementsCount = strings.magicNumbers["elements_count"]!!
@@ -201,7 +205,7 @@ class ElementAnalyzer {
     }
 
     private fun isControlling(from: String, to: String): Boolean {
-        val elementsOrder = ElementConstants.ELEMENTS
+        val elementsOrder = Constants.ELEMENTS
         val fromIdx = elementsOrder.indexOf(from)
         val toIdx = elementsOrder.indexOf(to)
         val elementsCount = strings.magicNumbers["elements_count"]!!

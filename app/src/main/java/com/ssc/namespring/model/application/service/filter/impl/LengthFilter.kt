@@ -4,7 +4,7 @@ package com.ssc.namespring.model.application.service.filter.impl
 import com.ssc.namespring.model.application.service.filter.NameFilter
 import com.ssc.namespring.model.application.service.filter.FilterResult
 import com.ssc.namespring.model.domain.name.entity.Name
-import com.ssc.namespring.model.common.constants.FilterConstants
+import com.ssc.namespring.model.common.constants.Constants
 
 class LengthFilter : NameFilter() {
 
@@ -12,8 +12,8 @@ class LengthFilter : NameFilter() {
         val combinedHanja = name.hanja1Info.hanja + name.hanja2Info.hanja
         val combinedPronounciation = "${name.hanja1Info.inmyeongYongEum}${name.hanja2Info.inmyeongYongEum}"
 
-        if (combinedPronounciation.length != FilterConstants.NAME_LENGTH ||
-            combinedHanja.length != FilterConstants.NAME_LENGTH) {
+        if (combinedPronounciation.length != Constants.NAME_LENGTH ||
+            combinedHanja.length != Constants.NAME_LENGTH) {
             return FilterResult(
                 passed = false,
                 reason = "combined_pronounciation_length=${combinedPronounciation.length}, combined_hanja_length=${combinedHanja.length}"

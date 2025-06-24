@@ -3,7 +3,7 @@ package com.ssc.namespring.model.application.service.report.analyzer.core
 
 import com.ssc.namespring.model.domain.name.entity.Name
 import com.ssc.namespring.model.domain.name.value.SajuDetail
-import com.ssc.namespring.model.common.constants.SajuConstants
+import com.ssc.namespring.model.common.constants.Constants
 import com.ssc.namespring.model.application.service.report.data.ReportDataHolder
 
 class SajuAnalyzer {
@@ -67,7 +67,7 @@ class SajuAnalyzer {
         return mapOf(
             strings.pillarNames["year"]!! to strings.pillarFormat
                 .replace("{name}", saju.yeonju)
-                .replace("{interpretation}", interpretations["년주"] ?: ""),
+                .replace("{interpretation}", interpretations["연주"] ?: ""),
             strings.pillarNames["month"]!! to strings.pillarFormat
                 .replace("{name}", saju.wolju)
                 .replace("{interpretation}", interpretations["월주"] ?: ""),
@@ -121,7 +121,7 @@ class SajuAnalyzer {
 
     private fun analyzeDayMaster(ilju: String, elementCount: Map<String, Int>): String {
         val dayStem = ilju[0]
-        val dayElement = SajuConstants.STEM_ELEMENTS[dayStem.toString()] ?: return strings.defaultValues["analysis_error"]!!
+        val dayElement = Constants.STEM_ELEMENTS[dayStem.toString()] ?: return strings.defaultValues["analysis_error"]!!
         val dayElementCount = elementCount[dayElement] ?: 0
 
         val evaluations = pillarData.dayMasterEvaluations

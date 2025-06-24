@@ -5,7 +5,7 @@ import com.ssc.namespring.model.domain.name.value.NameAnalysisRequest
 import com.ssc.namespring.model.domain.saju.entity.BirthDateTime
 import com.ssc.namespring.model.domain.saju.entity.Saju
 import com.ssc.namespring.model.domain.element.entity.ElementBalance
-import com.ssc.namespring.model.common.constants.NameAnalyzerConstants
+import com.ssc.namespring.model.common.constants.Constants
 
 class NameAnalysisRequestBuilder {
     private var surHangul: String? = null
@@ -47,11 +47,11 @@ class NameAnalysisRequestBuilder {
 
     fun build(): NameAnalysisRequest {
         val finalBirthDateTime = birthDateTime ?: BirthDateTime(
-            NameAnalyzerConstants.DEFAULT_BIRTH_YEAR,
-            NameAnalyzerConstants.DEFAULT_BIRTH_MONTH,
-            NameAnalyzerConstants.DEFAULT_BIRTH_DAY,
-            NameAnalyzerConstants.DEFAULT_BIRTH_HOUR,
-            NameAnalyzerConstants.DEFAULT_BIRTH_MINUTE
+            Constants.DEFAULT_BIRTH_YEAR,
+            Constants.DEFAULT_BIRTH_MONTH,
+            Constants.DEFAULT_BIRTH_DAY,
+            Constants.DEFAULT_BIRTH_HOUR,
+            Constants.DEFAULT_BIRTH_MINUTE
         )
 
         return NameAnalysisRequest(

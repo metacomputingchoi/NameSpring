@@ -23,10 +23,10 @@ class StrokeAnalyzer {
         val analysis = result.combinationAnalysis
         val strokeNumbers = mapOf(
             strings.strokeNames["heaven"]!! to (result.surHanja.length + analysis.surHanjaStroke),
-            fourTypesNames[0] to analysis.fourTypes[0],
-            fourTypesNames[1] to analysis.fourTypes[1],
-            fourTypesNames[2] to analysis.fourTypes[2],
-            fourTypesNames[3] to analysis.fourTypes[3]
+            strings.strokeNames["personality"]!! to analysis.fourTypes[0],  // 원격
+            strings.strokeNames["foundation"]!! to analysis.fourTypes[1],   // 형격
+            strings.strokeNames["social"]!! to analysis.fourTypes[2],       // 이격
+            strings.strokeNames["total"]!! to analysis.fourTypes[3]         // 총격
         )
 
         return StrokeDetail(

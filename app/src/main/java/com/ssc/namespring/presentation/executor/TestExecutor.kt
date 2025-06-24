@@ -1,5 +1,5 @@
-// presentation/TestExecutor.kt
-package com.ssc.namespring.presentation
+// presentation/executor/TestExecutor.kt
+package com.ssc.namespring.presentation.executor
 
 import android.content.Context
 import com.ssc.namespring.model.data.TestSuiteResult

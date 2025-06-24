@@ -52,8 +52,11 @@ data class TestSummary(
 )
 
 data class AnalysisResult(
+    val names: List<Name>,
     val totalNames: Int,
+    val targetName: String?,
     val targetFound: Boolean,
+    val targetNameInfo: Name? = null,
     val targetScore: NameScore?,
     val fourJu: Saju,
     val elementBalance: ElementBalance

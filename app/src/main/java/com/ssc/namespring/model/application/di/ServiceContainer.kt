@@ -11,7 +11,6 @@ import com.ssc.namespring.model.infrastructure.repository.SajuRepository
 data class ServiceContainer(
     val sajuService: SajuService,
     val nameCombinationService: NameCombinationService,
-    val nameAnalysisService: NameAnalysisService,
     val nameFilteringService: NameFilteringService,
     val scoreCalculationService: ScoreCalculationService,
     val reportService: ReportService,

@@ -10,15 +10,21 @@ import com.ssc.namespring.model.infrastructure.repository.impl.JsonNameRepositor
 import com.ssc.namespring.model.infrastructure.repository.impl.JsonSajuRepository
 
 object ServiceModule {
+    private var serviceContainer: ServiceContainer? = null
 
     fun provideServiceContainer(context: Context): ServiceContainer {
+        return serviceContainer ?: synchronized(this) {
+            serviceContainer ?: createServiceContainer(context).also { serviceContainer = it }
+        }
+    }
+
+    private fun createServiceContainer(context: Context): ServiceContainer {
         val hanjaRepository = JsonHanjaRepository(context)
         val sajuRepository = JsonSajuRepository(context)
         val nameRepository = JsonNameRepository(context)
 
         val sajuService = SajuService(sajuRepository)
         val nameCombinationService = NameCombinationService(hanjaRepository.getStrokeMap())
-        val nameAnalysisService = NameAnalysisService()
         val nameFilteringService = NameFilteringService(hanjaRepository, nameRepository)
         val scoreCalculationService = ScoreCalculationService()
         val reportService = ReportService(context, scoreCalculationService)
@@ -32,7 +38,6 @@ object ServiceModule {
         return ServiceContainer(
             sajuService = sajuService,
             nameCombinationService = nameCombinationService,
-            nameAnalysisService = nameAnalysisService,
             nameFilteringService = nameFilteringService,
             scoreCalculationService = scoreCalculationService,
             reportService = reportService,
