@@ -25,8 +25,8 @@ class NameAnalyzer(context: Context) {
         return sajuService.calculateElementBalance(fourJu)
     }
 
-    fun analyzeNamesWithBuilder(block: NameAnalysisRequestBuilder.() -> Unit): NameAnalysisResult {
-        val request = NameAnalysisRequestBuilder().apply(block).build()
+    fun analyzeNamesWithBuilder(builder: NameAnalysisRequestBuilder): NameAnalysisResult {
+        val request = builder.build()
         val names = analysisService.analyzeNames(request)
 
         return NameAnalysisResult(
