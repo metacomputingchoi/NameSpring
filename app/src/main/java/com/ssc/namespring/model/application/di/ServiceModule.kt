@@ -10,12 +10,17 @@ import com.ssc.namespring.model.infrastructure.repository.impl.JsonNameRepositor
 import com.ssc.namespring.model.infrastructure.repository.impl.JsonSajuRepository
 
 object ServiceModule {
-    private var serviceContainer: ServiceContainer? = null
+    private lateinit var applicationContext: Context
+
+    private val serviceContainer: ServiceContainer by lazy {
+        createServiceContainer(applicationContext)
+    }
 
     fun provideServiceContainer(context: Context): ServiceContainer {
-        return serviceContainer ?: synchronized(this) {
-            serviceContainer ?: createServiceContainer(context).also { serviceContainer = it }
+        if (!::applicationContext.isInitialized) {
+            applicationContext = context.applicationContext
         }
+        return serviceContainer
     }
 
     private fun createServiceContainer(context: Context): ServiceContainer {
