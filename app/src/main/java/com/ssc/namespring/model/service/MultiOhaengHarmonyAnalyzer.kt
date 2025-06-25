@@ -31,10 +31,10 @@ class MultiOhaengHarmonyAnalyzer(private val cacheManager: CacheManager) {
         var johwaScore = Constants.FourPillarAnalysis.MIN_HARMONY_SCORE
         for (k in Constants.FourPillarAnalysis.START_INDEX until hoeksuOhaeng.size) {
             when (hoeksuOhaeng[k] - hoeksuOhaeng[k - Constants.FourPillarAnalysis.PREVIOUS_INDEX_OFFSET]) {
-                Constants.OhaengHarmonyScores.CONFLICTING_FORWARD_DIFF,
-                Constants.OhaengHarmonyScores.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
-                Constants.OhaengHarmonyScores.GENERATING_FORWARD_DIFF,
-                Constants.OhaengHarmonyScores.GENERATING_BACKWARD_DIFF -> johwaScore++
+                Constants.OhaengHarmonyScoresCommon.CONFLICTING_FORWARD_DIFF,
+                Constants.OhaengHarmonyScoresCommon.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
+                Constants.OhaengHarmonyScoresCommon.GENERATING_FORWARD_DIFF,
+                Constants.OhaengHarmonyScoresCommon.GENERATING_BACKWARD_DIFF -> johwaScore++
             }
         }
         return isComplexSurnameSingleName || johwaScore >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE
@@ -44,10 +44,10 @@ class MultiOhaengHarmonyAnalyzer(private val cacheManager: CacheManager) {
         var johwaScore = Constants.FourPillarAnalysis.MIN_HARMONY_SCORE
         for (k in Constants.FourPillarAnalysis.START_INDEX until Constants.FourPillarAnalysis.FOUR_TYPES_COUNT) {
             when (sagyeokSuriOhaeng[k - Constants.FourPillarAnalysis.PREVIOUS_INDEX_OFFSET] - sagyeokSuriOhaeng[k]) {
-                Constants.OhaengHarmonyScores.CONFLICTING_FORWARD_DIFF,
-                Constants.OhaengHarmonyScores.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
-                Constants.OhaengHarmonyScores.GENERATING_FORWARD_DIFF,
-                Constants.OhaengHarmonyScores.GENERATING_BACKWARD_DIFF -> johwaScore++
+                Constants.OhaengHarmonyScoresCommon.CONFLICTING_FORWARD_DIFF,
+                Constants.OhaengHarmonyScoresCommon.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
+                Constants.OhaengHarmonyScoresCommon.GENERATING_FORWARD_DIFF,
+                Constants.OhaengHarmonyScoresCommon.GENERATING_BACKWARD_DIFF -> johwaScore++
             }
         }
         return isComplexSurnameSingleName || johwaScore >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE

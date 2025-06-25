@@ -228,7 +228,7 @@ object Constants {
     }
 
     // 오행 조화 점수
-    object OhaengHarmonyScores {
+    object OhaengHarmonyScoresCommon {
         const val CONFLICTING_FORWARD_DIFF = 4
         const val CONFLICTING_BACKWARD_DIFF = -6
         const val GENERATING_FORWARD_DIFF = 2
