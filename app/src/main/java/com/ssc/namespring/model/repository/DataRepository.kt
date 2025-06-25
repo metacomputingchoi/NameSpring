@@ -1,7 +1,6 @@
 // model/repository/DataRepository.kt
 package com.ssc.namespring.model.repository
 
-import com.ssc.namespring.model.Constants.JsonKeys
 import com.ssc.namespring.model.util.JsonParser
 
 class DataRepository {
