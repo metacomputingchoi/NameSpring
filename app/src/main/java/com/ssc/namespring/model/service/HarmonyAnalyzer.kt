@@ -1,7 +1,7 @@
 // model/service/HarmonyAnalyzer.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 
 class HarmonyAnalyzer(private val cacheManager: CacheManager) {
 

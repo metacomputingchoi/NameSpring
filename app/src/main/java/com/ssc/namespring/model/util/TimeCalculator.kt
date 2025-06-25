@@ -2,8 +2,8 @@
 package com.ssc.namespring.model.util
 
 import android.annotation.SuppressLint
-import com.ssc.namespring.model.Constants
-import com.ssc.namespring.model.Constants.TimeSlot
+import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.Constants.TimeSlot
 
 object TimeCalculator {
     fun getColumnIndex(cheongan: Char): Int {

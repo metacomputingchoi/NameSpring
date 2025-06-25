@@ -1,7 +1,7 @@
 // model/util/JsonParser.kt
 package com.ssc.namespring.model.util
 
-import com.ssc.namespring.model.Constants.JsonKeys
+import com.ssc.namespring.model.common.Constants.JsonKeys
 import org.json.JSONArray
 import org.json.JSONObject
 

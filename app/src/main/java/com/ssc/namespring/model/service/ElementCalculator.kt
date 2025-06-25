@@ -1,7 +1,7 @@
 // model/service/ElementCalculator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.util.toHangulDecomposition
 
 class ElementCalculator(private val cacheManager: CacheManager) {

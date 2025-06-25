@@ -1,7 +1,7 @@
 // model/service/NameCombinationAnalyzer.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.data.FourTypes
 import com.ssc.namespring.model.data.GoodCombination
 import com.ssc.namespring.model.util.cartesianProduct

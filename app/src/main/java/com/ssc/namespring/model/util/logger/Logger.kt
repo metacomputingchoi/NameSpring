@@ -1,5 +1,5 @@
-// model/logger/Logger.kt
-package com.ssc.namespring.model.logger
+// model/util/logger/Logger.kt
+package com.ssc.namespring.model.util.logger
 
 interface Logger {
     fun d(message: String)

@@ -1,16 +1,15 @@
 // model/core/NamingSystem.kt
 package com.ssc.namespring.model.core
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.filter.*
-import com.ssc.namespring.model.logger.AndroidLogger
-import com.ssc.namespring.model.logger.Logger
+import com.ssc.namespring.model.util.logger.AndroidLogger
+import com.ssc.namespring.model.util.logger.Logger
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.service.*
-import com.ssc.namespring.model.util.normalizeNFC
 
 class NamingSystem private constructor() {
 

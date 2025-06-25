@@ -1,7 +1,7 @@
 // model/repository/HanjaRepository.kt
 package com.ssc.namespring.model.repository
 
-import com.ssc.namespring.model.Constants.JsonKeys
+import com.ssc.namespring.model.common.Constants.JsonKeys
 import com.ssc.namespring.model.data.HanjaInfo
 import com.ssc.namespring.model.util.normalizeNFC
 

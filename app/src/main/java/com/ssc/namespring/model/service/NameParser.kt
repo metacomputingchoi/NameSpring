@@ -1,7 +1,7 @@
 // model/service/NameParser.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.data.NameConstraint
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.util.normalizeNFC

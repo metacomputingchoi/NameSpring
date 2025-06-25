@@ -1,7 +1,7 @@
 // model/service/SurnameValidator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.util.normalizeNFC
 

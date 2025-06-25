@@ -1,10 +1,10 @@
 // model/util/Extensions.kt
 package com.ssc.namespring.model.util
 
-import com.ssc.namespring.model.Constants.HANGUL_BASE
-import com.ssc.namespring.model.Constants.INITIAL_COUNT
-import com.ssc.namespring.model.Constants.MEDIAL_COUNT
-import com.ssc.namespring.model.Constants.MEDIALS_PER_INITIAL
+import com.ssc.namespring.model.common.Constants.HANGUL_BASE
+import com.ssc.namespring.model.common.Constants.INITIAL_COUNT
+import com.ssc.namespring.model.common.Constants.MEDIAL_COUNT
+import com.ssc.namespring.model.common.Constants.MEDIALS_PER_INITIAL
 import java.text.Normalizer
 
 fun String.normalizeNFC(): String = Normalizer.normalize(this, Normalizer.Form.NFC)

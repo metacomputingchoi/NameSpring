@@ -1,10 +1,10 @@
 // model/util/DateCalculator.kt
 package com.ssc.namespring.model.util
 
-import com.ssc.namespring.model.Constants
-import com.ssc.namespring.model.Constants.DateConstants
-import com.ssc.namespring.model.Constants.YAJASI_HOUR
-import com.ssc.namespring.model.Constants.YAJASI_MINUTE
+import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.Constants.DateConstants
+import com.ssc.namespring.model.common.Constants.YAJASI_HOUR
+import com.ssc.namespring.model.common.Constants.YAJASI_MINUTE
 
 object DateCalculator {
     operator fun invoke(useYajasi: Boolean) = DateCalculator(useYajasi)

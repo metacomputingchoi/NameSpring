@@ -1,5 +1,5 @@
-// model/Constants.kt
-package com.ssc.namespring.model
+// model/common/Constants.kt
+package com.ssc.namespring.model.common
 
 object Constants {
 

@@ -1,10 +1,9 @@
 // model/filter/ElementsAndYinYangFilter.kt
 package com.ssc.namespring.model.filter
 
-import com.ssc.namespring.model.Constants
+import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
-import com.ssc.namespring.model.util.toHangulDecomposition
 import kotlin.math.abs
 
 class ElementsAndYinYangFilter(

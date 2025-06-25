@@ -1,5 +1,5 @@
-// model/logger/AndroidLogger.kt
-package com.ssc.namespring.model.logger
+// model/util/logger/AndroidLogger.kt
+package com.ssc.namespring.model.util.logger
 
 import android.util.Log
 
