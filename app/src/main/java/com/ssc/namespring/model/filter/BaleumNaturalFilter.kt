@@ -1,10 +1,10 @@
-// model/filter/HangulNaturalFilter.kt
+// model/filter/BaleumNaturalFilter.kt
 package com.ssc.namespring.model.filter
 
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 
-class HangulNaturalFilter(
+class BaleumNaturalFilter(
     private val dictProvider: () -> Set<String>
 ) : NameFilterStrategy {
 

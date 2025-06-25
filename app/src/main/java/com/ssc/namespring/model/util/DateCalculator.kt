@@ -14,10 +14,10 @@ object DateCalculator {
             var adjustedYear = year
             var adjustedMonth = month
             var adjustedDay = day
-            var colIdxAdd = 0
+            var yeolidxAdd = 0
 
             if (hour == YAJASI_HOUR && minute >= YAJASI_MINUTE) {
-                colIdxAdd = Constants.YAJASI_DAY_INCREMENT
+                yeolidxAdd = Constants.YAJASI_DAY_INCREMENT
                 if (!useYajasi) {
                     adjustedDay++
                     val adjustment = adjustForMonthEnd(adjustedYear, adjustedMonth, adjustedDay)
@@ -27,7 +27,7 @@ object DateCalculator {
                 }
             }
 
-            return Tuple4(adjustedYear, adjustedMonth, adjustedDay, colIdxAdd)
+            return Tuple4(adjustedYear, adjustedMonth, adjustedDay, yeolidxAdd)
         }
 
         private fun adjustForMonthEnd(year: Int, month: Int, day: Int): Triple<Int, Int, Int> {

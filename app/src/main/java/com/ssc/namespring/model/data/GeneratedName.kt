@@ -6,7 +6,7 @@ data class GeneratedName(
     val surnameHanja: String,
     val combinedHanja: String,
     val combinedPronounciation: String,
-    val fourTypes: FourTypes,
-    val nameStrokes: List<Int>,
+    val sagyeok: Sagyeok,
+    val nameHanjaHoeksu: List<Int>,
     val hanjaDetails: List<HanjaInfo>
 )

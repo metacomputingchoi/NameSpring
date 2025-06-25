@@ -4,7 +4,7 @@ package com.ssc.namespring.model.common
 object Constants {
 
     // 천간 오행 매핑
-    val STEM_ELEMENTS = mapOf(
+    val CHEONGAN_OHAENG = mapOf(
         "甲" to "木", "乙" to "木",
         "丙" to "火", "丁" to "火",
         "戊" to "土", "己" to "土",
@@ -13,7 +13,7 @@ object Constants {
     )
 
     // 지지 오행 매핑
-    val BRANCH_ELEMENTS = mapOf(
+    val JIJI_OHAENG = mapOf(
         "子" to "水", "丑" to "土", "寅" to "木", "卯" to "木",
         "辰" to "土", "巳" to "火", "午" to "火", "未" to "土",
         "申" to "金", "酉" to "金", "戌" to "土", "亥" to "水"
@@ -75,14 +75,14 @@ object Constants {
     }
 
     // 길한 획수
-    val GOOD_LUCK = setOf(
+    val GILHAN_HOEKSU = setOf(
         1, 3, 5, 6, 7, 8, 11, 13, 15, 16, 17, 18, 21, 23, 24, 25,
         29, 31, 32, 33, 35, 37, 38, 39, 41, 45, 47, 48, 52, 57,
         61, 63, 65, 67, 68, 81
     )
 
     // 초성 오행 매핑
-    val INITIAL_ELEMENTS = mapOf(
+    val CHOSUNG_BALEUM_OHAENG = mapOf(
         'ㄱ' to "木", 'ㅋ' to "木",
         'ㄴ' to "火", 'ㄷ' to "火", 'ㄹ' to "火", 'ㅌ' to "火",
         'ㅇ' to "土", 'ㅎ' to "土",
@@ -91,11 +91,11 @@ object Constants {
     )
 
     // 중성 음양 분류
-    val YIN_MEDIALS = setOf('ㅓ', 'ㅕ', 'ㅔ', 'ㅖ', 'ㅜ', 'ㅠ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ', 'ㅡ')
-    val YANG_MEDIALS = setOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')
+    val EUM_JUNGSEONG = setOf('ㅓ', 'ㅕ', 'ㅔ', 'ㅖ', 'ㅜ', 'ㅠ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ', 'ㅡ')
+    val YANG_JUNGSEONG = setOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')
 
     // 오행 순서 (상생/상극 계산용)
-    val ELEMENTS_ORDER = listOf("木", "火", "土", "金", "水")
+    val OHAENG_SUNSE = listOf("木", "火", "土", "金", "水")
 
     // 한글 유니코드 상수
     const val HANGUL_BASE = 0xAC00
@@ -143,7 +143,7 @@ object Constants {
     const val YAJASI_MINUTE = 30
 
     // 오행 상생/상극 관계
-    object ElementRelations {
+    object SangsaengSanggeukRelations {
         const val GENERATING_FORWARD = 1   // 상생 정방향
         const val GENERATING_BACKWARD = 4  // 상생 역방향
         const val CONFLICTING_FORWARD = 2  // 상극 정방향
@@ -153,12 +153,12 @@ object Constants {
     }
 
     // 사격 계산 상수
-    const val JUNG_MODULO = 81
+    const val JEONG_MODULO = 81
     const val STROKE_MODULO = 10
     const val YIN_YANG_MODULO = 2
 
     // 최소 점수 기준
-    object MinScores {
+    object MinScore {
         const val COMPLEX_SURNAME_SINGLE_NAME = 2
         const val SINGLE_SURNAME_SINGLE_NAME = 3
         const val DEFAULT = 4
@@ -228,7 +228,7 @@ object Constants {
     }
 
     // 오행 조화 점수
-    object HarmonyScores {
+    object OhaengHarmonyScores {
         const val CONFLICTING_FORWARD_DIFF = 4
         const val CONFLICTING_BACKWARD_DIFF = -6
         const val GENERATING_FORWARD_DIFF = 2

@@ -1,4 +1,4 @@
-// model/service/FourPillarsCalculator.kt
+// model/service/SajuCalculator.kt
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
@@ -7,15 +7,15 @@ import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.util.DateCalculator
 import com.ssc.namespring.model.util.TimeCalculator
 
-class FourPillarsCalculator(private val dataRepository: DataRepository) {
+class SajuCalculator(private val dataRepository: DataRepository) {
 
-    fun get4ju(
+    fun getSaju(
         year: Int, month: Int, day: Int,
         hour: Int, minute: Int, second: Int = 0,
         useYajasi: Boolean = true
     ): Array<String> {
         val dateCalculator = DateCalculator(useYajasi)
-        val (adjustedYear, adjustedMonth, adjustedDay, colIdxAdd) =
+        val (adjustedYear, adjustedMonth, adjustedDay, yeolidxAdd) =
             dateCalculator.adjustDate(year, month, day, hour, minute)
 
         val result = dataRepository.ymdData.find { data ->
@@ -30,25 +30,25 @@ class FourPillarsCalculator(private val dataRepository: DataRepository) {
 
         val colIdx = TimeCalculator.getColumnIndex(ilju[0])
         val rowIdx = TimeCalculator.getRowIndex(hour, minute, second)
-        val adjustedColIdx = (colIdx + colIdxAdd) % Constants.ElementRelations.ELEMENT_COUNT
+        val adjustedColIdx = (colIdx + yeolidxAdd) % Constants.SangsaengSanggeukRelations.ELEMENT_COUNT
         val siju = Constants.SIJU[rowIdx][adjustedColIdx]
 
         return arrayOf(yeonju, wolju, ilju, siju)
     }
 
-    fun getDictElementsCount(yeonju: String, wolju: String, ilju: String, siju: String): Map<String, Int> {
+    fun getSajuOhaengCount(yeonju: String, wolju: String, ilju: String, siju: String): Map<String, Int> {
         val elements = listOf(
-            Constants.STEM_ELEMENTS[yeonju[0].toString()],
-            Constants.BRANCH_ELEMENTS[yeonju[1].toString()],
-            Constants.STEM_ELEMENTS[wolju[0].toString()],
-            Constants.BRANCH_ELEMENTS[wolju[1].toString()],
-            Constants.STEM_ELEMENTS[ilju[0].toString()],
-            Constants.BRANCH_ELEMENTS[ilju[1].toString()],
-            Constants.STEM_ELEMENTS[siju[0].toString()],
-            Constants.BRANCH_ELEMENTS[siju[1].toString()]
+            Constants.CHEONGAN_OHAENG[yeonju[0].toString()],
+            Constants.JIJI_OHAENG[yeonju[1].toString()],
+            Constants.CHEONGAN_OHAENG[wolju[0].toString()],
+            Constants.JIJI_OHAENG[wolju[1].toString()],
+            Constants.CHEONGAN_OHAENG[ilju[0].toString()],
+            Constants.JIJI_OHAENG[ilju[1].toString()],
+            Constants.CHEONGAN_OHAENG[siju[0].toString()],
+            Constants.JIJI_OHAENG[siju[1].toString()]
         )
 
-        return Constants.ELEMENTS_ORDER.associateWith { element ->
+        return Constants.OHAENG_SUNSE.associateWith { element ->
             elements.count { it == element }
         }
     }

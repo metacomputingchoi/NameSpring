@@ -1,4 +1,4 @@
-// model/filter/JawonOhengFilter.kt
+// model/filter/JawonOhaengFilter.kt
 package com.ssc.namespring.model.filter
 
 import com.ssc.namespring.model.common.Constants
@@ -6,14 +6,14 @@ import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.util.normalizeNFC
 
-class JawonOhengFilter : NameFilterStrategy {
+class JawonOhaengFilter : NameFilterStrategy {
 
     override fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName> {
-        val zeroElements = context.dictElementsCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
-        val oneElements = context.dictElementsCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
+        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
+        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
 
         return names.filter { name ->
-            val jawonElements = name.hanjaDetails.map { it.sourceElement.normalizeNFC() }
+            val jawonElements = name.hanjaDetails.map { it.jawonOhaeng.normalizeNFC() }
             checkJawonCondition(jawonElements, zeroElements, oneElements, context.surLength, context.nameLength)
         }
     }

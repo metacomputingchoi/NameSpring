@@ -2,7 +2,7 @@
 package com.ssc.namespring.model.service
 
 class CacheManager {
-    val hangulElementCache = mutableMapOf<Char, String?>()
-    val hangulPnCache = mutableMapOf<Char, Int?>()
-    val harmoniousCache = mutableMapOf<String, Boolean>()
+    val baleumOhaengCache = mutableMapOf<Char, String?>()
+    val baleumEumyangCache = mutableMapOf<Char, Int?>()
+    val baleumOhaengHarmonyCache = mutableMapOf<String, Boolean>()
 }

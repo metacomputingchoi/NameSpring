@@ -1,4 +1,4 @@
-// model/service/StrokeAnalyzer.kt
+// model/service/HanjaHoeksuAnalyzer.kt
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
@@ -6,12 +6,12 @@ import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.util.normalizeNFC
 
-class StrokeAnalyzer(
+class HanjaHoeksuAnalyzer(
     private val dataRepository: DataRepository,
     private val hanjaRepository: HanjaRepository
 ) {
 
-    fun getHanjaStrokeCount(char: String): Int? {
+    fun getHanjaHoeksu(char: String): Int? {
         val normalizedChar = char.normalizeNFC()
 
         val searchMaps = listOf(

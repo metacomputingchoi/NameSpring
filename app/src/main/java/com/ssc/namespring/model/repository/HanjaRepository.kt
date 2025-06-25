@@ -7,7 +7,7 @@ import com.ssc.namespring.model.util.normalizeNFC
 
 class HanjaRepository(private val dataRepository: DataRepository) {
     val hanjaInfoList = mutableListOf<HanjaInfo>()
-    val hanjaByStroke = mutableMapOf<Int, MutableList<HanjaInfo>>()
+    val hanjaByHoeksu = mutableMapOf<Int, MutableList<HanjaInfo>>()
 
     init {
         initializeHanjaInfo()
@@ -20,15 +20,15 @@ class HanjaRepository(private val dataRepository: DataRepository) {
                     hanja = (info[JsonKeys.HANJA] as? String ?: "").normalizeNFC(),
                     inmyongMeaning = (info[JsonKeys.INMYONG_MEANING] as? String ?: "").normalizeNFC(),
                     inmyongSound = (info[JsonKeys.INMYONG_SOUND] as? String ?: "").normalizeNFC(),
-                    pronunciationYinYang = info[JsonKeys.PRONUNCIATION_YINYANG] as? String ?: "",
-                    strokeYinYang = info[JsonKeys.STROKE_YINYANG] as? String ?: "",
-                    pronunciationElement = (info[JsonKeys.PRONUNCIATION_ELEMENT] as? String ?: "").normalizeNFC(),
-                    sourceElement = (info[JsonKeys.SOURCE_ELEMENT] as? String ?: "").normalizeNFC(),
-                    originalStroke = (info[JsonKeys.ORIGINAL_STROKE] as? Number)?.toInt() ?: 0,
-                    dictionaryStroke = (info[JsonKeys.DICTIONARY_STROKE] as? Number)?.toInt() ?: 0
+                    baleumEumyang = info[JsonKeys.PRONUNCIATION_YINYANG] as? String ?: "",
+                    hoeksuEumyang = info[JsonKeys.STROKE_YINYANG] as? String ?: "",
+                    baleumOhaeng = (info[JsonKeys.PRONUNCIATION_ELEMENT] as? String ?: "").normalizeNFC(),
+                    jawonOhaeng = (info[JsonKeys.SOURCE_ELEMENT] as? String ?: "").normalizeNFC(),
+                    wonHoeksu = (info[JsonKeys.ORIGINAL_STROKE] as? Number)?.toInt() ?: 0,
+                    okpyeonHoeksu = (info[JsonKeys.DICTIONARY_STROKE] as? Number)?.toInt() ?: 0
                 )
                 hanjaInfoList.add(hanjaInfo)
-                hanjaByStroke.getOrPut(hanjaInfo.originalStroke) { mutableListOf() }.add(hanjaInfo)
+                hanjaByHoeksu.getOrPut(hanjaInfo.wonHoeksu) { mutableListOf() }.add(hanjaInfo)
             }
         }
     }
