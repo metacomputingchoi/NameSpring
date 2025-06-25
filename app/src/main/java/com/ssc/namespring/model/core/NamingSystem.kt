@@ -30,6 +30,7 @@ class NamingSystem private constructor() {
     private lateinit var hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer
     private lateinit var nameGenerator: NameGenerator
     private lateinit var nameSuriAnalyzer: NameSuriAnalyzer
+    private lateinit var analysisInfoGenerator: AnalysisInfoGenerator
 
     private val filters: List<NameFilterStrategy> by lazy {
         listOf(
@@ -77,6 +78,7 @@ class NamingSystem private constructor() {
             hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository)
             nameSuriAnalyzer = NameSuriAnalyzer(hanjaHoeksuAnalyzer, multiOhaengHarmonyAnalyzer)
             nameGenerator = NameGenerator(hanjaRepository, nameSuriAnalyzer)
+            analysisInfoGenerator = AnalysisInfoGenerator(baleumOhaengCalculator, multiOhaengHarmonyAnalyzer)
 
             logger.d("NamingSystem initialized successfully")
         } catch (e: Exception) {
@@ -111,10 +113,16 @@ class NamingSystem private constructor() {
             val sajuOhaengCount = sajuCalculator.getSajuOhaengCount(
                 fourPillars[0], fourPillars[1], fourPillars[2], fourPillars[3]
             )
-            if (verbose) logger.v("사주 오행: $sajuOhaengCount")
+            val sajuInfo = sajuCalculator.analyzeSaju(fourPillars, sajuOhaengCount)
+
+            if (verbose) {
+                logger.v("사주: ${fourPillars.joinToString(", ")}")
+                logger.v("사주 오행: $sajuOhaengCount")
+                logger.v("부족한 오행: ${sajuInfo.missingElements}")
+            }
 
             surnameCandidates.flatMap { candidate ->
-                processSurnameCandidate(candidate, sajuOhaengCount, verbose)
+                processSurnameCandidate(candidate, sajuOhaengCount, sajuInfo, verbose)
             }
 
         } catch (e: NamingException) {
@@ -148,6 +156,7 @@ class NamingSystem private constructor() {
     private fun processSurnameCandidate(
         candidate: Map<String, Any>,
         sajuOhaengCount: Map<String, Int>,
+        sajuInfo: SajuAnalysisInfo,
         verbose: Boolean
     ): List<GeneratedName> {
         val nameParts = candidate["nameParts"] as List<Pair<String, String>>
@@ -172,26 +181,47 @@ class NamingSystem private constructor() {
             surHangul, surHanja, nameConstraints, nameLength, sajuOhaengCount
         )
 
-        return applyFilters(results, surHangul, surLength, nameLength, sajuOhaengCount, verbose)
+        return applyFiltersWithBatch(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
     }
 
-    private fun applyFilters(
-        names: List<GeneratedName>,
+    private fun applyFiltersWithBatch(
+        names: Sequence<GeneratedName>,
         surHangul: String,
         surLength: Int,
         nameLength: Int,
         sajuOhaengCount: Map<String, Int>,
+        sajuInfo: SajuAnalysisInfo,
         verbose: Boolean
     ): List<GeneratedName> {
-        if (verbose) logger.v("필터링 전 조합 개수: ${names.size}")
-
         val context = FilterContext(surHangul, surLength, nameLength, sajuOhaengCount)
 
-        return filters.fold(names) { currentNames, filter ->
-            filter.filter(currentNames, context).also { filtered ->
-                if (verbose) {
-                    logger.v("${filter.javaClass.simpleName} 후: ${filtered.size}개")
-                }
+        var filteredNames = names
+
+        // 각 필터를 순차적으로 적용
+        filters.forEach { filter ->
+            filteredNames = filter.filterBatch(filteredNames, context)
+        }
+
+        // 결과를 리스트로 수집
+        val results = mutableListOf<GeneratedName>()
+        var count = 0
+
+        for (name in filteredNames) {
+            results.add(name)
+            count++
+
+            // 주기적으로 로그 출력
+            if (verbose && count % 10000 == 0) {
+                logger.v("처리 중: ${count}개 필터링 완료")
+            }
+        }
+
+        if (verbose) logger.v("필터링 완료: ${results.size}개")
+
+        // 분석 정보 추가 (선택적)
+        return results.map { name ->
+            name.apply {
+                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo)
             }
         }
     }

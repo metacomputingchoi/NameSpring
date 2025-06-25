@@ -17,23 +17,41 @@ class BaleumOhaengEumyangFilter(
         val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
 
         return names.filter { name ->
-            val nameBaleumOhaeng = name.combinedPronounciation.mapNotNull { getBaleumOhaeng(it) }
-            val nameBaleumEumyang = name.combinedPronounciation.mapNotNull { getBaleumEumyang(it) }
-
-            val combinedBaleumOhaeng = (surBaleumOhaeng + nameBaleumOhaeng).joinToString("")
-            val combinedEumyang = (surBaleumEumyang + nameBaleumEumyang).joinToString("") { it.toString() }
-            val totalChars = context.surLength + context.nameLength
-
-            if (combinedBaleumOhaeng.length != totalChars || combinedEumyang.length != totalChars) {
-                return@filter false
-            }
-
-            if (!checkYinYangBalance(combinedEumyang, context.surLength, context.nameLength)) {
-                return@filter false
-            }
-
-            checkBaleumOhaengHarmony(combinedBaleumOhaeng)
+            isValid(name, context, surBaleumOhaeng, surBaleumEumyang)
         }
+    }
+
+    override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
+        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
+        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
+
+        return names.filter { name ->
+            isValid(name, context, surBaleumOhaeng, surBaleumEumyang)
+        }
+    }
+
+    private fun isValid(
+        name: GeneratedName, 
+        context: FilterContext,
+        surBaleumOhaeng: List<String>,
+        surBaleumEumyang: List<Int>
+    ): Boolean {
+        val nameBaleumOhaeng = name.combinedPronounciation.mapNotNull { getBaleumOhaeng(it) }
+        val nameBaleumEumyang = name.combinedPronounciation.mapNotNull { getBaleumEumyang(it) }
+
+        val combinedBaleumOhaeng = (surBaleumOhaeng + nameBaleumOhaeng).joinToString("")
+        val combinedEumyang = (surBaleumEumyang + nameBaleumEumyang).joinToString("") { it.toString() }
+        val totalChars = context.surLength + context.nameLength
+
+        if (combinedBaleumOhaeng.length != totalChars || combinedEumyang.length != totalChars) {
+            return false
+        }
+
+        if (!checkYinYangBalance(combinedEumyang, context.surLength, context.nameLength)) {
+            return false
+        }
+
+        return checkBaleumOhaengHarmony(combinedBaleumOhaeng)
     }
 
     private fun checkYinYangBalance(eumyang: String, surLength: Int, nameLength: Int): Boolean {

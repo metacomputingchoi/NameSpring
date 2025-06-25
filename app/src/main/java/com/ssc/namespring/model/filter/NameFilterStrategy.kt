@@ -6,4 +6,5 @@ import com.ssc.namespring.model.data.GeneratedName
 
 interface NameFilterStrategy {
     fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName>
+    fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName>
 }
