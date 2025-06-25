@@ -46,8 +46,8 @@ class TestResultFormatter {
 
     private fun printNameDetails(name: GeneratedName) {
         with(name) {
-            println("   사격: 형(${fourTypes.hyung}), 원(${fourTypes.won}), 이(${fourTypes.i}), 정(${fourTypes.jung})")
-            println("   획수: ${nameStrokes.joinToString(", ")}")
+            println("   사격: 형(${sagyeok.hyeong}), 원(${sagyeok.won}), 이(${sagyeok.i}), 정(${sagyeok.jeong})")
+            println("   획수: ${nameHanjaHoeksu.joinToString(", ")}")
             println("   한자 상세:")
             hanjaDetails.forEachIndexed { idx, hanja ->
                 println("     ${idx + 1}. ${hanja.hanja} - ${hanja.inmyongMeaning} (${hanja.inmyongSound})")

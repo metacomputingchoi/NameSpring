@@ -24,22 +24,22 @@ class NamingSystem private constructor() {
 
     private lateinit var nameParser: NameParser
     private lateinit var surnameValidator: SurnameValidator
-    private lateinit var fourPillarsCalculator: FourPillarsCalculator
-    private lateinit var elementCalculator: ElementCalculator
-    private lateinit var harmonyAnalyzer: HarmonyAnalyzer
-    private lateinit var strokeAnalyzer: StrokeAnalyzer
+    private lateinit var sajuCalculator: SajuCalculator
+    private lateinit var baleumOhaengCalculator: BaleumOhaengCalculator
+    private lateinit var multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
+    private lateinit var hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer
     private lateinit var nameGenerator: NameGenerator
-    private lateinit var nameCombinationAnalyzer: NameCombinationAnalyzer
+    private lateinit var nameSuriAnalyzer: NameSuriAnalyzer
 
     private val filters: List<NameFilterStrategy> by lazy {
         listOf(
-            ElementsAndYinYangFilter(
-                elementCalculator::getHangulElement,
-                elementCalculator::getHangulPn,
-                harmonyAnalyzer::isHarmoniousElementCombination
+            BaleumOhaengEumyangFilter(
+                baleumOhaengCalculator::getBaleumOhaeng,
+                baleumOhaengCalculator::getBaleumEumyang,
+                multiOhaengHarmonyAnalyzer::checkBaleumOhaengHarmony
             ),
-            JawonOhengFilter(),
-            HangulNaturalFilter { dataRepository.dictHangulGivenNames }
+            JawonOhaengFilter(),
+            BaleumNaturalFilter { dataRepository.dictHangulGivenNames }
         )
     }
 
@@ -71,12 +71,12 @@ class NamingSystem private constructor() {
             val cacheManager = CacheManager()
             nameParser = NameParser()
             surnameValidator = SurnameValidator(dataRepository)
-            fourPillarsCalculator = FourPillarsCalculator(dataRepository)
-            elementCalculator = ElementCalculator(cacheManager)
-            harmonyAnalyzer = HarmonyAnalyzer(cacheManager)
-            strokeAnalyzer = StrokeAnalyzer(dataRepository, hanjaRepository)
-            nameCombinationAnalyzer = NameCombinationAnalyzer(strokeAnalyzer, harmonyAnalyzer)
-            nameGenerator = NameGenerator(hanjaRepository, nameCombinationAnalyzer)
+            sajuCalculator = SajuCalculator(dataRepository)
+            baleumOhaengCalculator = BaleumOhaengCalculator(cacheManager)
+            multiOhaengHarmonyAnalyzer = MultiOhaengHarmonyAnalyzer(cacheManager)
+            hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository)
+            nameSuriAnalyzer = NameSuriAnalyzer(hanjaHoeksuAnalyzer, multiOhaengHarmonyAnalyzer)
+            nameGenerator = NameGenerator(hanjaRepository, nameSuriAnalyzer)
 
             logger.d("NamingSystem initialized successfully")
         } catch (e: Exception) {
@@ -105,16 +105,16 @@ class NamingSystem private constructor() {
                 throw NamingException.InvalidInputException(Constants.ErrorMessages.INVALID_SURNAME)
             }
 
-            val fourPillars = fourPillarsCalculator.get4ju(
+            val fourPillars = sajuCalculator.getSaju(
                 birthYear, birthMonth, birthDay, birthHour, birthMinute, birthSecond, useYajasi
             )
-            val dictElementsCount = fourPillarsCalculator.getDictElementsCount(
+            val sajuOhaengCount = sajuCalculator.getSajuOhaengCount(
                 fourPillars[0], fourPillars[1], fourPillars[2], fourPillars[3]
             )
-            if (verbose) logger.v("사주 오행: $dictElementsCount")
+            if (verbose) logger.v("사주 오행: $sajuOhaengCount")
 
             surnameCandidates.flatMap { candidate ->
-                processSurnameCandidate(candidate, dictElementsCount, verbose)
+                processSurnameCandidate(candidate, sajuOhaengCount, verbose)
             }
 
         } catch (e: NamingException) {
@@ -147,7 +147,7 @@ class NamingSystem private constructor() {
 
     private fun processSurnameCandidate(
         candidate: Map<String, Any>,
-        dictElementsCount: Map<String, Int>,
+        sajuOhaengCount: Map<String, Int>,
         verbose: Boolean
     ): List<GeneratedName> {
         val nameParts = candidate["nameParts"] as List<Pair<String, String>>
@@ -169,10 +169,10 @@ class NamingSystem private constructor() {
         }
 
         val results = nameGenerator.generateNames(
-            surHangul, surHanja, nameConstraints, nameLength, dictElementsCount
+            surHangul, surHanja, nameConstraints, nameLength, sajuOhaengCount
         )
 
-        return applyFilters(results, surHangul, surLength, nameLength, dictElementsCount, verbose)
+        return applyFilters(results, surHangul, surLength, nameLength, sajuOhaengCount, verbose)
     }
 
     private fun applyFilters(
@@ -180,12 +180,12 @@ class NamingSystem private constructor() {
         surHangul: String,
         surLength: Int,
         nameLength: Int,
-        dictElementsCount: Map<String, Int>,
+        sajuOhaengCount: Map<String, Int>,
         verbose: Boolean
     ): List<GeneratedName> {
         if (verbose) logger.v("필터링 전 조합 개수: ${names.size}")
 
-        val context = FilterContext(surHangul, surLength, nameLength, dictElementsCount)
+        val context = FilterContext(surHangul, surLength, nameLength, sajuOhaengCount)
 
         return filters.fold(names) { currentNames, filter ->
             filter.filter(currentNames, context).also { filtered ->

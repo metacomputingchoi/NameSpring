@@ -1,27 +1,27 @@
-// model/service/ElementCalculator.kt
+// model/service/BaleumOhaengCalculator.kt
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.util.toHangulDecomposition
 
-class ElementCalculator(private val cacheManager: CacheManager) {
+class BaleumOhaengCalculator(private val cacheManager: CacheManager) {
 
-    fun getHangulElement(char: Char): String? {
-        return cacheManager.hangulElementCache.getOrPut(char) {
+    fun getBaleumOhaeng(char: Char): String? {
+        return cacheManager.baleumOhaengCache.getOrPut(char) {
             val (cho, _, _) = char.toHangulDecomposition()
             Constants.INITIALS.getOrNull(cho)?.let { initial ->
-                Constants.INITIAL_ELEMENTS[initial]
+                Constants.CHOSUNG_BALEUM_OHAENG[initial]
             }
         }
     }
 
-    fun getHangulPn(char: Char): Int? {
-        return cacheManager.hangulPnCache.getOrPut(char) {
+    fun getBaleumEumyang(char: Char): Int? {
+        return cacheManager.baleumEumyangCache.getOrPut(char) {
             val (_, jung, _) = char.toHangulDecomposition()
             Constants.MEDIALS.getOrNull(jung)?.let { medial ->
                 when (medial) {
-                    in Constants.YIN_MEDIALS -> 0
-                    in Constants.YANG_MEDIALS -> 1
+                    in Constants.EUM_JUNGSEONG -> 0
+                    in Constants.YANG_JUNGSEONG -> 1
                     else -> null
                 }
             }

@@ -5,10 +5,10 @@ data class HanjaInfo(
     val hanja: String,
     val inmyongMeaning: String,
     val inmyongSound: String,
-    val pronunciationYinYang: String,
-    val strokeYinYang: String,
-    val pronunciationElement: String,
-    val sourceElement: String,
-    val originalStroke: Int,
-    val dictionaryStroke: Int
+    val baleumEumyang: String,
+    val hoeksuEumyang: String,
+    val baleumOhaeng: String,
+    val jawonOhaeng: String,
+    val wonHoeksu: Int,
+    val okpyeonHoeksu: Int
 )

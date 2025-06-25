@@ -2,9 +2,9 @@
 package com.ssc.namespring.model.data
 
 data class GoodCombination(
-    val nameStrokes: List<Int>,
-    val fourTypes: FourTypes,
-    val namePN: List<Int>,
-    val nameElements: List<Int>,
-    val typeElements: List<Int>
+    val nameHanjaHoeksu: List<Int>,
+    val sagyeok: Sagyeok,
+    val nameBaleumEumyang: List<Int>,
+    val nameHoeksuOhaeng: List<Int>,
+    val sagyeokSuriOhaeng: List<Int>
 )
