@@ -116,7 +116,7 @@ class NameGenerator(
     }
 
     private fun getInitialFromHangul(char: Char): Char? {
-        return if (char in '가'..'힣') {
+        return if (char in Constants.HANGUL_START..Constants.HANGUL_END) {
             val (cho, _, _) = char.toHangulDecomposition()
             Constants.INITIALS[cho]
         } else null

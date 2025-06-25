@@ -171,6 +171,91 @@ object Constants {
     const val MIN_STROKE = 1
     const val MAX_STROKE = 27
 
+    // 한글 범위
+    const val HANGUL_START = '가'
+    const val HANGUL_END = '힣'
+
+    // 성명 길이 조합
+    object NameLengthCombinations {
+        val SINGLE_SINGLE = 1 to 1      // 성 1자, 이름 1자
+        val SINGLE_DOUBLE = 1 to 2      // 성 1자, 이름 2자
+        val SINGLE_TRIPLE = 1 to 3      // 성 1자, 이름 3자
+        val SINGLE_QUAD = 1 to 4        // 성 1자, 이름 4자
+        val DOUBLE_SINGLE = 2 to 1      // 성 2자, 이름 1자
+        val DOUBLE_DOUBLE = 2 to 2      // 성 2자, 이름 2자
+        val DOUBLE_TRIPLE = 2 to 3      // 성 2자, 이름 3자
+        val DOUBLE_QUAD = 2 to 4        // 성 2자, 이름 4자
+    }
+
+    // 음양 균형 체크 관련
+    object YinYangBalance {
+        const val MIN_VARIETY = 2       // 최소 음양 다양성
+        const val MAX_CONSECUTIVE_SINGLE = 1
+        const val MAX_CONSECUTIVE_DOUBLE = 2
+        const val MAX_CONSECUTIVE_TRIPLE = 3
+    }
+
+    // 자원오행 체크 관련
+    object JawonCheck {
+        object DoubleChar {
+            const val ZERO_SINGLE_SIZE = 1
+            const val ZERO_MULTIPLE_SIZE = 2
+            const val ONE_SINGLE_SIZE = 1
+            const val ONE_MULTIPLE_SIZE = 2
+            const val EXPECTED_DIFFERENT_COUNT = 2  // 두 글자는 서로 달라야 함
+        }
+
+        object TripleChar {
+            const val ZERO_SINGLE_SIZE = 1
+            const val ZERO_DOUBLE_SIZE = 2
+            const val ZERO_MULTIPLE_SIZE = 3
+            const val TRIPLE_SUM = 3
+            const val MIN_COUNT_PER_ELEMENT = 1
+            const val EXPECTED_UNIQUE_COUNT = 3
+        }
+
+        object QuadChar {
+            const val ZERO_SINGLE_SIZE = 1
+            const val ZERO_DOUBLE_SIZE = 2
+            const val ZERO_TRIPLE_SIZE = 3
+            const val ZERO_MULTIPLE_SIZE = 4
+            const val PAIR_COUNT = 2
+            const val SINGLE_COUNT = 1
+            const val EXPECTED_PAIRS_FOR_DOUBLE = 2  // 2개 원소일 때 각각 2개씩
+            const val EXPECTED_SINGLE_COUNT = 2      // 3개 원소일 때 1개짜리 2개
+            const val EXPECTED_UNIQUE_COUNT = 4
+        }
+    }
+
+    // 오행 조화 점수
+    object HarmonyScores {
+        const val CONFLICTING_FORWARD_DIFF = 4
+        const val CONFLICTING_BACKWARD_DIFF = -6
+        const val GENERATING_FORWARD_DIFF = 2
+        const val GENERATING_BACKWARD_DIFF = -8
+    }
+
+    // 천간 그룹
+    object StemGroups {
+        val WOOD_STEMS = setOf('甲', '乙')
+        val FIRE_STEMS = setOf('丙', '丁')
+        val EARTH_STEMS = setOf('戊', '己')
+        val METAL_STEMS = setOf('庚', '辛')
+        val WATER_STEMS = setOf('壬', '癸')
+    }
+
+    // 야자시 관련
+    const val YAJASI_DAY_INCREMENT = 1
+
+    // 사격 계산
+    object FourPillarAnalysis {
+        const val FOUR_TYPES_COUNT = 4
+        const val START_INDEX = 1
+        const val PREVIOUS_INDEX_OFFSET = 1
+        const val MIN_HARMONY_SCORE = 0
+        const val MIN_REQUIRED_SCORE = 1
+    }
+
     // 제약 조건 타입
     object ConstraintTypes {
         const val EMPTY = "empty"

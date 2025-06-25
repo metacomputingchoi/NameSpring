@@ -7,9 +7,11 @@ class HarmonyAnalyzer(private val cacheManager: CacheManager) {
 
     fun isHarmoniousElementCombination(elementCombination: String): Boolean {
         return cacheManager.harmoniousCache.getOrPut(elementCombination) {
-            var scoreCoexist = 0
-            for (i in 1 until elementCombination.length) {
-                val prevElement = Constants.ELEMENTS_ORDER.indexOf(elementCombination[i - 1].toString())
+            var scoreCoexist = Constants.FourPillarAnalysis.MIN_HARMONY_SCORE
+            for (i in Constants.FourPillarAnalysis.START_INDEX until elementCombination.length) {
+                val prevElement = Constants.ELEMENTS_ORDER.indexOf(
+                    elementCombination[i - Constants.FourPillarAnalysis.PREVIOUS_INDEX_OFFSET].toString()
+                )
                 val currElement = Constants.ELEMENTS_ORDER.indexOf(elementCombination[i].toString())
                 val diff = (currElement - prevElement + Constants.ElementRelations.ELEMENT_COUNT) %
                         Constants.ElementRelations.ELEMENT_COUNT
@@ -21,29 +23,33 @@ class HarmonyAnalyzer(private val cacheManager: CacheManager) {
                     Constants.ElementRelations.CONFLICTING_BACKWARD -> return@getOrPut false
                 }
             }
-            scoreCoexist > 0
+            scoreCoexist >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE
         }
     }
 
     fun checkElementsHarmony(elements: List<Int>, isComplexSurnameSingleName: Boolean): Boolean {
-        var scoreCoexist = 0
-        for (k in 1 until elements.size) {
-            when (elements[k] - elements[k - 1]) {
-                4, -6 -> if (!isComplexSurnameSingleName) return false
-                2, -8 -> scoreCoexist++
+        var scoreCoexist = Constants.FourPillarAnalysis.MIN_HARMONY_SCORE
+        for (k in Constants.FourPillarAnalysis.START_INDEX until elements.size) {
+            when (elements[k] - elements[k - Constants.FourPillarAnalysis.PREVIOUS_INDEX_OFFSET]) {
+                Constants.HarmonyScores.CONFLICTING_FORWARD_DIFF,
+                Constants.HarmonyScores.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
+                Constants.HarmonyScores.GENERATING_FORWARD_DIFF,
+                Constants.HarmonyScores.GENERATING_BACKWARD_DIFF -> scoreCoexist++
             }
         }
-        return isComplexSurnameSingleName || scoreCoexist > 0
+        return isComplexSurnameSingleName || scoreCoexist >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE
     }
 
     fun checkTypeElementsHarmony(typeElements: List<Int>, isComplexSurnameSingleName: Boolean): Boolean {
-        var scoreCoexist = 0
-        for (k in 1..3) {
-            when (typeElements[k - 1] - typeElements[k]) {
-                4, -6 -> if (!isComplexSurnameSingleName) return false
-                2, -8 -> scoreCoexist++
+        var scoreCoexist = Constants.FourPillarAnalysis.MIN_HARMONY_SCORE
+        for (k in Constants.FourPillarAnalysis.START_INDEX until Constants.FourPillarAnalysis.FOUR_TYPES_COUNT) {
+            when (typeElements[k - Constants.FourPillarAnalysis.PREVIOUS_INDEX_OFFSET] - typeElements[k]) {
+                Constants.HarmonyScores.CONFLICTING_FORWARD_DIFF,
+                Constants.HarmonyScores.CONFLICTING_BACKWARD_DIFF -> if (!isComplexSurnameSingleName) return false
+                Constants.HarmonyScores.GENERATING_FORWARD_DIFF,
+                Constants.HarmonyScores.GENERATING_BACKWARD_DIFF -> scoreCoexist++
             }
         }
-        return isComplexSurnameSingleName || scoreCoexist > 0
+        return isComplexSurnameSingleName || scoreCoexist >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE
     }
 }

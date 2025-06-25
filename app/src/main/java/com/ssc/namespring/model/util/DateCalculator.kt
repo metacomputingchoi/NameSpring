@@ -1,6 +1,7 @@
 // model/util/DateCalculator.kt
 package com.ssc.namespring.model.util
 
+import com.ssc.namespring.model.Constants
 import com.ssc.namespring.model.Constants.DateConstants
 import com.ssc.namespring.model.Constants.YAJASI_HOUR
 import com.ssc.namespring.model.Constants.YAJASI_MINUTE
@@ -16,7 +17,7 @@ object DateCalculator {
             var colIdxAdd = 0
 
             if (hour == YAJASI_HOUR && minute >= YAJASI_MINUTE) {
-                colIdxAdd = 1
+                colIdxAdd = Constants.YAJASI_DAY_INCREMENT
                 if (!useYajasi) {
                     adjustedDay++
                     val adjustment = adjustForMonthEnd(adjustedYear, adjustedMonth, adjustedDay)

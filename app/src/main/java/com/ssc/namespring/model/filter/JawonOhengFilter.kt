@@ -1,6 +1,7 @@
 // model/filter/JawonOhengFilter.kt
 package com.ssc.namespring.model.filter
 
+import com.ssc.namespring.model.Constants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.util.normalizeNFC
@@ -24,19 +25,21 @@ class JawonOhengFilter : NameFilterStrategy {
         surLength: Int,
         nameLength: Int
     ): Boolean {
-        val key = "$surLength-$nameLength"
-
-        return when (key) {
-            "1-1", "2-1" -> {
+        return when (surLength to nameLength) {
+            Constants.NameLengthCombinations.SINGLE_SINGLE,
+            Constants.NameLengthCombinations.DOUBLE_SINGLE -> {
                 when {
                     zeroElements.isNotEmpty() -> jawonElements[0] in zeroElements
                     oneElements.isNotEmpty() -> jawonElements[0] in oneElements
                     else -> true
                 }
             }
-            "1-2", "2-2" -> checkForDoubleChar(jawonElements, zeroElements, oneElements)
-            "1-3", "2-3" -> checkForTripleChar(jawonElements, zeroElements, oneElements)
-            "1-4", "2-4" -> checkForQuadChar(jawonElements, zeroElements, oneElements)
+            Constants.NameLengthCombinations.SINGLE_DOUBLE,
+            Constants.NameLengthCombinations.DOUBLE_DOUBLE -> checkForDoubleChar(jawonElements, zeroElements, oneElements)
+            Constants.NameLengthCombinations.SINGLE_TRIPLE,
+            Constants.NameLengthCombinations.DOUBLE_TRIPLE -> checkForTripleChar(jawonElements, zeroElements, oneElements)
+            Constants.NameLengthCombinations.SINGLE_QUAD,
+            Constants.NameLengthCombinations.DOUBLE_QUAD -> checkForQuadChar(jawonElements, zeroElements, oneElements)
             else -> true
         }
     }
@@ -47,10 +50,20 @@ class JawonOhengFilter : NameFilterStrategy {
         oneElements: List<String>
     ): Boolean {
         return when {
-            zeroElements.size == 1 -> jawonElements.all { it == zeroElements[0] }
-            zeroElements.size >= 2 -> jawonElements.all { it in zeroElements } && jawonElements[0] != jawonElements[1]
-            oneElements.size == 1 -> jawonElements.any { it == oneElements[0] }
-            oneElements.size >= 2 -> jawonElements.all { it in oneElements } && jawonElements[0] != jawonElements[1]
+            zeroElements.size == Constants.JawonCheck.DoubleChar.ZERO_SINGLE_SIZE ->
+                jawonElements.all { it == zeroElements[0] }
+
+            zeroElements.size >= Constants.JawonCheck.DoubleChar.ZERO_MULTIPLE_SIZE ->
+                jawonElements.all { it in zeroElements } &&
+                        jawonElements[0] != jawonElements[1]
+
+            oneElements.size == Constants.JawonCheck.DoubleChar.ONE_SINGLE_SIZE ->
+                jawonElements.any { it == oneElements[0] }
+
+            oneElements.size >= Constants.JawonCheck.DoubleChar.ONE_MULTIPLE_SIZE ->
+                jawonElements.all { it in oneElements } &&
+                        jawonElements[0] != jawonElements[1]
+
             else -> true
         }
     }
@@ -61,13 +74,22 @@ class JawonOhengFilter : NameFilterStrategy {
         oneElements: List<String>
     ): Boolean {
         return when {
-            zeroElements.size == 1 -> jawonElements.all { it == zeroElements[0] }
-            zeroElements.size == 2 -> {
+            zeroElements.size == Constants.JawonCheck.TripleChar.ZERO_SINGLE_SIZE ->
+                jawonElements.all { it == zeroElements[0] }
+
+            zeroElements.size == Constants.JawonCheck.TripleChar.ZERO_DOUBLE_SIZE -> {
                 val counts = zeroElements.map { elem -> jawonElements.count { it == elem } }
-                counts.all { it >= 1 } && counts.sum() == 3
+                counts.all { it >= Constants.JawonCheck.TripleChar.MIN_COUNT_PER_ELEMENT } &&
+                        counts.sum() == Constants.JawonCheck.TripleChar.TRIPLE_SUM
             }
-            zeroElements.size >= 3 -> jawonElements.all { it in zeroElements } && jawonElements.toSet().size == 3
-            oneElements.isNotEmpty() -> jawonElements.any { it in oneElements }
+
+            zeroElements.size >= Constants.JawonCheck.TripleChar.ZERO_MULTIPLE_SIZE ->
+                jawonElements.all { it in zeroElements } &&
+                        jawonElements.toSet().size == Constants.JawonCheck.TripleChar.EXPECTED_UNIQUE_COUNT
+
+            oneElements.isNotEmpty() ->
+                jawonElements.any { it in oneElements }
+
             else -> true
         }
     }
@@ -78,17 +100,27 @@ class JawonOhengFilter : NameFilterStrategy {
         oneElements: List<String>
     ): Boolean {
         return when {
-            zeroElements.size == 1 -> jawonElements.all { it == zeroElements[0] }
-            zeroElements.size == 2 -> {
+            zeroElements.size == Constants.JawonCheck.QuadChar.ZERO_SINGLE_SIZE ->
+                jawonElements.all { it == zeroElements[0] }
+
+            zeroElements.size == Constants.JawonCheck.QuadChar.ZERO_DOUBLE_SIZE -> {
                 val counts = zeroElements.map { elem -> jawonElements.count { it == elem } }
-                counts.all { it == 2 }
+                counts.all { it == Constants.JawonCheck.QuadChar.PAIR_COUNT }
             }
-            zeroElements.size == 3 -> {
+
+            zeroElements.size == Constants.JawonCheck.QuadChar.ZERO_TRIPLE_SIZE -> {
                 val counts = zeroElements.map { elem -> jawonElements.count { it == elem } }
-                counts.contains(2) && counts.count { it == 1 } == 2
+                counts.contains(Constants.JawonCheck.QuadChar.PAIR_COUNT) &&
+                        counts.count { it == Constants.JawonCheck.QuadChar.SINGLE_COUNT } == Constants.JawonCheck.QuadChar.EXPECTED_SINGLE_COUNT
             }
-            zeroElements.size >= 4 -> jawonElements.all { it in zeroElements } && jawonElements.toSet().size == 4
-            oneElements.isNotEmpty() -> jawonElements.any { it in oneElements }
+
+            zeroElements.size >= Constants.JawonCheck.QuadChar.ZERO_MULTIPLE_SIZE ->
+                jawonElements.all { it in zeroElements } &&
+                        jawonElements.toSet().size == Constants.JawonCheck.QuadChar.EXPECTED_UNIQUE_COUNT
+
+            oneElements.isNotEmpty() ->
+                jawonElements.any { it in oneElements }
+
             else -> true
         }
     }

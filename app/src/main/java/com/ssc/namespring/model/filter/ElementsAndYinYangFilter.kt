@@ -39,19 +39,19 @@ class ElementsAndYinYangFilter(
 
     private fun checkYinYangBalance(pm: String, surLength: Int, nameLength: Int): Boolean {
         val pmSet = pm.toSet()
-        if (pmSet.size <= 1) return false
+        if (pmSet.size < Constants.YinYangBalance.MIN_VARIETY) return false
 
         val pmList = pm.map { it.toString().toInt() }
 
         return when (surLength to nameLength) {
-            1 to 1 -> pm[0] != pm[pm.length - 1]
-            1 to 2 -> pm[0] != pm[pm.length - 1]
-            1 to 3 -> checkConsecutiveCount(pmList, 1)
-            1 to 4 -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, 2)
-            2 to 1 -> pm[0] != pm[pm.length - 1]
-            2 to 2 -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, 1)
-            2 to 3 -> abs(pmList.count { it == 0 } - pmList.count { it == 1 }) == 1 && checkConsecutiveCount(pmList, 2)
-            2 to 4 -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, 3)
+            Constants.NameLengthCombinations.SINGLE_SINGLE -> pm[0] != pm[pm.length - 1]
+            Constants.NameLengthCombinations.SINGLE_DOUBLE -> pm[0] != pm[pm.length - 1]
+            Constants.NameLengthCombinations.SINGLE_TRIPLE -> checkConsecutiveCount(pmList, Constants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
+            Constants.NameLengthCombinations.SINGLE_QUAD -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, Constants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
+            Constants.NameLengthCombinations.DOUBLE_SINGLE -> pm[0] != pm[pm.length - 1]
+            Constants.NameLengthCombinations.DOUBLE_DOUBLE -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, Constants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
+            Constants.NameLengthCombinations.DOUBLE_TRIPLE -> abs(pmList.count { it == 0 } - pmList.count { it == 1 }) == 1 && checkConsecutiveCount(pmList, Constants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
+            Constants.NameLengthCombinations.DOUBLE_QUAD -> pmList.count { it == 0 } == pmList.count { it == 1 } && checkConsecutiveCount(pmList, Constants.YinYangBalance.MAX_CONSECUTIVE_TRIPLE)
             else -> true
         }
     }
