@@ -30,7 +30,7 @@ class FourPillarsCalculator(private val dataRepository: DataRepository) {
 
         val colIdx = TimeCalculator.getColumnIndex(ilju[0])
         val rowIdx = TimeCalculator.getRowIndex(hour, minute, second)
-        val adjustedColIdx = (colIdx + colIdxAdd) % 5
+        val adjustedColIdx = (colIdx + colIdxAdd) % Constants.ElementRelations.ELEMENT_COUNT
         val siju = Constants.SIJU[rowIdx][adjustedColIdx]
 
         return arrayOf(yeonju, wolju, ilju, siju)

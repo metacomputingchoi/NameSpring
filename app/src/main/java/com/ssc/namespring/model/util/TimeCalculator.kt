@@ -2,16 +2,18 @@
 package com.ssc.namespring.model.util
 
 import android.annotation.SuppressLint
+import com.ssc.namespring.model.Constants
 import com.ssc.namespring.model.Constants.TimeSlot
 
 object TimeCalculator {
     fun getColumnIndex(cheongan: Char): Int {
         return when (cheongan) {
-            '甲', '乙' -> 0
-            '丙', '丁' -> 1
-            '戊', '己' -> 2
-            '庚', '辛' -> 3
-            else -> 4
+            in Constants.StemGroups.WOOD_STEMS -> 0
+            in Constants.StemGroups.FIRE_STEMS -> 1
+            in Constants.StemGroups.EARTH_STEMS -> 2
+            in Constants.StemGroups.METAL_STEMS -> 3
+            in Constants.StemGroups.WATER_STEMS -> 4
+            else -> -1
         }
     }
 

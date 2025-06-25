@@ -20,11 +20,9 @@ class NamingSystem private constructor() {
 
     private val logger: Logger = AndroidLogger(Constants.LOG_TAG)
 
-    // Repositories
     private lateinit var dataRepository: DataRepository
     private lateinit var hanjaRepository: HanjaRepository
 
-    // Services
     private lateinit var nameParser: NameParser
     private lateinit var surnameValidator: SurnameValidator
     private lateinit var fourPillarsCalculator: FourPillarsCalculator
@@ -34,7 +32,6 @@ class NamingSystem private constructor() {
     private lateinit var nameGenerator: NameGenerator
     private lateinit var nameCombinationAnalyzer: NameCombinationAnalyzer
 
-    // Filters
     private val filters: List<NameFilterStrategy> by lazy {
         listOf(
             ElementsAndYinYangFilter(
@@ -60,7 +57,6 @@ class NamingSystem private constructor() {
         surnameChosungToKoreanJson: String
     ) {
         try {
-            // Initialize repositories
             dataRepository = DataRepository().apply {
                 loadFromJson(
                     ymdJson, nameCharTripleJson, surnameCharTripleJson,
@@ -73,7 +69,6 @@ class NamingSystem private constructor() {
 
             hanjaRepository = HanjaRepository(dataRepository)
 
-            // Initialize services
             val cacheManager = CacheManager()
             nameParser = NameParser()
             surnameValidator = SurnameValidator(dataRepository)

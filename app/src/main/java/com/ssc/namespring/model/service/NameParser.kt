@@ -28,7 +28,7 @@ class NameParser {
             val hangulType = when {
                 hangul == Constants.INPUT_SEPARATOR -> Constants.ConstraintTypes.EMPTY
                 hangul.length == 1 && hangul[0] in Constants.INITIALS -> Constants.ConstraintTypes.INITIAL
-                hangul.length == 1 && hangul[0] in '가'..'힣' -> Constants.ConstraintTypes.COMPLETE
+                hangul.length == 1 && hangul[0] in Constants.HANGUL_START..Constants.HANGUL_END -> Constants.ConstraintTypes.COMPLETE
                 else -> throw NamingException.InvalidInputException(Constants.ErrorMessages.INVALID_HANGUL + hangul)
             }
 
@@ -63,7 +63,7 @@ class NameParser {
     }
 
     fun getInitialFromHangul(char: Char): Char? {
-        return if (char in '가'..'힣') {
+        return if (char in Constants.HANGUL_START..Constants.HANGUL_END) {
             val (cho, _, _) = char.toHangulDecomposition()
             Constants.INITIALS[cho]
         } else null
