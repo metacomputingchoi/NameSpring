@@ -52,4 +52,29 @@ class MultiOhaengHarmonyAnalyzer(private val cacheManager: CacheManager) {
         }
         return isComplexSurnameSingleName || johwaScore >= Constants.FourPillarAnalysis.MIN_REQUIRED_SCORE
     }
+
+    fun analyzeOhaengRelations(ohaengCombination: String): Pair<List<Pair<String, String>>, List<Pair<String, String>>> {
+        val conflictingPairs = mutableListOf<Pair<String, String>>()
+        val generatingPairs = mutableListOf<Pair<String, String>>()
+
+        for (i in 1 until ohaengCombination.length) {
+            val prevElement = ohaengCombination[i - 1].toString()
+            val currElement = ohaengCombination[i].toString()
+            val prevIndex = Constants.OHAENG_SUNSE.indexOf(prevElement)
+            val currIndex = Constants.OHAENG_SUNSE.indexOf(currElement)
+            val diff = (currIndex - prevIndex + Constants.SangsaengSanggeukRelations.ELEMENT_COUNT) %
+                    Constants.SangsaengSanggeukRelations.ELEMENT_COUNT
+
+            when (diff) {
+                Constants.SangsaengSanggeukRelations.GENERATING_FORWARD,
+                Constants.SangsaengSanggeukRelations.GENERATING_BACKWARD -> 
+                    generatingPairs.add(prevElement to currElement)
+                Constants.SangsaengSanggeukRelations.CONFLICTING_FORWARD,
+                Constants.SangsaengSanggeukRelations.CONFLICTING_BACKWARD -> 
+                    conflictingPairs.add(prevElement to currElement)
+            }
+        }
+
+        return conflictingPairs to generatingPairs
+    }
 }

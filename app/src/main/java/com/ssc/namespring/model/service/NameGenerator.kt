@@ -4,7 +4,6 @@ package com.ssc.namespring.model.service
 import com.ssc.namespring.model.common.Constants
 import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.repository.HanjaRepository
-import com.ssc.namespring.model.util.cartesianProduct
 import com.ssc.namespring.model.util.toHangulDecomposition
 
 class NameGenerator(
@@ -18,7 +17,7 @@ class NameGenerator(
         nameConstraints: List<NameConstraint>,
         nameLength: Int,
         sajuOhaengCount: Map<String, Int>
-    ): List<GeneratedName> {
+    ): Sequence<GeneratedName> {
         return if (nameConstraints.all { it.isAllEmpty() }) {
             generateWithoutConstraints(surHangul, surHanja, nameLength)
         } else {
@@ -30,28 +29,64 @@ class NameGenerator(
         surHangul: String,
         surHanja: String,
         nameLength: Int
-    ): List<GeneratedName> {
+    ): Sequence<GeneratedName> {
         val goodCombinations = nameSuriAnalyzer.analyzeNameCombinations(
             surHangul, surHanja, nameLength
         )
         val surLength = surHanja.length
 
-        return goodCombinations.flatMap { gc ->
-            val nameHanjaHoeksu = gc.nameHanjaHoeksu.subList(surLength, gc.nameHanjaHoeksu.size)
+        return sequence {
+            goodCombinations.forEach { gc ->
+                val nameHanjaHoeksu = gc.nameHanjaHoeksu.subList(surLength, gc.nameHanjaHoeksu.size)
+                generateNamesFromHoeksu(
+                    surHangul, surHanja, nameHanjaHoeksu, gc
+                ).forEach { yield(it) }
+            }
+        }
+    }
+
+    private fun generateNamesFromHoeksu(
+        surHangul: String,
+        surHanja: String,
+        nameHanjaHoeksu: List<Int>,
+        goodCombination: GoodCombination
+    ): Sequence<GeneratedName> {
+        return sequence {
             val candidateLists = nameHanjaHoeksu.map { hoeksu ->
                 hanjaRepository.hanjaByHoeksu[hoeksu] ?: emptyList()
             }
 
-            cartesianProduct(candidateLists).map { combination ->
+            // 재귀적으로 조합 생성하여 메모리 효율화
+            generateCombinationsRecursive(candidateLists, 0, mutableListOf()) { combination ->
                 GeneratedName(
                     surnameHangul = surHangul,
                     surnameHanja = surHanja,
                     combinedHanja = combination.joinToString("") { it.hanja },
                     combinedPronounciation = combination.joinToString("") { it.inmyongSound },
-                    sagyeok = gc.sagyeok,
-                    nameHanjaHoeksu = gc.nameHanjaHoeksu,
+                    sagyeok = goodCombination.sagyeok,
+                    nameHanjaHoeksu = goodCombination.nameHanjaHoeksu,
                     hanjaDetails = combination
                 )
+            }.forEach { yield(it) }
+        }
+    }
+
+    private fun generateCombinationsRecursive(
+        candidateLists: List<List<HanjaInfo>>,
+        index: Int,
+        current: MutableList<HanjaInfo>,
+        createName: (List<HanjaInfo>) -> GeneratedName
+    ): Sequence<GeneratedName> {
+        return sequence {
+            if (index == candidateLists.size) {
+                yield(createName(current.toList()))
+            } else {
+                candidateLists[index].forEach { candidate ->
+                    current.add(candidate)
+                    generateCombinationsRecursive(candidateLists, index + 1, current, createName)
+                        .forEach { yield(it) }
+                    current.removeAt(current.size - 1)
+                }
             }
         }
     }
@@ -61,7 +96,7 @@ class NameGenerator(
         surHanja: String,
         nameConstraints: List<NameConstraint>,
         sajuOhaengCount: Map<String, Int>
-    ): List<GeneratedName> {
+    ): Sequence<GeneratedName> {
         val surLength = surHanja.length
         val nameLength = nameConstraints.size
 
@@ -69,31 +104,33 @@ class NameGenerator(
             surHangul, surHanja, nameLength
         )
 
-        return goodCombinations.flatMap { gc ->
-            val nameHanjaHoeksu = gc.nameHanjaHoeksu.subList(surLength, gc.nameHanjaHoeksu.size)
+        return sequence {
+            goodCombinations.forEach { gc ->
+                val nameHanjaHoeksu = gc.nameHanjaHoeksu.subList(surLength, gc.nameHanjaHoeksu.size)
 
-            val hanjaCandidatesList = nameHanjaHoeksu.mapIndexedNotNull { i, hoeksuCount ->
-                val candidates = hanjaRepository.hanjaByHoeksu[hoeksuCount] ?: emptyList()
-                val constraint = nameConstraints[i]
+                val hanjaCandidatesList = nameHanjaHoeksu.mapIndexedNotNull { i, hoeksuCount ->
+                    val candidates = hanjaRepository.hanjaByHoeksu[hoeksuCount] ?: emptyList()
+                    val constraint = nameConstraints[i]
 
-                candidates.filter { cand ->
-                    matchesConstraint(cand, constraint)
-                }.takeIf { it.isNotEmpty() }
-            }
-
-            if (hanjaCandidatesList.size == nameHanjaHoeksu.size) {
-                cartesianProduct(hanjaCandidatesList).map { combination ->
-                    GeneratedName(
-                        surnameHangul = surHangul,
-                        surnameHanja = surHanja,
-                        combinedHanja = combination.joinToString("") { it.hanja },
-                        combinedPronounciation = combination.joinToString("") { it.inmyongSound },
-                        sagyeok = gc.sagyeok,
-                        nameHanjaHoeksu = gc.nameHanjaHoeksu,
-                        hanjaDetails = combination
-                    )
+                    candidates.filter { cand ->
+                        matchesConstraint(cand, constraint)
+                    }.takeIf { it.isNotEmpty() }
                 }
-            } else emptyList()
+
+                if (hanjaCandidatesList.size == nameHanjaHoeksu.size) {
+                    generateCombinationsRecursive(hanjaCandidatesList, 0, mutableListOf()) { combination ->
+                        GeneratedName(
+                            surnameHangul = surHangul,
+                            surnameHanja = surHanja,
+                            combinedHanja = combination.joinToString("") { it.hanja },
+                            combinedPronounciation = combination.joinToString("") { it.inmyongSound },
+                            sagyeok = gc.sagyeok,
+                            nameHanjaHoeksu = gc.nameHanjaHoeksu,
+                            hanjaDetails = combination
+                        )
+                    }.forEach { yield(it) }
+                }
+            }
         }
     }
 

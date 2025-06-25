@@ -13,9 +13,27 @@ class JawonOhaengFilter : NameFilterStrategy {
         val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
 
         return names.filter { name ->
-            val jawonElements = name.hanjaDetails.map { it.jawonOhaeng.normalizeNFC() }
-            checkJawonCondition(jawonElements, zeroElements, oneElements, context.surLength, context.nameLength)
+            isValid(name, context, zeroElements, oneElements)
         }
+    }
+
+    override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
+        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
+        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
+
+        return names.filter { name ->
+            isValid(name, context, zeroElements, oneElements)
+        }
+    }
+
+    private fun isValid(
+        name: GeneratedName, 
+        context: FilterContext,
+        zeroElements: List<String>,
+        oneElements: List<String>
+    ): Boolean {
+        val jawonElements = name.hanjaDetails.map { it.jawonOhaeng.normalizeNFC() }
+        return checkJawonCondition(jawonElements, zeroElements, oneElements, context.surLength, context.nameLength)
     }
 
     private fun checkJawonCondition(

@@ -2,6 +2,7 @@
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.data.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.util.DateCalculator
@@ -51,5 +52,23 @@ class SajuCalculator(private val dataRepository: DataRepository) {
         return Constants.OHAENG_SUNSE.associateWith { element ->
             elements.count { it == element }
         }
+    }
+
+    fun analyzeSaju(fourPillars: Array<String>, sajuOhaengCount: Map<String, Int>): SajuAnalysisInfo {
+        val missingElements = sajuOhaengCount.filterValues { it == 0 }.keys.toList()
+        val dominantElements = sajuOhaengCount.filterValues { it >= 3 }.keys.toList()
+        val totalElements = sajuOhaengCount.values.sum()
+
+        val elementBalance = sajuOhaengCount.mapValues { (_, count) ->
+            count.toFloat() / totalElements
+        }
+
+        return SajuAnalysisInfo(
+            fourPillars = fourPillars,
+            sajuOhaengCount = sajuOhaengCount,
+            missingElements = missingElements,
+            dominantElements = dominantElements,
+            elementBalance = elementBalance
+        )
     }
 }
