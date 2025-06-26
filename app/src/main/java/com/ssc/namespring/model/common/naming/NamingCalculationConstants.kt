@@ -42,7 +42,7 @@ object NamingCalculationConstants {
     }
 
     // 음양 균형 체크 관련
-    object YinYangBalance {
+    object EumYangBalance {
         const val MIN_VARIETY = 2       // 최소 음양 다양성
         const val MAX_CONSECUTIVE_SINGLE = 1
         const val MAX_CONSECUTIVE_DOUBLE = 2

@@ -4,7 +4,7 @@ package com.ssc.namespring.model.filter
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.data.analysis.ValidationResult
-import com.ssc.namespring.model.service.YinYangAnalysisService
+import com.ssc.namespring.model.service.EumYangAnalysisService
 import com.ssc.namespring.model.util.ValidationResultFactory
 
 class BaleumOhaengEumyangFilter(
@@ -13,7 +13,7 @@ class BaleumOhaengEumyangFilter(
     private val checkBaleumOhaengHarmony: (String) -> Boolean
 ) : AbstractNameFilter() {
 
-    private val yinYangAnalysisService = YinYangAnalysisService()
+    private val eumYangAnalysisService = EumYangAnalysisService()
 
     override fun getFilterName(): String = FilterConstants.BALEUM_OHAENG_EUMYANG_FILTER
 
@@ -45,15 +45,15 @@ class BaleumOhaengEumyangFilter(
         }
 
         // 음양 균형 체크
-        val yinYangResult = yinYangAnalysisService.checkYinYangBalanceWithDetails(
+        val eumYangResult = eumYangAnalysisService.checkEumYangBalanceWithDetails(
             combinedEumyang, context.surLength, context.nameLength
         )
-        details["음양균형"] = yinYangResult.details
+        details["음양균형"] = eumYangResult.details
 
-        if (!yinYangResult.isValid) {
+        if (!eumYangResult.isValid) {
             return ValidationResult(
                 isValid = false,
-                reason = yinYangResult.reason,
+                reason = eumYangResult.reason,
                 details = details
             )
         }

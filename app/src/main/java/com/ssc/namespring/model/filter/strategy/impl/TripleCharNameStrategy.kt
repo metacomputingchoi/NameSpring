@@ -4,26 +4,26 @@ package com.ssc.namespring.model.filter.strategy.impl
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.analysis.ValidationResult
 import com.ssc.namespring.model.filter.strategy.NameLengthStrategy
-import com.ssc.namespring.model.service.YinYangAnalysisService
+import com.ssc.namespring.model.service.EumYangAnalysisService
 import com.ssc.namespring.model.util.ValidationResultFactory
 import kotlin.math.abs
 
 class TripleCharNameStrategy : NameLengthStrategy {
 
-    private val yinYangService = YinYangAnalysisService()
+    private val eumYangService = EumYangAnalysisService()
 
-    override fun validateYinYang(
+    override fun validateEumYang(
         eumyangList: List<Int>,
         details: MutableMap<String, Any>
     ): ValidationResult {
-        val yinCount = eumyangList.count { it == 0 }
+        val eumCount = eumyangList.count { it == 0 }
         val yangCount = eumyangList.count { it == 1 }
 
         // 1자성 3자이름인 경우
         if (eumyangList.size == 4) {
-            val consecutive = yinYangService.checkConsecutiveCount(
+            val consecutive = eumYangService.checkConsecutiveCount(
                 eumyangList,
-                NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_SINGLE
+                NamingCalculationConstants.EumYangBalance.MAX_CONSECUTIVE_SINGLE
             )
             return ValidationResultFactory.createConditional(
                 consecutive,
@@ -34,11 +34,11 @@ class TripleCharNameStrategy : NameLengthStrategy {
         }
 
         // 2자성 3자이름인 경우
-        val diff = abs(yinCount - yangCount)
+        val diff = abs(eumCount - yangCount)
         val balanced = diff == 1
-        val consecutive = yinYangService.checkConsecutiveCount(
+        val consecutive = eumYangService.checkConsecutiveCount(
             eumyangList,
-            NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE
+            NamingCalculationConstants.EumYangBalance.MAX_CONSECUTIVE_DOUBLE
         )
 
         return when {

@@ -1,9 +1,9 @@
-// model/data/analysis/component/YinYangAnalysisInfo.kt
+// model/data/analysis/component/EumYangAnalysisInfo.kt
 package com.ssc.namespring.model.data.analysis.component
 
-data class YinYangAnalysisInfo(
+data class EumYangAnalysisInfo(
     val combinedEumyang: String,
-    val yinCount: Int,
+    val eumCount: Int,
     val yangCount: Int,
     val balance: Float,
     val pattern: String,

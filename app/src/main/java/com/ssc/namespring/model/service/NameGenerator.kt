@@ -16,7 +16,7 @@ class NameGenerator(
     private val hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
-    private val yinYangAnalysisService = YinYangAnalysisService()
+    private val eumYangAnalysisService = EumYangAnalysisService()
 
     fun generateNames(
         surHangul: String,
@@ -143,7 +143,7 @@ class NameGenerator(
                     val nameBaleumEumyang = allHoeksu.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
                     val isComplexSurnameSingleName = NamingCalculationUtils.isComplexSurnameSingleName(surLength, nameLength)
 
-                    if (!isComplexSurnameSingleName && yinYangAnalysisService.isYinYangUnbalanced(nameBaleumEumyang)) {
+                    if (!isComplexSurnameSingleName && eumYangAnalysisService.isEumYangUnbalanced(nameBaleumEumyang)) {
                         return@generateCombinations null
                     }
 

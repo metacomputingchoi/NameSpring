@@ -99,8 +99,8 @@ class TestResultFormatter {
             }
 
             // 음양 정보
-            with(analysisInfo.yinYangInfo) {
-                println("   음양 분포: 음(${yinCount}개), 양(${yangCount}개) - ${balanceDescription}")
+            with(analysisInfo.eumYangInfo) {
+                println("   음양 분포: 음(${eumCount}개), 양(${yangCount}개) - ${balanceDescription}")
                 println("   음양 패턴: $pattern")
                 println("   균형 여부: ${if (isBalanced) "균형" else "불균형"}")
             }

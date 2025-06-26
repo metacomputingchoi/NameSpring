@@ -2,21 +2,20 @@
 package com.ssc.namespring.model.filter.strategy.impl
 
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
-import com.ssc.namespring.model.common.naming.NamingCalculationConstants.NameLengthCombinations
 import com.ssc.namespring.model.data.analysis.ValidationResult
 import com.ssc.namespring.model.filter.strategy.NameLengthStrategy
-import com.ssc.namespring.model.service.YinYangAnalysisService
+import com.ssc.namespring.model.service.EumYangAnalysisService
 import com.ssc.namespring.model.util.ValidationResultFactory
 
 class DoubleCharNameStrategy : NameLengthStrategy {
 
-    private val yinYangService = YinYangAnalysisService()
+    private val eumYangService = EumYangAnalysisService()
 
-    override fun validateYinYang(
+    override fun validateEumYang(
         eumyangList: List<Int>,
         details: MutableMap<String, Any>
     ): ValidationResult {
-        val yinCount = eumyangList.count { it == 0 }
+        val eumCount = eumyangList.count { it == 0 }
         val yangCount = eumyangList.count { it == 1 }
 
         // 1자성 2자이름인 경우 처음과 끝 체크
@@ -31,14 +30,14 @@ class DoubleCharNameStrategy : NameLengthStrategy {
         }
 
         // 2자성 2자이름 또는 1자성 4자이름인 경우
-        val balanced = yinCount == yangCount
+        val balanced = eumCount == yangCount
         val maxConsecutive = if (eumyangList.size == 5) {
-            NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE
+            NamingCalculationConstants.EumYangBalance.MAX_CONSECUTIVE_DOUBLE
         } else {
-            NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_SINGLE
+            NamingCalculationConstants.EumYangBalance.MAX_CONSECUTIVE_SINGLE
         }
 
-        val consecutive = yinYangService.checkConsecutiveCount(eumyangList, maxConsecutive)
+        val consecutive = eumYangService.checkConsecutiveCount(eumyangList, maxConsecutive)
 
         return when {
             !balanced -> ValidationResultFactory.createFailure(

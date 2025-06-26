@@ -4,24 +4,24 @@ package com.ssc.namespring.model.filter.strategy.impl
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.analysis.ValidationResult
 import com.ssc.namespring.model.filter.strategy.NameLengthStrategy
-import com.ssc.namespring.model.service.YinYangAnalysisService
+import com.ssc.namespring.model.service.EumYangAnalysisService
 import com.ssc.namespring.model.util.ValidationResultFactory
 
 class QuadCharNameStrategy : NameLengthStrategy {
 
-    private val yinYangService = YinYangAnalysisService()
+    private val eumYangService = EumYangAnalysisService()
 
-    override fun validateYinYang(
+    override fun validateEumYang(
         eumyangList: List<Int>,
         details: MutableMap<String, Any>
     ): ValidationResult {
-        val yinCount = eumyangList.count { it == 0 }
+        val eumCount = eumyangList.count { it == 0 }
         val yangCount = eumyangList.count { it == 1 }
-        val balanced = yinCount == yangCount
+        val balanced = eumCount == yangCount
 
-        val consecutive = yinYangService.checkConsecutiveCount(
+        val consecutive = eumYangService.checkConsecutiveCount(
             eumyangList,
-            NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_TRIPLE
+            NamingCalculationConstants.EumYangBalance.MAX_CONSECUTIVE_TRIPLE
         )
 
         return when {

@@ -8,7 +8,7 @@ import com.ssc.namespring.model.util.ValidationResultFactory
 
 class SingleCharNameStrategy : NameLengthStrategy {
 
-    override fun validateYinYang(
+    override fun validateEumYang(
         eumyangList: List<Int>,
         details: MutableMap<String, Any>
     ): ValidationResult {

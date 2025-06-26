@@ -12,7 +12,7 @@ class NameSuriAnalyzer(
     private val hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
-    private val yinYangAnalysisService = YinYangAnalysisService()
+    private val eumYangAnalysisService = EumYangAnalysisService()
 
     fun analyzeNameCombinations(
         surHangul: String,
@@ -46,7 +46,7 @@ class NameSuriAnalyzer(
                 val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
 
                 // 음양 체크
-                if (!isComplexSurnameSingleName && yinYangAnalysisService.isYinYangUnbalanced(nameBaleumEumyang)) {
+                if (!isComplexSurnameSingleName && eumYangAnalysisService.isEumYangUnbalanced(nameBaleumEumyang)) {
                     return@mapNotNull null
                 }
 

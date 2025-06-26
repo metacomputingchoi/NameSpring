@@ -1,13 +1,12 @@
 // model/service/AnalysisInfoGenerator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants.ScoreConstants
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.data.analysis.NameAnalysisInfo
 import com.ssc.namespring.model.data.analysis.FilteringStep
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
-import com.ssc.namespring.model.data.analysis.component.YinYangAnalysisInfo
+import com.ssc.namespring.model.data.analysis.component.EumYangAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.OhaengAnalysisInfo
 import com.ssc.namespring.model.util.NamingCalculationUtils
 import com.ssc.namespring.model.util.OhaengCalculationUtils
@@ -16,22 +15,22 @@ class AnalysisInfoGenerator(
     private val baleumOhaengCalculator: BaleumOhaengCalculator,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
-    private val yinYangAnalysisService = YinYangAnalysisService()
+    private val eumYangAnalysisService = EumYangAnalysisService()
 
     fun generateAnalysisInfo(
         name: GeneratedName,
         sajuInfo: SajuAnalysisInfo,
         filteringSteps: List<FilteringStep> = emptyList()
     ): NameAnalysisInfo {
-        val yinYangInfo = analyzeYinYang(name)
+        val eumYangInfo = analyzeEumYang(name)
         val ohaengInfo = analyzeOhaeng(name)
-        val scoreBreakdown = calculateScoreBreakdown(name, yinYangInfo, ohaengInfo)
+        val scoreBreakdown = calculateScoreBreakdown(name, eumYangInfo, ohaengInfo)
         val totalScore = scoreBreakdown.values.sum()
-        val recommendations = generateRecommendations(sajuInfo, yinYangInfo, ohaengInfo, name)
+        val recommendations = generateRecommendations(sajuInfo, eumYangInfo, ohaengInfo, name)
 
         return NameAnalysisInfo(
             sajuInfo = sajuInfo,
-            yinYangInfo = yinYangInfo,
+            eumYangInfo = eumYangInfo,
             ohaengInfo = ohaengInfo,
             filteringSteps = filteringSteps,
             totalScore = totalScore,
@@ -40,10 +39,10 @@ class AnalysisInfoGenerator(
         )
     }
 
-    private fun analyzeYinYang(name: GeneratedName): YinYangAnalysisInfo {
+    private fun analyzeEumYang(name: GeneratedName): EumYangAnalysisInfo {
         val fullName = name.surnameHangul + name.combinedPronounciation
         val eumyangValues = fullName.mapNotNull { baleumOhaengCalculator.getBaleumEumyang(it) }
-        return yinYangAnalysisService.analyzeYinYang(eumyangValues)
+        return eumYangAnalysisService.analyzeEumYang(eumyangValues)
     }
 
     private fun analyzeOhaeng(name: GeneratedName): OhaengAnalysisInfo {
@@ -81,13 +80,13 @@ class AnalysisInfoGenerator(
 
     private fun calculateScoreBreakdown(
         name: GeneratedName,
-        yinYangInfo: YinYangAnalysisInfo,
+        eumYangInfo: EumYangAnalysisInfo,
         ohaengInfo: OhaengAnalysisInfo
     ): Map<String, Int> {
         return mapOf(
             "사격점수" to NamingCalculationUtils.countGilhanHoeksu(name.sagyeok.getValues()) *
                     ScoreConstants.SAGYEOK_SCORE_MULTIPLIER,
-            "음양균형" to if (yinYangInfo.isBalanced) ScoreConstants.YIN_YANG_BALANCE_SCORE else 0,
+            "음양균형" to if (eumYangInfo.isBalanced) ScoreConstants.YIN_YANG_BALANCE_SCORE else 0,
             "오행조화" to ohaengInfo.harmonyScore,
             "획수길흉" to NamingCalculationUtils.countGilhanHoeksu(name.nameHanjaHoeksu) *
                     ScoreConstants.HOEKSU_GILHAN_SCORE
@@ -96,7 +95,7 @@ class AnalysisInfoGenerator(
 
     private fun generateRecommendations(
         sajuInfo: SajuAnalysisInfo,
-        yinYangInfo: YinYangAnalysisInfo,
+        eumYangInfo: EumYangAnalysisInfo,
         ohaengInfo: OhaengAnalysisInfo,
         name: GeneratedName
     ): List<String> {
@@ -113,10 +112,10 @@ class AnalysisInfoGenerator(
         }
 
         // 음양 균형
-        if (yinYangInfo.isBalanced) {
+        if (eumYangInfo.isBalanced) {
             recommendations.add("음양이 조화롭게 균형을 이루고 있습니다.")
         } else {
-            val dominant = if (yinYangInfo.yinCount > yinYangInfo.yangCount) "음(陰)" else "양(陽)"
+            val dominant = if (eumYangInfo.eumCount > eumYangInfo.yangCount) "음(陰)" else "양(陽)"
             recommendations.add("$dominant 기운이 강하므로 반대 기운을 보완하는 것이 좋습니다.")
         }
 
