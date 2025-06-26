@@ -3,12 +3,11 @@ package com.ssc.namespring.utils
 
 import android.util.Log
 import com.ssc.namespring.model.core.NamingSystem
-import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.exception.NamingException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
-class NameGeneratorTester {
+class NameGeneratorTester(
+    private val namingSystem: NamingSystem  // 생성자 주입으로 받음
+) {
 
     companion object {
         private const val TAG = "NameGeneratorTester"
@@ -34,32 +33,30 @@ class NameGeneratorTester {
         private const val TEST_BIRTH_MINUTE = 30
     }
 
-    private val namingSystem = NamingSystem.instance
     private val resultFormatter = TestResultFormatter()
 
-    suspend fun runAllTests() {
+    fun runAllTests() {  // suspend 제거
         TEST_INPUTS.forEach { testInput ->
             testSingleInput(testInput)
         }
     }
 
-    private suspend fun testSingleInput(testInput: String) {
+    private fun testSingleInput(testInput: String) {  // suspend 제거
         resultFormatter.printTestHeader(testInput)
 
         try {
             val startTime = System.currentTimeMillis()
 
-            val results = withContext(Dispatchers.Default) {
-                namingSystem.generateKoreanNames(
-                    userInput = testInput,
-                    birthYear = TEST_BIRTH_YEAR,
-                    birthMonth = TEST_BIRTH_MONTH,
-                    birthDay = TEST_BIRTH_DAY,
-                    birthHour = TEST_BIRTH_HOUR,
-                    birthMinute = TEST_BIRTH_MINUTE,
-                    verbose = true
-                )
-            }
+            // 이미 백그라운드 스레드에서 실행되므로 withContext 불필요
+            val results = namingSystem.generateKoreanNames(
+                userInput = testInput,
+                birthYear = TEST_BIRTH_YEAR,
+                birthMonth = TEST_BIRTH_MONTH,
+                birthDay = TEST_BIRTH_DAY,
+                birthHour = TEST_BIRTH_HOUR,
+                birthMinute = TEST_BIRTH_MINUTE,
+                verbose = true
+            )
 
             val elapsedTime = System.currentTimeMillis() - startTime
 

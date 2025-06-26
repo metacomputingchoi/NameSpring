@@ -2,7 +2,7 @@
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
-import com.ssc.namespring.model.data.SajuAnalysisInfo
+import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.util.DateCalculator

@@ -6,7 +6,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.utils.JsonFileLoader
 import com.ssc.namespring.utils.NameGeneratorTester
-import com.ssc.namespring.utils.NamingSystemInitializer
+import com.ssc.namespring.utils.NamingSystemBuilder
+import com.ssc.namespring.utils.logger.AndroidLogger
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
@@ -15,10 +16,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-    private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var jsonFileLoader: JsonFileLoader
-    private lateinit var namingSystemInitializer: NamingSystemInitializer
-    private lateinit var nameGeneratorTester: NameGeneratorTester
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,30 +28,39 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mainScope.cancel()
     }
 
     private fun initializeComponents() {
         jsonFileLoader = JsonFileLoader(assets)
-        namingSystemInitializer = NamingSystemInitializer(jsonFileLoader)
-        nameGeneratorTester = NameGeneratorTester()
     }
 
     private fun startInitialization() {
-        mainScope.launch {
+        showLoading(true)
+
+        CoroutineScope(Dispatchers.Default).launch {
             try {
-                showLoading(true)
+                // Builder 패턴으로 NamingSystem 생성 및 초기화
+                val namingSystem = NamingSystemBuilder()
+                    .withLogger(AndroidLogger("NamingSystem"))
+                    .withJsonFileLoader(jsonFileLoader)
+                    .buildAndInitialize()
 
-                namingSystemInitializer.initialize()
+                // UI 업데이트는 메인 스레드에서
+                withContext(Dispatchers.Main) {
+                    Log.d(TAG, "NamingSystem 초기화 완료")
+                    showLoading(false)
+                }
 
-                Log.d(TAG, "NamingSystem 초기화 완료")
-                showLoading(false)
-
+                // 테스트 실행
+                val nameGeneratorTester = NameGeneratorTester(namingSystem)
                 nameGeneratorTester.runAllTests()
 
             } catch (e: Exception) {
-                Log.e(TAG, "초기화 중 오류 발생", e)
-                showError("초기화 중 오류가 발생했습니다: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Log.e(TAG, "초기화 중 오류 발생", e)
+                    showError("초기화 중 오류가 발생했습니다: ${e.message}")
+                    showLoading(false)
+                }
             }
         }
     }
