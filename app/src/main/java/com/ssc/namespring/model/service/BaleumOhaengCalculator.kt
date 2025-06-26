@@ -1,16 +1,32 @@
 // model/service/BaleumOhaengCalculator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.hangul.HangulConstants
 import com.ssc.namespring.model.util.toHangulDecomposition
 
+// 피드백: 특정 클래스에서만 사용하는 상수는 해당 클래스로 이동
 class BaleumOhaengCalculator(private val cacheManager: CacheManager) {
+
+    companion object {
+        // 초성 오행 매핑 - 이 클래스에서만 사용
+        private val CHOSUNG_BALEUM_OHAENG = mapOf(
+            'ㄱ' to "木", 'ㅋ' to "木",
+            'ㄴ' to "火", 'ㄷ' to "火", 'ㄹ' to "火", 'ㅌ' to "火",
+            'ㅇ' to "土", 'ㅎ' to "土",
+            'ㅅ' to "金", 'ㅈ' to "金", 'ㅊ' to "金",
+            'ㅁ' to "水", 'ㅂ' to "水", 'ㅍ' to "水"
+        )
+
+        // 중성 음양 분류 - 이 클래스에서만 사용
+        private val EUM_JUNGSEONG = setOf('ㅓ', 'ㅕ', 'ㅔ', 'ㅖ', 'ㅜ', 'ㅠ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ', 'ㅡ')
+        private val YANG_JUNGSEONG = setOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')
+    }
 
     fun getBaleumOhaeng(char: Char): String? {
         return cacheManager.baleumOhaengCache.getOrPut(char) {
             val (cho, _, _) = char.toHangulDecomposition()
-            Constants.INITIALS.getOrNull(cho)?.let { initial ->
-                Constants.CHOSUNG_BALEUM_OHAENG[initial]
+            HangulConstants.INITIALS.getOrNull(cho)?.let { initial ->
+                CHOSUNG_BALEUM_OHAENG[initial]
             }
         }
     }
@@ -18,10 +34,10 @@ class BaleumOhaengCalculator(private val cacheManager: CacheManager) {
     fun getBaleumEumyang(char: Char): Int? {
         return cacheManager.baleumEumyangCache.getOrPut(char) {
             val (_, jung, _) = char.toHangulDecomposition()
-            Constants.MEDIALS.getOrNull(jung)?.let { medial ->
+            HangulConstants.MEDIALS.getOrNull(jung)?.let { medial ->
                 when (medial) {
-                    in Constants.EUM_JUNGSEONG -> 0
-                    in Constants.YANG_JUNGSEONG -> 1
+                    in EUM_JUNGSEONG -> 0
+                    in YANG_JUNGSEONG -> 1
                     else -> null
                 }
             }

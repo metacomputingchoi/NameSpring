@@ -1,23 +1,21 @@
 // model/util/TimeCalculator.kt
 package com.ssc.namespring.model.util
 
-import android.annotation.SuppressLint
-import com.ssc.namespring.model.common.Constants
-import com.ssc.namespring.model.common.Constants.TimeSlot
+import com.ssc.namespring.model.common.saju.SajuConstants
+import com.ssc.namespring.model.common.datetime.DateTimeConstants.TimeSlot
 
 object TimeCalculator {
     fun getColumnIndex(cheongan: Char): Int {
         return when (cheongan) {
-            in Constants.StemGroups.WOOD_STEMS -> 0
-            in Constants.StemGroups.FIRE_STEMS -> 1
-            in Constants.StemGroups.EARTH_STEMS -> 2
-            in Constants.StemGroups.METAL_STEMS -> 3
-            in Constants.StemGroups.WATER_STEMS -> 4
+            in SajuConstants.StemGroups.WOOD_STEMS -> 0
+            in SajuConstants.StemGroups.FIRE_STEMS -> 1
+            in SajuConstants.StemGroups.EARTH_STEMS -> 2
+            in SajuConstants.StemGroups.METAL_STEMS -> 3
+            in SajuConstants.StemGroups.WATER_STEMS -> 4
             else -> -1
         }
     }
 
-    @SuppressLint("DefaultLocale")
     fun getRowIndex(hour: Int, minute: Int, second: Int): Int {
         val timeStr = String.format("%02d:%02d:%02d", hour, minute, second)
 

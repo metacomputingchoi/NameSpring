@@ -5,6 +5,7 @@ import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.YinYangAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.OhaengAnalysisInfo
 
+// 피드백: 분석 정보를 별도 패키지로 분리하여 구조 명확화
 data class NameAnalysisInfo(
     // 사주 정보
     val sajuInfo: SajuAnalysisInfo,

@@ -1,22 +1,23 @@
 // model/core/NamingSystem.kt
 package com.ssc.namespring.model.core
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.naming.NamingCalculationConstants
+import com.ssc.namespring.model.common.parsing.ParsingConstants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.filter.*
-import com.ssc.namespring.model.util.logger.PrintLogger
 import com.ssc.namespring.model.util.logger.Logger
+import com.ssc.namespring.model.util.logger.PrintLogger
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.service.*
 
+// 피드백: 싱글톤 패턴 제거, 생성자 주입으로 변경
 class NamingSystem(
-    private val logger: Logger = PrintLogger(Constants.LOG_TAG)
+    private val logger: Logger = PrintLogger(ParsingConstants.LOG_TAG)  // 기본값으로 PrintLogger 제공
 ) {
-
     private lateinit var dataRepository: DataRepository
     private lateinit var hanjaRepository: HanjaRepository
 
@@ -102,7 +103,7 @@ class NamingSystem(
 
             val surnameCandidates = findSurnameCandidates(parsed)
             if (surnameCandidates.isEmpty()) {
-                throw NamingException.InvalidInputException(Constants.ErrorMessages.INVALID_SURNAME)
+                throw NamingException.InvalidInputException(ParsingConstants.ErrorMessages.INVALID_SURNAME)
             }
 
             val fourPillars = sajuCalculator.getSaju(
@@ -162,7 +163,7 @@ class NamingSystem(
         val surHanja = candidate["surHanja"] as String
 
         if (!nameParser.validateNameLengthConstraint(nameParts)) {
-            if (verbose) logger.v("${Constants.ErrorMessages.NAME_LENGTH_CONSTRAINT}$surHangul")
+            if (verbose) logger.v("${ParsingConstants.ErrorMessages.NAME_LENGTH_CONSTRAINT}$surHangul")
             return emptyList()
         }
 

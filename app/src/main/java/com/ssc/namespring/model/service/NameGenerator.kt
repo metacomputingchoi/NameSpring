@@ -1,7 +1,8 @@
 // model/service/NameGenerator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.parsing.ParsingConstants
+import com.ssc.namespring.model.common.hangul.HangulConstants
 import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.util.toHangulDecomposition
@@ -136,15 +137,15 @@ class NameGenerator(
 
     private fun matchesConstraint(hanja: HanjaInfo, constraint: NameConstraint): Boolean {
         // 한자 제약 확인
-        if (constraint.hanjaType == Constants.ConstraintTypes.COMPLETE &&
+        if (constraint.hanjaType == ParsingConstants.ConstraintTypes.COMPLETE &&
             hanja.hanja != constraint.hanjaValue) {
             return false
         }
 
         // 한글 제약 확인
         return when (constraint.hangulType) {
-            Constants.ConstraintTypes.COMPLETE -> hanja.inmyongSound == constraint.hangulValue
-            Constants.ConstraintTypes.INITIAL -> {
+            ParsingConstants.ConstraintTypes.COMPLETE -> hanja.inmyongSound == constraint.hangulValue
+            ParsingConstants.ConstraintTypes.INITIAL -> {
                 hanja.inmyongSound.isNotEmpty() &&
                         getInitialFromHangul(hanja.inmyongSound[0]) == constraint.hangulValue?.get(0)
             }
@@ -153,9 +154,9 @@ class NameGenerator(
     }
 
     private fun getInitialFromHangul(char: Char): Char? {
-        return if (char in Constants.HANGUL_START..Constants.HANGUL_END) {
+        return if (char in HangulConstants.HANGUL_START..HangulConstants.HANGUL_END) {
             val (cho, _, _) = char.toHangulDecomposition()
-            Constants.INITIALS[cho]
+            HangulConstants.INITIALS[cho]
         } else null
     }
 }
