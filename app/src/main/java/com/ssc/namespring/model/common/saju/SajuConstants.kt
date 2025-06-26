@@ -1,7 +1,6 @@
 // model/common/saju/SajuConstants.kt
 package com.ssc.namespring.model.common.saju
 
-// 피드백: Constants를 카테고리별로 분리하여 찾기 쉽게 만듦
 object SajuConstants {
     // 천간 오행 매핑
     val CHEONGAN_OHAENG = mapOf(

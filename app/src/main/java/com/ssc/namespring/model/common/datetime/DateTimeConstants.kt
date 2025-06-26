@@ -1,44 +1,37 @@
 // model/common/datetime/DateTimeConstants.kt
 package com.ssc.namespring.model.common.datetime
 
+import java.time.LocalTime
+
 object DateTimeConstants {
-    // 날짜 관련 상수
-    object Date {
-        const val FEBRUARY = 2
-        const val APRIL = 4
-        const val JUNE = 6
-        const val SEPTEMBER = 9
-        const val NOVEMBER = 11
-        const val DECEMBER = 12
 
-        const val DAYS_IN_FEBRUARY = 28
-        const val DAYS_IN_FEBRUARY_LEAP = 29
-        const val DAYS_IN_SHORT_MONTH = 30
-        const val DAYS_IN_LONG_MONTH = 31
+    // 시간대별 경계값
+    object TimeSlots {
+        val SLOT_BOUNDARIES = listOf(
+            LocalTime.of(23, 30), // 자시
+            LocalTime.of(1, 30),  // 축시
+            LocalTime.of(3, 30),  // 인시
+            LocalTime.of(5, 30),  // 묘시
+            LocalTime.of(7, 30),  // 진시
+            LocalTime.of(9, 30),  // 사시
+            LocalTime.of(11, 30), // 오시
+            LocalTime.of(13, 30), // 미시
+            LocalTime.of(15, 30), // 신시
+            LocalTime.of(17, 30), // 유시
+            LocalTime.of(19, 30), // 술시
+            LocalTime.of(21, 30)  // 해시
+        )
 
-        const val LEAP_YEAR_DIVISOR = 4
-        const val CENTURY_DIVISOR = 100
-        const val LEAP_CENTURY_DIVISOR = 400
-    }
-
-    // 시간 구분 상수
-    object TimeSlot {
-        const val SLOT_23_30 = "23:30:00"
-        const val SLOT_01_30 = "01:30:00"
-        const val SLOT_03_30 = "03:30:00"
-        const val SLOT_05_30 = "05:30:00"
-        const val SLOT_07_30 = "07:30:00"
-        const val SLOT_09_30 = "09:30:00"
-        const val SLOT_11_30 = "11:30:00"
-        const val SLOT_13_30 = "13:30:00"
-        const val SLOT_15_30 = "15:30:00"
-        const val SLOT_17_30 = "17:30:00"
-        const val SLOT_19_30 = "19:30:00"
-        const val SLOT_21_30 = "21:30:00"
+        val SLOT_NAMES = listOf(
+            "자시(子時)", "축시(丑時)", "인시(寅時)", "묘시(卯時)",
+            "진시(辰時)", "사시(巳時)", "오시(午時)", "미시(未時)",
+            "신시(申時)", "유시(酉時)", "술시(戌時)", "해시(亥時)"
+        )
     }
 
     // 야자시 관련
-    const val YAJASI_HOUR = 23
-    const val YAJASI_MINUTE = 30
-    const val YAJASI_DAY_INCREMENT = 1
+    object Yajasi {
+        val START_TIME = LocalTime.of(23, 30)
+        const val DAY_INCREMENT = 1
+    }
 }

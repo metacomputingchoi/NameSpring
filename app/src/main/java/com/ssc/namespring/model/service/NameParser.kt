@@ -20,7 +20,10 @@ class NameParser {
             hangul.normalizeNFC() to hanja.normalizeNFC()
         }.toList().also {
             if (it.isEmpty()) {
-                throw NamingException.InvalidInputException(ParsingConstants.ErrorMessages.INVALID_INPUT_FORMAT)
+                throw NamingException.InvalidInputException(
+                    ParsingConstants.ErrorMessages.INVALID_INPUT_FORMAT,
+                    input = input
+                )
             }
         }
     }
@@ -31,7 +34,10 @@ class NameParser {
                 hangul == ParsingConstants.INPUT_SEPARATOR -> ParsingConstants.ConstraintTypes.EMPTY
                 hangul.length == 1 && hangul[0] in HangulConstants.INITIALS -> ParsingConstants.ConstraintTypes.INITIAL
                 hangul.length == 1 && hangul[0] in HangulConstants.HANGUL_START..HangulConstants.HANGUL_END -> ParsingConstants.ConstraintTypes.COMPLETE
-                else -> throw NamingException.InvalidInputException(ParsingConstants.ErrorMessages.INVALID_HANGUL + hangul)
+                else -> throw NamingException.InvalidInputException(
+                    ParsingConstants.ErrorMessages.INVALID_HANGUL,
+                    input = hangul
+                )
             }
 
             val hanjaType = if (hanja == ParsingConstants.INPUT_SEPARATOR) {

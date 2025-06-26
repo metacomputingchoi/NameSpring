@@ -1,41 +1,89 @@
 // model/service/SajuCalculator.kt
 package com.ssc.namespring.model.service
 
+import com.ssc.namespring.model.common.datetime.DateTimeConstants
 import com.ssc.namespring.model.common.saju.SajuConstants
 import com.ssc.namespring.model.common.parsing.ParsingConstants
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.repository.DataRepository
-import com.ssc.namespring.model.util.DateCalculator
-import com.ssc.namespring.model.util.TimeCalculator
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class SajuCalculator(private val dataRepository: DataRepository) {
 
     fun getSaju(
-        year: Int, month: Int, day: Int,
-        hour: Int, minute: Int, second: Int = 0,
+        birthDateTime: LocalDateTime,
         useYajasi: Boolean = true
     ): Array<String> {
-        val dateCalculator = DateCalculator(useYajasi)
-        val (adjustedYear, adjustedMonth, adjustedDay, yeolidxAdd) =
-            dateCalculator.adjustDate(year, month, day, hour, minute)
+        try {
+            val dateTime = birthDateTime
 
-        val result = dataRepository.ymdData.find { data ->
-            data[ParsingConstants.JsonKeys.YEAR] == adjustedYear &&
-                    data[ParsingConstants.JsonKeys.MONTH] == adjustedMonth &&
-                    data[ParsingConstants.JsonKeys.DAY] == adjustedDay
-        } ?: throw NamingException.DataNotFoundException(ParsingConstants.ErrorMessages.DATE_NOT_FOUND)
+            // 야자시 처리
+            var adjustedDateTime = dateTime
+            var yeolidxAdd = 0
 
-        val yeonju = result[ParsingConstants.JsonKeys.YEAR_PILLAR] as String
-        val wolju = result[ParsingConstants.JsonKeys.MONTH_PILLAR] as String
-        val ilju = result[ParsingConstants.JsonKeys.DAY_PILLAR] as String
+            if (dateTime.toLocalTime() >= DateTimeConstants.Yajasi.START_TIME) {
+                yeolidxAdd = DateTimeConstants.Yajasi.DAY_INCREMENT
+                if (!useYajasi) {
+                    adjustedDateTime = adjustedDateTime.plusDays(1)
+                }
+            }
 
-        val colIdx = TimeCalculator.getColumnIndex(ilju[0])
-        val rowIdx = TimeCalculator.getRowIndex(hour, minute, second)
-        val adjustedColIdx = (colIdx + yeolidxAdd) % SajuConstants.Relations.ELEMENT_COUNT
-        val siju = SajuConstants.SIJU[rowIdx][adjustedColIdx]
+            val result = dataRepository.ymdData.find { data ->
+                data[ParsingConstants.JsonKeys.YEAR] == adjustedDateTime.year &&
+                data[ParsingConstants.JsonKeys.MONTH] == adjustedDateTime.monthValue &&
+                data[ParsingConstants.JsonKeys.DAY] == adjustedDateTime.dayOfMonth
+            } ?: throw NamingException.DataNotFoundException(
+                ParsingConstants.ErrorMessages.DATE_NOT_FOUND,
+                dataType = "사주 데이터",
+                searchKey = "${adjustedDateTime.year}-${adjustedDateTime.monthValue}-${adjustedDateTime.dayOfMonth}"
+            )
 
-        return arrayOf(yeonju, wolju, ilju, siju)
+            val yeonju = result[ParsingConstants.JsonKeys.YEAR_PILLAR] as String
+            val wolju = result[ParsingConstants.JsonKeys.MONTH_PILLAR] as String
+            val ilju = result[ParsingConstants.JsonKeys.DAY_PILLAR] as String
+
+            val colIdx = getColumnIndex(ilju[0])
+            val rowIdx = getTimeSlotIndex(dateTime.toLocalTime())
+            val adjustedColIdx = (colIdx + yeolidxAdd) % SajuConstants.Relations.ELEMENT_COUNT
+            val siju = SajuConstants.SIJU[rowIdx][adjustedColIdx]
+
+            return arrayOf(yeonju, wolju, ilju, siju)
+
+        } catch (e: NamingException) {
+            throw e
+        }
+    }
+
+    private fun getColumnIndex(cheongan: Char): Int {
+        return when (cheongan) {
+            in SajuConstants.StemGroups.WOOD_STEMS -> 0
+            in SajuConstants.StemGroups.FIRE_STEMS -> 1
+            in SajuConstants.StemGroups.EARTH_STEMS -> 2
+            in SajuConstants.StemGroups.METAL_STEMS -> 3
+            in SajuConstants.StemGroups.WATER_STEMS -> 4
+            else -> -1
+        }
+    }
+
+    private fun getTimeSlotIndex(time: LocalTime): Int {
+        val boundaries = DateTimeConstants.TimeSlots.SLOT_BOUNDARIES
+
+        return when {
+            time >= boundaries[0] || time < boundaries[1] -> 0
+            time < boundaries[2] -> 1
+            time < boundaries[3] -> 2
+            time < boundaries[4] -> 3
+            time < boundaries[5] -> 4
+            time < boundaries[6] -> 5
+            time < boundaries[7] -> 6
+            time < boundaries[8] -> 7
+            time < boundaries[9] -> 8
+            time < boundaries[10] -> 9
+            time < boundaries[11] -> 10
+            else -> 11
+        }
     }
 
     fun getSajuOhaengCount(yeonju: String, wolju: String, ilju: String, siju: String): Map<String, Int> {
