@@ -4,11 +4,10 @@ package com.ssc.namespring.model.service
 import com.ssc.namespring.model.common.hangul.HangulConstants
 import com.ssc.namespring.model.util.toHangulDecomposition
 
-// 피드백: 특정 클래스에서만 사용하는 상수는 해당 클래스로 이동
 class BaleumOhaengCalculator(private val cacheManager: CacheManager) {
 
     companion object {
-        // 초성 오행 매핑 - 이 클래스에서만 사용
+        // 초성 오행 매핑
         private val CHOSUNG_BALEUM_OHAENG = mapOf(
             'ㄱ' to "木", 'ㅋ' to "木",
             'ㄴ' to "火", 'ㄷ' to "火", 'ㄹ' to "火", 'ㅌ' to "火",
@@ -17,7 +16,7 @@ class BaleumOhaengCalculator(private val cacheManager: CacheManager) {
             'ㅁ' to "水", 'ㅂ' to "水", 'ㅍ' to "水"
         )
 
-        // 중성 음양 분류 - 이 클래스에서만 사용
+        // 중성 음양 분류
         private val EUM_JUNGSEONG = setOf('ㅓ', 'ㅕ', 'ㅔ', 'ㅖ', 'ㅜ', 'ㅠ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅢ', 'ㅡ')
         private val YANG_JUNGSEONG = setOf('ㅏ', 'ㅑ', 'ㅐ', 'ㅒ', 'ㅗ', 'ㅛ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅣ')
     }

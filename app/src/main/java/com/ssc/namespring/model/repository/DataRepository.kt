@@ -1,6 +1,7 @@
 // model/repository/DataRepository.kt
 package com.ssc.namespring.model.repository
 
+import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.util.JsonParser
 
 class DataRepository {
@@ -27,15 +28,22 @@ class DataRepository {
         dictHangulGivenNamesJson: String,
         surnameChosungToKoreanJson: String
     ) {
-        ymdData = JsonParser.parseYmdData(ymdJson)
-        nameCharTripleDict = JsonParser.parseJsonToMap(nameCharTripleJson)
-        surnameCharTripleDict = JsonParser.parseJsonToMap(surnameCharTripleJson)
-        nameKoreanToTripleKeys = JsonParser.parseJsonToMapList(nameKoreanToTripleJson)
-        nameHanjaToTripleKeys = JsonParser.parseJsonToMapList(nameHanjaToTripleJson)
-        surnameKoreanToTripleKeys = JsonParser.parseJsonToMapList(surnameKoreanToTripleJson)
-        surnameHanjaToTripleKeys = JsonParser.parseJsonToMapList(surnameHanjaToTripleJson)
-        surnameHanjaPairMapping = JsonParser.parseSurnameHanjaPairMapping(surnameHanjaPairJson)
-        surnameChosungToKorean = JsonParser.parseJsonToMapList(surnameChosungToKoreanJson)
-        dictHangulGivenNames = JsonParser.parseDictHangulGivenNames(dictHangulGivenNamesJson)
+        try {
+            ymdData = JsonParser.parseYmdData(ymdJson)
+            nameCharTripleDict = JsonParser.parseJsonToMap(nameCharTripleJson)
+            surnameCharTripleDict = JsonParser.parseJsonToMap(surnameCharTripleJson)
+            nameKoreanToTripleKeys = JsonParser.parseJsonToMapList(nameKoreanToTripleJson)
+            nameHanjaToTripleKeys = JsonParser.parseJsonToMapList(nameHanjaToTripleJson)
+            surnameKoreanToTripleKeys = JsonParser.parseJsonToMapList(surnameKoreanToTripleJson)
+            surnameHanjaToTripleKeys = JsonParser.parseJsonToMapList(surnameHanjaToTripleJson)
+            surnameHanjaPairMapping = JsonParser.parseSurnameHanjaPairMapping(surnameHanjaPairJson)
+            surnameChosungToKorean = JsonParser.parseJsonToMapList(surnameChosungToKoreanJson)
+            dictHangulGivenNames = JsonParser.parseDictHangulGivenNames(dictHangulGivenNamesJson)
+        } catch (e: Exception) {
+            throw NamingException.ConfigurationException(
+                "데이터 로드 실패",
+                cause = e
+            )
+        }
     }
 }

@@ -1,7 +1,6 @@
 // model/util/logger/PrintLogger.kt
 package com.ssc.namespring.model.util.logger
 
-// 피드백: 플랫폼 독립적인 기본 Logger 구현
 class PrintLogger(private val tag: String) : Logger {
     override fun d(message: String) {
         println("[$tag] DEBUG: $message")

@@ -2,36 +2,54 @@
 package com.ssc.namespring.model.util
 
 import com.ssc.namespring.model.common.parsing.ParsingConstants.JsonKeys
+import com.ssc.namespring.model.exception.NamingException
 import org.json.JSONArray
 import org.json.JSONObject
+import org.json.JSONException
 
 object JsonParser {
     fun parseYmdData(json: String): List<Map<String, Any>> {
-        return JSONArray(json).let { jsonArray ->
-            (0 until jsonArray.length()).map { i ->
-                jsonArray.getJSONObject(i).let { obj ->
-                    mapOf(
-                        JsonKeys.YEAR to obj.getInt(JsonKeys.YEAR),
-                        JsonKeys.MONTH to obj.getInt(JsonKeys.MONTH),
-                        JsonKeys.DAY to obj.getInt(JsonKeys.DAY),
-                        JsonKeys.YEAR_PILLAR to obj.getString(JsonKeys.YEAR_PILLAR).normalizeNFC(),
-                        JsonKeys.MONTH_PILLAR to obj.getString(JsonKeys.MONTH_PILLAR).normalizeNFC(),
-                        JsonKeys.DAY_PILLAR to obj.getString(JsonKeys.DAY_PILLAR).normalizeNFC()
-                    )
+        return try {
+            JSONArray(json).let { jsonArray ->
+                (0 until jsonArray.length()).map { i ->
+                    jsonArray.getJSONObject(i).let { obj ->
+                        mapOf(
+                            JsonKeys.YEAR to obj.getInt(JsonKeys.YEAR),
+                            JsonKeys.MONTH to obj.getInt(JsonKeys.MONTH),
+                            JsonKeys.DAY to obj.getInt(JsonKeys.DAY),
+                            JsonKeys.YEAR_PILLAR to obj.getString(JsonKeys.YEAR_PILLAR).normalizeNFC(),
+                            JsonKeys.MONTH_PILLAR to obj.getString(JsonKeys.MONTH_PILLAR).normalizeNFC(),
+                            JsonKeys.DAY_PILLAR to obj.getString(JsonKeys.DAY_PILLAR).normalizeNFC()
+                        )
+                    }
                 }
             }
+        } catch (e: JSONException) {
+            throw NamingException.DataNotFoundException(
+                "년월일 데이터 파싱 실패",
+                dataType = "YMD JSON",
+                cause = e
+            )
         }
     }
 
     fun parseJsonToMap(json: String): Map<String, Map<String, Any>> {
-        return JSONObject(json).let { jsonObj ->
-            jsonObj.keys().asSequence().mapNotNull { key ->
-                try {
-                    key.normalizeNFC() to parseInnerObject(jsonObj.getJSONObject(key))
-                } catch (e: Exception) {
-                    null
-                }
-            }.toMap()
+        return try {
+            JSONObject(json).let { jsonObj ->
+                jsonObj.keys().asSequence().mapNotNull { key ->
+                    try {
+                        key.normalizeNFC() to parseInnerObject(jsonObj.getJSONObject(key))
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.toMap()
+            }
+        } catch (e: JSONException) {
+            throw NamingException.DataNotFoundException(
+                "JSON 맵 파싱 실패",
+                dataType = "JSON Map",
+                cause = e
+            )
         }
     }
 
@@ -51,30 +69,46 @@ object JsonParser {
     }
 
     fun parseJsonToMapList(json: String): Map<String, List<String>> {
-        return JSONObject(json).let { jsonObj ->
-            jsonObj.keys().asSequence().mapNotNull { key ->
-                try {
-                    val jsonArray = jsonObj.getJSONArray(key)
-                    key.normalizeNFC() to (0 until jsonArray.length()).map {
-                        jsonArray.getString(it).normalizeNFC()
+        return try {
+            JSONObject(json).let { jsonObj ->
+                jsonObj.keys().asSequence().mapNotNull { key ->
+                    try {
+                        val jsonArray = jsonObj.getJSONArray(key)
+                        key.normalizeNFC() to (0 until jsonArray.length()).map {
+                            jsonArray.getString(it).normalizeNFC()
+                        }
+                    } catch (e: Exception) {
+                        null
                     }
-                } catch (e: Exception) {
-                    null
-                }
-            }.toMap()
+                }.toMap()
+            }
+        } catch (e: JSONException) {
+            throw NamingException.DataNotFoundException(
+                "JSON 리스트 맵 파싱 실패",
+                dataType = "JSON Map List",
+                cause = e
+            )
         }
     }
 
     fun parseSurnameHanjaPairMapping(json: String): Map<String, Any> {
-        return JSONObject(json).let { jsonObj ->
-            jsonObj.keys().asSequence().associate { key ->
-                val value = jsonObj.get(key)
-                key.normalizeNFC() to when (value) {
-                    is JSONArray -> (0 until value.length()).map { value.getString(it).normalizeNFC() }
-                    is String -> value.normalizeNFC()
-                    else -> value
-                }
-            }.toMap()
+        return try {
+            JSONObject(json).let { jsonObj ->
+                jsonObj.keys().asSequence().associate { key ->
+                    val value = jsonObj.get(key)
+                    key.normalizeNFC() to when (value) {
+                        is JSONArray -> (0 until value.length()).map { value.getString(it).normalizeNFC() }
+                        is String -> value.normalizeNFC()
+                        else -> value
+                    }
+                }.toMap()
+            }
+        } catch (e: JSONException) {
+            throw NamingException.DataNotFoundException(
+                "성씨 한자 매핑 파싱 실패",
+                dataType = "Surname Hanja Mapping",
+                cause = e
+            )
         }
     }
 

@@ -39,8 +39,11 @@ object ParsingConstants {
         const val INVALID_INPUT_FORMAT = "올바른 입력 형식이 아닙니다. 예: [김/金][_/_][ㅅ/_]"
         const val INVALID_SURNAME = "유효한 성을 찾을 수 없습니다."
         const val DATE_NOT_FOUND = "날짜 데이터를 찾을 수 없습니다."
-        const val INVALID_HANGUL = "잘못된 한글 입력: "
+        const val INVALID_HANGUL = "잘못된 한글 입력"
         const val NAME_LENGTH_CONSTRAINT = "이름 길이 제약을 만족하지 않습니다: 성 "
+        const val INVALID_DATE = "유효하지 않은 날짜입니다"
+        const val INVALID_TIME = "유효하지 않은 시간입니다"
+        const val DATA_LOAD_FAILED = "데이터 로드 실패"
     }
 
     // 로그 태그

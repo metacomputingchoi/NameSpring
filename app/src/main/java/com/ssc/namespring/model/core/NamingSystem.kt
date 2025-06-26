@@ -1,10 +1,10 @@
 // model/core/NamingSystem.kt
 package com.ssc.namespring.model.core
 
-import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.common.parsing.ParsingConstants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
+import com.ssc.namespring.model.data.analysis.FilteringStep
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.filter.*
@@ -13,10 +13,10 @@ import com.ssc.namespring.model.util.logger.PrintLogger
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.service.*
+import java.time.LocalDateTime
 
-// 피드백: 싱글톤 패턴 제거, 생성자 주입으로 변경
 class NamingSystem(
-    private val logger: Logger = PrintLogger(ParsingConstants.LOG_TAG)  // 기본값으로 PrintLogger 제공
+    private val logger: Logger = PrintLogger(ParsingConstants.LOG_TAG)
 ) {
     private lateinit var dataRepository: DataRepository
     private lateinit var hanjaRepository: HanjaRepository
@@ -76,26 +76,33 @@ class NamingSystem(
             multiOhaengHarmonyAnalyzer = MultiOhaengHarmonyAnalyzer(cacheManager)
             hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository)
             nameSuriAnalyzer = NameSuriAnalyzer(hanjaHoeksuAnalyzer, multiOhaengHarmonyAnalyzer)
-            nameGenerator = NameGenerator(hanjaRepository, nameSuriAnalyzer)
+
+            // NameGenerator 생성 시 필요한 모든 의존성 전달
+            nameGenerator = NameGenerator(
+                hanjaRepository,
+                nameSuriAnalyzer,
+                hanjaHoeksuAnalyzer,
+                multiOhaengHarmonyAnalyzer
+            )
+
             analysisInfoGenerator = AnalysisInfoGenerator(baleumOhaengCalculator, multiOhaengHarmonyAnalyzer)
 
             logger.d("NamingSystem initialized successfully")
         } catch (e: Exception) {
             logger.e("Failed to initialize NamingSystem", e)
-            throw e
+            throw NamingException.ConfigurationException(
+                "시스템 초기화 실패",
+                cause = e
+            )
         }
     }
 
     fun generateKoreanNames(
         userInput: String,
-        birthYear: Int,
-        birthMonth: Int,
-        birthDay: Int,
-        birthHour: Int,
-        birthMinute: Int,
-        birthSecond: Int = 0,
+        birthDateTime: LocalDateTime,
         useYajasi: Boolean = true,
-        verbose: Boolean = false
+        verbose: Boolean = false,
+        withoutFilter: Boolean = false  // 새로운 파라미터 추가
     ): List<GeneratedName> {
         return try {
             val parsed = nameParser.parseNameInput(userInput)
@@ -103,12 +110,13 @@ class NamingSystem(
 
             val surnameCandidates = findSurnameCandidates(parsed)
             if (surnameCandidates.isEmpty()) {
-                throw NamingException.InvalidInputException(ParsingConstants.ErrorMessages.INVALID_SURNAME)
+                throw NamingException.InvalidInputException(
+                    ParsingConstants.ErrorMessages.INVALID_SURNAME,
+                    input = userInput
+                )
             }
 
-            val fourPillars = sajuCalculator.getSaju(
-                birthYear, birthMonth, birthDay, birthHour, birthMinute, birthSecond, useYajasi
-            )
+            val fourPillars = sajuCalculator.getSaju(birthDateTime, useYajasi)
             val sajuOhaengCount = sajuCalculator.getSajuOhaengCount(
                 fourPillars[0], fourPillars[1], fourPillars[2], fourPillars[3]
             )
@@ -121,7 +129,7 @@ class NamingSystem(
             }
 
             surnameCandidates.flatMap { candidate ->
-                processSurnameCandidate(candidate, sajuOhaengCount, sajuInfo, verbose)
+                processSurnameCandidate(candidate, sajuOhaengCount, sajuInfo, verbose, withoutFilter)
             }
 
         } catch (e: NamingException) {
@@ -131,7 +139,10 @@ class NamingSystem(
         } catch (e: Exception) {
             logger.e("Unexpected error", e)
             if (verbose) e.printStackTrace()
-            throw e
+            throw NamingException.ConfigurationException(
+                "이름 생성 중 예기치 않은 오류 발생",
+                cause = e
+            )
         }
     }
 
@@ -156,7 +167,8 @@ class NamingSystem(
         candidate: Map<String, Any>,
         sajuOhaengCount: Map<String, Int>,
         sajuInfo: SajuAnalysisInfo,
-        verbose: Boolean
+        verbose: Boolean,
+        withoutFilter: Boolean
     ): List<GeneratedName> {
         val nameParts = candidate["nameParts"] as List<Pair<String, String>>
         val surHangul = candidate["surHangul"] as String
@@ -174,13 +186,33 @@ class NamingSystem(
         if (verbose) {
             logger.v("성: $surHangul($surHanja)")
             logger.v("이름 길이: ${nameLength}글자")
+            logger.v("이름 제약조건: ${nameConstraints.map { "${it.hangulType}:${it.hangulValue}/${it.hanjaType}:${it.hanjaValue}" }}")
         }
 
         val results = nameGenerator.generateNames(
-            surHangul, surHanja, nameConstraints, nameLength, sajuOhaengCount
+            surHangul, surHanja, nameConstraints, nameLength, sajuOhaengCount,
+            requireMinScore = !withoutFilter  // 평가 모드에서는 최소 점수 요구하지 않음
         )
 
-        return applyFiltersWithBatch(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
+        // 디버깅: results가 비어있는지 확인
+        if (verbose) {
+            var count = 0
+            for (name in results) {
+                count++
+                if (count == 1) {
+                    logger.v("첫 번째 생성된 이름: ${name.combinedHanja}")
+                }
+            }
+            if (count == 0) {
+                logger.v("nameGenerator에서 생성된 이름이 없음")
+            }
+        }
+
+        return if (withoutFilter) {
+            evaluateAllNames(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
+        } else {
+            applyFiltersWithBatch(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
+        }
     }
 
     private fun applyFiltersWithBatch(
@@ -196,12 +228,10 @@ class NamingSystem(
 
         var filteredNames = names
 
-        // 각 필터를 순차적으로 적용
         filters.forEach { filter ->
             filteredNames = filter.filterBatch(filteredNames, context)
         }
 
-        // 결과를 리스트로 수집
         val results = mutableListOf<GeneratedName>()
         var count = 0
 
@@ -209,7 +239,6 @@ class NamingSystem(
             results.add(name)
             count++
 
-            // 주기적으로 로그 출력
             if (verbose && count % 10000 == 0) {
                 logger.v("처리 중: ${count}개 필터링 완료")
             }
@@ -217,11 +246,62 @@ class NamingSystem(
 
         if (verbose) logger.v("필터링 완료: ${results.size}개")
 
-        // 분석 정보 추가 (선택적)
+        // 분석 정보 추가 (필터링 통과 정보만 포함)
         return results.map { name ->
             name.apply {
-                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo)
+                val filteringSteps = filters.map { filter ->
+                    FilteringStep(
+                        filterName = when (filter) {
+                            is BaleumOhaengEumyangFilter -> "발음오행음양필터"
+                            is JawonOhaengFilter -> "자원오행필터"
+                            is BaleumNaturalFilter -> "발음자연스러움필터"
+                            else -> "알수없는필터"
+                        },
+                        passed = true,
+                        reason = "필터 통과",
+                        details = emptyMap()
+                    )
+                }
+                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo, filteringSteps)
             }
         }
+    }
+
+    private fun evaluateAllNames(
+        names: Sequence<GeneratedName>,
+        surHangul: String,
+        surLength: Int,
+        nameLength: Int,
+        sajuOhaengCount: Map<String, Int>,
+        sajuInfo: SajuAnalysisInfo,
+        verbose: Boolean
+    ): List<GeneratedName> {
+        val context = FilterContext(surHangul, surLength, nameLength, sajuOhaengCount)
+
+        val results = mutableListOf<GeneratedName>()
+        var count = 0
+
+        for (name in names) {
+            // 각 필터로 평가 수행
+            val filteringSteps = filters.map { filter ->
+                filter.evaluate(name, context)
+            }
+
+            // 분석 정보 추가 (모든 평가 정보 포함)
+            name.apply {
+                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo, filteringSteps)
+            }
+
+            results.add(name)
+            count++
+
+            if (verbose && count % 10000 == 0) {
+                logger.v("평가 중: ${count}개 완료")
+            }
+        }
+
+        if (verbose) logger.v("평가 완료: 총 ${results.size}개")
+
+        return results
     }
 }
