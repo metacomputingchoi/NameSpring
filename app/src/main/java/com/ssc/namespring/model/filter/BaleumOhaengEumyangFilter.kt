@@ -4,84 +4,37 @@ package com.ssc.namespring.model.filter
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
-import com.ssc.namespring.model.data.analysis.FilteringStep
-import com.ssc.namespring.model.exception.NamingException
+import com.ssc.namespring.model.data.analysis.ValidationResult
 import kotlin.math.abs
 
 class BaleumOhaengEumyangFilter(
     private val getBaleumOhaeng: (Char) -> String?,
     private val getBaleumEumyang: (Char) -> Int?,
     private val checkBaleumOhaengHarmony: (String) -> Boolean
-) : NameFilterStrategy {
+) : AbstractNameFilter() {
 
-    override fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName> {
-        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
-        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
+    override fun getFilterName(): String = "발음오행음양필터"
 
-        return names.filter { name ->
-            try {
-                isValid(name, context, surBaleumOhaeng, surBaleumEumyang)
-            } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "발음오행음양 필터 처리 중 오류 발생",
-                    filterName = "BaleumOhaengEumyangFilter",
-                    cause = e
-                )
-            }
-        }
-    }
-
-    override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
-        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
-        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
-
-        return names.filter { name ->
-            try {
-                isValid(name, context, surBaleumOhaeng, surBaleumEumyang)
-            } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "발음오행음양 필터 배치 처리 중 오류 발생",
-                    filterName = "BaleumOhaengEumyangFilter",
-                    cause = e
-                )
-            }
-        }
-    }
-
-    override fun evaluate(name: GeneratedName, context: FilterContext): FilteringStep {
-        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
-        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
-
-        return try {
-            val validationResult = getValidationDetails(name, context, surBaleumOhaeng, surBaleumEumyang)
-
-            FilteringStep(
-                filterName = "발음오행음양필터",
-                passed = validationResult.isValid,
-                reason = validationResult.reason,
-                details = validationResult.details
-            )
-        } catch (e: Exception) {
-            FilteringStep(
-                filterName = "발음오행음양필터",
-                passed = false,
-                reason = "평가 중 오류 발생: ${e.message}",
-                details = emptyMap()
-            )
-        }
-    }
-
-    private fun isValid(
+    override fun isValid(
         name: GeneratedName,
-        context: FilterContext,
-        surBaleumOhaeng: List<String>,
-        surBaleumEumyang: List<Int>
+        context: FilterContext
     ): Boolean {
-        val validationResult = getValidationDetails(name, context, surBaleumOhaeng, surBaleumEumyang)
+        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
+        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
+        val validationResult = getValidationDetailsInternal(name, context, surBaleumOhaeng, surBaleumEumyang)
         return validationResult.isValid
     }
 
-    private fun getValidationDetails(
+    override fun getValidationDetails(
+        name: GeneratedName,
+        context: FilterContext
+    ): ValidationResult {
+        val surBaleumOhaeng = context.surHangul.mapNotNull { getBaleumOhaeng(it) }
+        val surBaleumEumyang = context.surHangul.mapNotNull { getBaleumEumyang(it) }
+        return getValidationDetailsInternal(name, context, surBaleumOhaeng, surBaleumEumyang)
+    }
+
+    private fun getValidationDetailsInternal(
         name: GeneratedName,
         context: FilterContext,
         surBaleumOhaeng: List<String>,
@@ -127,10 +80,6 @@ class BaleumOhaengEumyangFilter(
             reason = if (harmonyValid) "발음오행이 조화로움" else "발음오행이 상극 관계",
             details = details
         )
-    }
-
-    private fun checkYinYangBalance(eumyang: String, surLength: Int, nameLength: Int): Boolean {
-        return checkYinYangBalanceWithDetails(eumyang, surLength, nameLength).isValid
     }
 
     private fun checkYinYangBalanceWithDetails(
@@ -220,10 +169,4 @@ class BaleumOhaengEumyangFilter(
         if (eumyangList.first() == eumyangList.last()) consecutiveCount++
         return consecutiveCount <= maxAllowed
     }
-
-    private data class ValidationResult(
-        val isValid: Boolean,
-        val reason: String,
-        val details: Map<String, Any>
-    )
 }

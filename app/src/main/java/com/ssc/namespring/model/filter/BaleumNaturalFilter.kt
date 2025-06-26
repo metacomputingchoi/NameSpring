@@ -3,25 +3,25 @@ package com.ssc.namespring.model.filter
 
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
-import com.ssc.namespring.model.data.analysis.FilteringStep
+import com.ssc.namespring.model.data.analysis.ValidationResult
 
 class BaleumNaturalFilter(
     private val dictProvider: () -> Set<String>
-) : NameFilterStrategy {
+) : AbstractNameFilter() {
 
-    override fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName> {
-        return names.filter { name ->
-            isValid(name, context)
+    override fun getFilterName(): String = "발음자연스러움필터"
+
+    override fun isValid(name: GeneratedName, context: FilterContext): Boolean {
+        val fullName = name.surnameHangul + name.combinedPronounciation
+        return if (fullName.length > context.surHangul.length) {
+            val namePart = fullName.substring(context.surHangul.length)
+            namePart.length != 2 || namePart in dictProvider()
+        } else {
+            true
         }
     }
 
-    override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
-        return names.filter { name ->
-            isValid(name, context)
-        }
-    }
-
-    override fun evaluate(name: GeneratedName, context: FilterContext): FilteringStep {
+    override fun getValidationDetails(name: GeneratedName, context: FilterContext): ValidationResult {
         val fullName = name.surnameHangul + name.combinedPronounciation
         val namePart = if (fullName.length > context.surHangul.length) {
             fullName.substring(context.surHangul.length)
@@ -52,21 +52,6 @@ class BaleumNaturalFilter(
             }
         }
 
-        return FilteringStep(
-            filterName = "발음자연스러움필터",
-            passed = isValid,
-            reason = reason,
-            details = details
-        )
-    }
-
-    private fun isValid(name: GeneratedName, context: FilterContext): Boolean {
-        val fullName = name.surnameHangul + name.combinedPronounciation
-        return if (fullName.length > context.surHangul.length) {
-            val namePart = fullName.substring(context.surHangul.length)
-            namePart.length != 2 || namePart in dictProvider()
-        } else {
-            true
-        }
+        return ValidationResult(isValid, reason, details)
     }
 }

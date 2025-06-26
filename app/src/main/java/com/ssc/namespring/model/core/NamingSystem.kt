@@ -77,7 +77,6 @@ class NamingSystem(
             hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository)
             nameSuriAnalyzer = NameSuriAnalyzer(hanjaHoeksuAnalyzer, multiOhaengHarmonyAnalyzer)
 
-            // NameGenerator 생성 시 필요한 모든 의존성 전달
             nameGenerator = NameGenerator(
                 hanjaRepository,
                 nameSuriAnalyzer,
@@ -102,7 +101,7 @@ class NamingSystem(
         birthDateTime: LocalDateTime,
         useYajasi: Boolean = true,
         verbose: Boolean = false,
-        withoutFilter: Boolean = false  // 새로운 파라미터 추가
+        withoutFilter: Boolean = false
     ): List<GeneratedName> {
         return try {
             val parsed = nameParser.parseNameInput(userInput)
@@ -191,10 +190,9 @@ class NamingSystem(
 
         val results = nameGenerator.generateNames(
             surHangul, surHanja, nameConstraints, nameLength, sajuOhaengCount,
-            requireMinScore = !withoutFilter  // 평가 모드에서는 최소 점수 요구하지 않음
+            requireMinScore = !withoutFilter
         )
 
-        // 디버깅: results가 비어있는지 확인
         if (verbose) {
             var count = 0
             for (name in results) {
@@ -208,48 +206,52 @@ class NamingSystem(
             }
         }
 
-        return if (withoutFilter) {
-            evaluateAllNames(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
-        } else {
-            applyFiltersWithBatch(results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose)
-        }
+        return processNamesWithFilters(
+            results, surHangul, surLength, nameLength, sajuOhaengCount, sajuInfo, verbose, withoutFilter
+        )
     }
 
-    private fun applyFiltersWithBatch(
+    private fun processNamesWithFilters(
         names: Sequence<GeneratedName>,
         surHangul: String,
         surLength: Int,
         nameLength: Int,
         sajuOhaengCount: Map<String, Int>,
         sajuInfo: SajuAnalysisInfo,
-        verbose: Boolean
+        verbose: Boolean,
+        withoutFilter: Boolean
     ): List<GeneratedName> {
         val context = FilterContext(surHangul, surLength, nameLength, sajuOhaengCount)
 
-        var filteredNames = names
+        var processedNames = names
+        val filteringStepsByName = mutableMapOf<GeneratedName, List<FilteringStep>>()
 
-        filters.forEach { filter ->
-            filteredNames = filter.filterBatch(filteredNames, context)
+        if (withoutFilter) {
+            // 평가 모드: 필터링하지 않고 각 이름에 대한 평가 정보만 수집
+            processedNames = processedNames.map { name ->
+                val filteringSteps = filters.map { filter ->
+                    filter.evaluate(name, context)
+                }
+                filteringStepsByName[name] = filteringSteps
+                name
+            }
+        } else {
+            // 필터링 모드: 필터를 적용하여 통과한 이름만 선택
+            filters.forEach { filter ->
+                processedNames = filter.filterBatch(processedNames, context)
+            }
         }
 
         val results = mutableListOf<GeneratedName>()
         var count = 0
 
-        for (name in filteredNames) {
-            results.add(name)
-            count++
-
-            if (verbose && count % 10000 == 0) {
-                logger.v("처리 중: ${count}개 필터링 완료")
-            }
-        }
-
-        if (verbose) logger.v("필터링 완료: ${results.size}개")
-
-        // 분석 정보 추가 (필터링 통과 정보만 포함)
-        return results.map { name ->
-            name.apply {
-                val filteringSteps = filters.map { filter ->
+        for (name in processedNames) {
+            // 분석 정보 추가
+            val filteringSteps = if (withoutFilter) {
+                filteringStepsByName[name] ?: emptyList()
+            } else {
+                // 필터링 모드에서는 모든 필터를 통과했다는 정보 생성
+                filters.map { filter ->
                     FilteringStep(
                         filterName = when (filter) {
                             is BaleumOhaengEumyangFilter -> "발음오행음양필터"
@@ -262,45 +264,21 @@ class NamingSystem(
                         details = emptyMap()
                     )
                 }
-                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo, filteringSteps)
-            }
-        }
-    }
-
-    private fun evaluateAllNames(
-        names: Sequence<GeneratedName>,
-        surHangul: String,
-        surLength: Int,
-        nameLength: Int,
-        sajuOhaengCount: Map<String, Int>,
-        sajuInfo: SajuAnalysisInfo,
-        verbose: Boolean
-    ): List<GeneratedName> {
-        val context = FilterContext(surHangul, surLength, nameLength, sajuOhaengCount)
-
-        val results = mutableListOf<GeneratedName>()
-        var count = 0
-
-        for (name in names) {
-            // 각 필터로 평가 수행
-            val filteringSteps = filters.map { filter ->
-                filter.evaluate(name, context)
             }
 
-            // 분석 정보 추가 (모든 평가 정보 포함)
-            name.apply {
-                analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo, filteringSteps)
-            }
-
+            name.analysisInfo = analysisInfoGenerator.generateAnalysisInfo(name, sajuInfo, filteringSteps)
             results.add(name)
             count++
 
             if (verbose && count % 10000 == 0) {
-                logger.v("평가 중: ${count}개 완료")
+                logger.v("처리 중: ${count}개 완료")
             }
         }
 
-        if (verbose) logger.v("평가 완료: 총 ${results.size}개")
+        if (verbose) {
+            val modeStr = if (withoutFilter) "평가" else "필터링"
+            logger.v("$modeStr 완료: 총 ${results.size}개")
+        }
 
         return results
     }

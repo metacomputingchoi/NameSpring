@@ -9,6 +9,7 @@ import com.ssc.namespring.model.data.analysis.FilteringStep
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.YinYangAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.OhaengAnalysisInfo
+import com.ssc.namespring.model.util.NamingCalculationUtils
 
 class AnalysisInfoGenerator(
     private val baleumOhaengCalculator: BaleumOhaengCalculator,
@@ -67,9 +68,9 @@ class AnalysisInfoGenerator(
 
         return OhaengAnalysisInfo(
             baleumOhaeng = baleumOhaeng,
-            hoeksuOhaeng = calculateHoeksuOhaeng(name.nameHanjaHoeksu),
+            hoeksuOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(name.nameHanjaHoeksu),
             jawonOhaeng = name.hanjaDetails.map { it.jawonOhaeng },
-            sagyeokSuriOhaeng = calculateSagyeokSuriOhaeng(name.sagyeok),
+            sagyeokSuriOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(name.sagyeok.getValues()),
             harmonyScore = calculateHarmonyScore(generatingPairs.size, conflictingPairs.size),
             conflictingPairs = conflictingPairs,
             generatingPairs = generatingPairs,
@@ -94,22 +95,6 @@ class AnalysisInfoGenerator(
             "음(陰) ${yinCount}개(${(yinCount * 100 / total)}%), 양(陽) ${yangCount}개(${(yangCount * 100 / total)}%)"
         } else {
             "음양 정보 없음"
-        }
-    }
-
-    private fun calculateHoeksuOhaeng(hoeksu: List<Int>): List<Int> {
-        return hoeksu.map { sv ->
-            val ne = (sv % NamingCalculationConstants.STROKE_MODULO) +
-                    (sv % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
-            if (ne == NamingCalculationConstants.STROKE_MODULO) 0 else ne
-        }
-    }
-
-    private fun calculateSagyeokSuriOhaeng(sagyeok: Sagyeok): List<Int> {
-        return sagyeok.getValues().map { ft ->
-            val te = (ft % NamingCalculationConstants.STROKE_MODULO) +
-                    (ft % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
-            if (te == NamingCalculationConstants.STROKE_MODULO) 0 else te
         }
     }
 

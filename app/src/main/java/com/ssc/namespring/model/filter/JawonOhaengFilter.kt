@@ -4,80 +4,33 @@ package com.ssc.namespring.model.filter
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
-import com.ssc.namespring.model.data.analysis.FilteringStep
-import com.ssc.namespring.model.exception.NamingException
+import com.ssc.namespring.model.data.analysis.ValidationResult
 import com.ssc.namespring.model.util.normalizeNFC
 
-class JawonOhaengFilter : NameFilterStrategy {
+class JawonOhaengFilter : AbstractNameFilter() {
 
-    override fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName> {
-        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
-        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
+    override fun getFilterName(): String = "자원오행필터"
 
-        return names.filter { name ->
-            try {
-                isValid(name, context, zeroElements, oneElements)
-            } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "자원오행 필터 처리 중 오류 발생",
-                    filterName = "JawonOhaengFilter",
-                    cause = e
-                )
-            }
-        }
-    }
-
-    override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
-        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
-        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
-
-        return names.filter { name ->
-            try {
-                isValid(name, context, zeroElements, oneElements)
-            } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "자원오행 필터 배치 처리 중 오류 발생",
-                    filterName = "JawonOhaengFilter",
-                    cause = e
-                )
-            }
-        }
-    }
-
-    override fun evaluate(name: GeneratedName, context: FilterContext): FilteringStep {
-        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
-        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
-
-        return try {
-            val validationResult = getValidationDetails(name, context, zeroElements, oneElements)
-
-            FilteringStep(
-                filterName = "자원오행필터",
-                passed = validationResult.isValid,
-                reason = validationResult.reason,
-                details = validationResult.details
-            )
-        } catch (e: Exception) {
-            FilteringStep(
-                filterName = "자원오행필터",
-                passed = false,
-                reason = "평가 중 오류 발생: ${e.message}",
-                details = emptyMap()
-            )
-        }
-    }
-
-    private fun isValid(
+    override fun isValid(
         name: GeneratedName,
-        context: FilterContext,
-        zeroElements: List<String>,
-        oneElements: List<String>
+        context: FilterContext
     ): Boolean {
-        val validationResult = getValidationDetails(name, context, zeroElements, oneElements)
+        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
+        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
+        val validationResult = getValidationDetailsInternal(name, context, zeroElements, oneElements)
         return validationResult.isValid
     }
 
-    private fun getValidationDetails(
+    override fun getValidationDetails(
+        name: GeneratedName,
+        context: FilterContext
+    ): ValidationResult {
+        val zeroElements = context.sajuOhaengCount.filterValues { it == 0 }.keys.map { it.normalizeNFC() }
+        val oneElements = context.sajuOhaengCount.filterValues { it == 1 }.keys.map { it.normalizeNFC() }
+        return getValidationDetailsInternal(name, context, zeroElements, oneElements)
+    }
+
+    private fun getValidationDetailsInternal(
         name: GeneratedName,
         context: FilterContext,
         zeroElements: List<String>,
@@ -100,18 +53,6 @@ class JawonOhaengFilter : NameFilterStrategy {
             context.nameLength,
             details
         )
-    }
-
-    private fun checkJawonCondition(
-        jawonElements: List<String>,
-        zeroElements: List<String>,
-        oneElements: List<String>,
-        surLength: Int,
-        nameLength: Int
-    ): Boolean {
-        return checkJawonConditionWithDetails(
-            jawonElements, zeroElements, oneElements, surLength, nameLength, mutableMapOf()
-        ).isValid
     }
 
     private fun checkJawonConditionWithDetails(
@@ -166,14 +107,6 @@ class JawonOhaengFilter : NameFilterStrategy {
 
             else -> ValidationResult(true, "기타 구조", details)
         }
-    }
-
-    private fun checkForDoubleChar(
-        jawonElements: List<String>,
-        zeroElements: List<String>,
-        oneElements: List<String>
-    ): Boolean {
-        return checkForDoubleCharWithDetails(jawonElements, zeroElements, oneElements, mutableMapOf()).isValid
     }
 
     private fun checkForDoubleCharWithDetails(
@@ -243,14 +176,6 @@ class JawonOhaengFilter : NameFilterStrategy {
         }
     }
 
-    private fun checkForTripleChar(
-        jawonElements: List<String>,
-        zeroElements: List<String>,
-        oneElements: List<String>
-    ): Boolean {
-        return checkForTripleCharWithDetails(jawonElements, zeroElements, oneElements, mutableMapOf()).isValid
-    }
-
     private fun checkForTripleCharWithDetails(
         jawonElements: List<String>,
         zeroElements: List<String>,
@@ -318,14 +243,6 @@ class JawonOhaengFilter : NameFilterStrategy {
 
             else -> ValidationResult(true, "사주 오행이 균형잡혀 있음", details)
         }
-    }
-
-    private fun checkForQuadChar(
-        jawonElements: List<String>,
-        zeroElements: List<String>,
-        oneElements: List<String>
-    ): Boolean {
-        return checkForQuadCharWithDetails(jawonElements, zeroElements, oneElements, mutableMapOf()).isValid
     }
 
     private fun checkForQuadCharWithDetails(
@@ -410,10 +327,4 @@ class JawonOhaengFilter : NameFilterStrategy {
             else -> ValidationResult(true, "사주 오행이 균형잡혀 있음", details)
         }
     }
-
-    private data class ValidationResult(
-        val isValid: Boolean,
-        val reason: String,
-        val details: Map<String, Any>
-    )
 }

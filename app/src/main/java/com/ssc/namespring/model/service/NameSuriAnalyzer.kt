@@ -2,10 +2,10 @@
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
-import com.ssc.namespring.model.data.Sagyeok
 import com.ssc.namespring.model.data.GoodCombination
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.util.cartesianProduct
+import com.ssc.namespring.model.util.NamingCalculationUtils
 
 class NameSuriAnalyzer(
     private val hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer,
@@ -16,7 +16,7 @@ class NameSuriAnalyzer(
         surHangul: String,
         surHanja: String,
         nameLength: Int,
-        requireMinScore: Boolean = true  // 새 파라미터 추가 (기본값 true로 기존 동작 유지)
+        requireMinScore: Boolean = true
     ): List<GoodCombination> {
         try {
             val surLength = surHanja.length
@@ -29,7 +29,7 @@ class NameSuriAnalyzer(
                 repeat(nameLength) { add((NamingCalculationConstants.MIN_STROKE..NamingCalculationConstants.MAX_STROKE).toList()) }
             }
 
-            val isComplexSurnameSingleName = surLength >= 2 && nameLength == 1
+            val isComplexSurnameSingleName = NamingCalculationUtils.isComplexSurnameSingleName(surLength, nameLength)
 
             val indexRanges: List<List<Int>> = hoeksuRanges.map { range ->
                 range.indices.toList()
@@ -38,33 +38,24 @@ class NameSuriAnalyzer(
             return cartesianProduct(indexRanges).mapNotNull { indices ->
                 val hanjaHoeksuValues = indices.mapIndexed { i, idx -> hoeksuRanges[i][idx] }
 
-                val sagyeok = calculateSagyeok(hanjaHoeksuValues, surLength)
+                val sagyeok = NamingCalculationUtils.calculateSagyeok(hanjaHoeksuValues, surLength)
                 val score = sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
 
                 val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
 
                 // 음양 체크
-                if (!isComplexSurnameSingleName &&
-                    (nameBaleumEumyang.sum() == 0 || nameBaleumEumyang.sum() == nameBaleumEumyang.size)) {
+                if (!isComplexSurnameSingleName && NamingCalculationUtils.isYinYangUnbalanced(nameBaleumEumyang)) {
                     return@mapNotNull null
                 }
 
-                val nameHoeksuOhaeng = hanjaHoeksuValues.map { sv ->
-                    val ne = (sv % NamingCalculationConstants.STROKE_MODULO) +
-                            (sv % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
-                    if (ne == NamingCalculationConstants.STROKE_MODULO) 0 else ne
-                }
+                val nameHoeksuOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(hanjaHoeksuValues)
 
                 // 오행 체크
                 if (!multiOhaengHarmonyAnalyzer.checkHoeksuOhaengHarmony(nameHoeksuOhaeng, isComplexSurnameSingleName)) {
                     return@mapNotNull null
                 }
 
-                val sagyeokSuriOhaeng = sagyeok.getValues().map { ft ->
-                    val te = (ft % NamingCalculationConstants.STROKE_MODULO) +
-                            (ft % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
-                    if (te == NamingCalculationConstants.STROKE_MODULO) 0 else te
-                }
+                val sagyeokSuriOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(sagyeok.getValues())
 
                 // 사격 오행 체크
                 if (!multiOhaengHarmonyAnalyzer.checkSagyeokSuriOhaengHarmony(sagyeokSuriOhaeng, isComplexSurnameSingleName)) {
@@ -72,9 +63,9 @@ class NameSuriAnalyzer(
                 }
 
                 val minScore = if (requireMinScore) {
-                    getMinScore(isComplexSurnameSingleName, surLength, nameLength)
+                    NamingCalculationUtils.getMinScore(isComplexSurnameSingleName, surLength, nameLength)
                 } else {
-                    0  // requireMinScore가 false일 때는 최소 점수 요구 없음
+                    0
                 }
 
                 if (score >= minScore) {
@@ -93,27 +84,6 @@ class NameSuriAnalyzer(
                 hanja = surHanja,
                 cause = e
             )
-        }
-    }
-
-    private fun calculateSagyeok(hanjaHoeksuValues: List<Int>, surLength: Int): Sagyeok {
-        val hyeong = hanjaHoeksuValues.subList(surLength, hanjaHoeksuValues.size).sum()
-        val won = hanjaHoeksuValues[surLength - 1] + hanjaHoeksuValues[surLength]
-        val i = hanjaHoeksuValues.first() + hanjaHoeksuValues.last()
-        val jeong = hanjaHoeksuValues.sum() % NamingCalculationConstants.JEONG_MODULO
-
-        return Sagyeok(hyeong, won, i, jeong)
-    }
-
-    private fun getMinScore(
-        isComplexSurnameSingleName: Boolean,
-        surLength: Int,
-        nameLength: Int
-    ): Int {
-        return when {
-            isComplexSurnameSingleName -> NamingCalculationConstants.MinScore.COMPLEX_SURNAME_SINGLE_NAME
-            surLength == 1 && nameLength == 1 -> NamingCalculationConstants.MinScore.SINGLE_SURNAME_SINGLE_NAME
-            else -> NamingCalculationConstants.MinScore.DEFAULT
         }
     }
 }

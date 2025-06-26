@@ -7,7 +7,6 @@ import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.NameConstraint
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.util.normalizeNFC
-import com.ssc.namespring.model.util.toHangulDecomposition
 
 class NameParser {
 
@@ -68,12 +67,5 @@ class NameParser {
             val requiredFilled = totalLength - NamingCalculationConstants.MAX_EMPTY_SLOTS
             filledCount >= requiredFilled
         }
-    }
-
-    fun getInitialFromHangul(char: Char): Char? {
-        return if (char in HangulConstants.HANGUL_START..HangulConstants.HANGUL_END) {
-            val (cho, _, _) = char.toHangulDecomposition()
-            HangulConstants.INITIALS[cho]
-        } else null
     }
 }
