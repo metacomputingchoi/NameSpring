@@ -2,22 +2,20 @@
 package com.ssc.namespring.model.core
 
 import com.ssc.namespring.model.common.Constants
-import com.ssc.namespring.model.data.*
+import com.ssc.namespring.model.data.FilterContext
+import com.ssc.namespring.model.data.GeneratedName
+import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.filter.*
-import com.ssc.namespring.model.util.logger.AndroidLogger
+import com.ssc.namespring.model.util.logger.PrintLogger
 import com.ssc.namespring.model.util.logger.Logger
 import com.ssc.namespring.model.repository.DataRepository
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.service.*
 
-class NamingSystem private constructor() {
-
-    companion object {
-        val instance by lazy { NamingSystem() }
-    }
-
-    private val logger: Logger = AndroidLogger(Constants.LOG_TAG)
+class NamingSystem(
+    private val logger: Logger = PrintLogger(Constants.LOG_TAG)
+) {
 
     private lateinit var dataRepository: DataRepository
     private lateinit var hanjaRepository: HanjaRepository

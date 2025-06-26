@@ -2,7 +2,13 @@
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.Constants
-import com.ssc.namespring.model.data.*
+import com.ssc.namespring.model.data.Sagyeok
+import com.ssc.namespring.model.data.GeneratedName
+import com.ssc.namespring.model.data.analysis.NameAnalysisInfo
+import com.ssc.namespring.model.data.analysis.FilteringStep
+import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
+import com.ssc.namespring.model.data.analysis.component.YinYangAnalysisInfo
+import com.ssc.namespring.model.data.analysis.component.OhaengAnalysisInfo
 
 class AnalysisInfoGenerator(
     private val baleumOhaengCalculator: BaleumOhaengCalculator,

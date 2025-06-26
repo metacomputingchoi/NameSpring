@@ -2,8 +2,6 @@
 package com.ssc.namespring.utils
 
 import android.content.res.AssetManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class JsonFileLoader(private val assetManager: AssetManager) {
@@ -23,8 +21,8 @@ class JsonFileLoader(private val assetManager: AssetManager) {
         )
     }
 
-    suspend fun loadAllJsonFiles(): Map<String, String> = withContext(Dispatchers.IO) {
-        JSON_FILES.mapValues { (_, fileName) ->
+    fun loadAllJsonFiles(): Map<String, String> {  // suspend 제거
+        return JSON_FILES.mapValues { (_, fileName) ->
             loadJsonFile(fileName)
         }
     }
