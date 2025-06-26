@@ -14,7 +14,23 @@ import com.ssc.namespring.model.service.*
 class NamingSystem private constructor() {
 
     companion object {
+        // 싱글톤 남발 시 발생하는 문제
+        // 코드의 흐름을 뒤죽박죽으로 만들 여지가 발생.
+        // 외부에서 instance를 참조할 수 있기 때문에 외부 어디에서든 상태조작이 가능하다.
+        // ex.
+        // gameManager.instance 가 있다 치자. -> 인스턴스는 로딩 완료 후에만 써야함
+        // 스테이지3 이 끝났네? gameManager.instance.giveScore()
+        // gameManager.userScore++? 이런 코드들을 어디에서든 호출할 수 있다.
+        // 문제점 -> 로딩이 끝났을때만 코드를 쓸수 있어야 하는데 어디에서든 할수있다 -> 런타임에러 -> 겜 팅김
+        // "로딩"이라는 전제가 되는 암묵적인 규칙, 흐름을 개발자가 실수할수있게됨
+
         val instance by lazy { NamingSystem() }
+        // 유니티가 심함
+        // instance 접근하는 타이밍에따라 간헐적으로 프로그램 죽음.
+        // -> 개발자 지 본인도 왜 죽는지 모르게됨 -> 개발자가 바보
+        // -> lazy 혹은 싱글톤을 쓸 때에는, 꼭 그렇게 구현하지 않을 수 없을때만 해야함
+        // -> 보통은 사실 개발자가 설계를 잘 못해서, 안써도 되는데 굳이 편의상 쓴 경우가 대다수. (양날의검이 되버림)
+        // "if(instance가 유효?) 그러면 로직 실행."
     }
 
     private val logger: Logger = AndroidLogger(Constants.LOG_TAG)

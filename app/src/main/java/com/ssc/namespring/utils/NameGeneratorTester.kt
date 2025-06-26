@@ -3,7 +3,6 @@ package com.ssc.namespring.utils
 
 import android.util.Log
 import com.ssc.namespring.model.core.NamingSystem
-import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.exception.NamingException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,6 +25,17 @@ class NameGeneratorTester {
             "[남궁/南宮][_/_]",
             "[김/金][민/岷][구/枸]"
         )
+
+        // 어느 language를 가든 공통적으로 잘 지원하는 놈들은 찾아서 쓰는게 좋다.
+        // Calendar
+        // String(char)
+        // Timer
+        // Thread
+        // ...
+        // Algorithm/DS
+
+        // 이런걸 활용해서 뭘 만들어놓은 외부라이브러리들은 안쓰는게 공부할땐 좋다
+        // 이미 어떤 목적성을 가지고 구현 완료해놓은 gh 프로젝트들을 갖다쓰는건 내가 진짜 개발목적으로 밥벌이 할때 쓰는거
 
         private const val TEST_BIRTH_YEAR = 2025
         private const val TEST_BIRTH_MONTH = 6

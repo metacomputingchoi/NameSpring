@@ -14,6 +14,7 @@ data class GeneratedName(
     var analysisInfo: NameAnalysisInfo? = null
 )
 
+// has-a
 data class NameAnalysisInfo(
     // 사주 정보
     val sajuInfo: SajuAnalysisInfo,
@@ -32,7 +33,7 @@ data class NameAnalysisInfo(
     val scoreBreakdown: Map<String, Int>,
     val recommendations: List<String>
 )
-
+// has-a
 data class SajuAnalysisInfo(
     val fourPillars: Array<String>,
     val sajuOhaengCount: Map<String, Int>,
@@ -92,3 +93,7 @@ data class FilteringStep(
     val reason: String,
     val details: Map<String, Any>
 )
+
+// ..
+// 더있다 치자.
+// 외부 개발자가 볼땐 이거 다 분석해야됨. 빡침;;

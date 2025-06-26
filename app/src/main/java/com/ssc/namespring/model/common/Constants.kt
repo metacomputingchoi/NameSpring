@@ -236,6 +236,10 @@ object Constants {
     }
 
     // 천간 그룹
+    // "Constants 안에 있어요, 모든 상수가요." -> ㅇㅋ 그럼 그 클래스에서 찾아봄
+    // IDE: Constants. 타이핑 쳐놓고 드래그 하면서 수백수천개 중 찾아내야 함. 빡침;;
+    // -> 차안: StemGroups로 묶어주자. -> 수십수백 중 찾아내야함. 그래도 빡침;;
+    // -> 베스트: 그 로직이 든 클래스 내에서 로컬 상수를 사용하도록 하자. 안드로이드 예를 보자.
     object StemGroups {
         val WOOD_STEMS = setOf('甲', '乙')
         val FIRE_STEMS = setOf('丙', '丁')
