@@ -6,7 +6,9 @@ import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.*
 import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.util.NamingCalculationUtils
+import com.ssc.namespring.model.util.OhaengCalculationUtils
 import com.ssc.namespring.model.util.HangulUtils
+import com.ssc.namespring.model.util.CombinationGenerator
 
 class NameGenerator(
     private val hanjaRepository: HanjaRepository,
@@ -14,6 +16,7 @@ class NameGenerator(
     private val hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
+    private val yinYangAnalysisService = YinYangAnalysisService()
 
     fun generateNames(
         surHangul: String,
@@ -57,42 +60,20 @@ class NameGenerator(
         nameHanjaHoeksu: List<Int>,
         goodCombination: GoodCombination
     ): Sequence<GeneratedName> {
-        return sequence {
-            val candidateLists = nameHanjaHoeksu.map { hoeksu ->
-                hanjaRepository.hanjaByHoeksu[hoeksu] ?: emptyList()
-            }
-
-            generateCombinationsRecursive(candidateLists, 0, mutableListOf()) { combination ->
-                GeneratedName(
-                    surnameHangul = surHangul,
-                    surnameHanja = surHanja,
-                    combinedHanja = combination.joinToString("") { it.hanja },
-                    combinedPronounciation = combination.joinToString("") { it.inmyongSound },
-                    sagyeok = goodCombination.sagyeok,
-                    nameHanjaHoeksu = goodCombination.nameHanjaHoeksu,
-                    hanjaDetails = combination
-                )
-            }.filterNotNull().forEach { yield(it) }
+        val candidateLists = nameHanjaHoeksu.map { hoeksu ->
+            hanjaRepository.hanjaByHoeksu[hoeksu] ?: emptyList()
         }
-    }
 
-    private fun generateCombinationsRecursive(
-        candidateLists: List<List<HanjaInfo>>,
-        index: Int,
-        current: MutableList<HanjaInfo>,
-        createName: (List<HanjaInfo>) -> GeneratedName?
-    ): Sequence<GeneratedName?> {
-        return sequence {
-            if (index == candidateLists.size) {
-                yield(createName(current.toList()))
-            } else {
-                candidateLists[index].forEach { candidate ->
-                    current.add(candidate)
-                    generateCombinationsRecursive(candidateLists, index + 1, current, createName)
-                        .forEach { yield(it) }
-                    current.removeAt(current.size - 1)
-                }
-            }
+        return CombinationGenerator.generateCombinations(candidateLists) { combination ->
+            GeneratedName(
+                surnameHangul = surHangul,
+                surnameHanja = surHanja,
+                combinedHanja = combination.joinToString("") { it.hanja },
+                combinedPronounciation = combination.joinToString("") { it.inmyongSound },
+                sagyeok = goodCombination.sagyeok,
+                nameHanjaHoeksu = goodCombination.nameHanjaHoeksu,
+                hanjaDetails = combination
+            )
         }
     }
 
@@ -144,17 +125,17 @@ class NameGenerator(
                 candidatesByPosition.add(candidates)
             }
 
-            generateCombinationsRecursive(candidatesByPosition, 0, mutableListOf()) { combination ->
+            CombinationGenerator.generateCombinations(candidatesByPosition) { combination ->
                 val allHoeksu = surHanjaHoeksu + combination.map { it.wonHoeksu }
 
                 val sagyeok = NamingCalculationUtils.calculateSagyeok(allHoeksu, surLength)
-                val score = sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
+                val score = NamingCalculationUtils.countGilhanHoeksu(sagyeok.getValues())
 
                 if (requireMinScore) {
                     val isComplexSurnameSingleName = NamingCalculationUtils.isComplexSurnameSingleName(surLength, nameLength)
                     val minScore = NamingCalculationUtils.getMinScore(isComplexSurnameSingleName, surLength, nameLength)
                     if (score < minScore) {
-                        return@generateCombinationsRecursive null
+                        return@generateCombinations null
                     }
                 }
 
@@ -162,20 +143,20 @@ class NameGenerator(
                     val nameBaleumEumyang = allHoeksu.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
                     val isComplexSurnameSingleName = NamingCalculationUtils.isComplexSurnameSingleName(surLength, nameLength)
 
-                    if (!isComplexSurnameSingleName && NamingCalculationUtils.isYinYangUnbalanced(nameBaleumEumyang)) {
-                        return@generateCombinationsRecursive null
+                    if (!isComplexSurnameSingleName && yinYangAnalysisService.isYinYangUnbalanced(nameBaleumEumyang)) {
+                        return@generateCombinations null
                     }
 
-                    val nameHoeksuOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(allHoeksu)
+                    val nameHoeksuOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(allHoeksu)
 
                     if (!multiOhaengHarmonyAnalyzer.checkHoeksuOhaengHarmony(nameHoeksuOhaeng, isComplexSurnameSingleName)) {
-                        return@generateCombinationsRecursive null
+                        return@generateCombinations null
                     }
 
-                    val sagyeokSuriOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(sagyeok.getValues())
+                    val sagyeokSuriOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(sagyeok.getValues())
 
                     if (!multiOhaengHarmonyAnalyzer.checkSagyeokSuriOhaengHarmony(sagyeokSuriOhaeng, isComplexSurnameSingleName)) {
-                        return@generateCombinationsRecursive null
+                        return@generateCombinations null
                     }
                 }
 
@@ -188,7 +169,7 @@ class NameGenerator(
                     nameHanjaHoeksu = allHoeksu,
                     hanjaDetails = combination
                 )
-            }.filterNotNull().forEach { yield(it) }
+            }.forEach { yield(it) }
         }
     }
 

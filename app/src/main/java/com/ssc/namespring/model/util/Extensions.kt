@@ -21,3 +21,11 @@ fun <T> cartesianProduct(lists: List<List<T>>): List<List<T>> {
         }
     }
 }
+
+fun <T> Iterable<T>.countMatching(predicate: (T) -> Boolean): Int {
+    var count = 0
+    for (element in this) {
+        if (predicate(element)) count++
+    }
+    return count
+}

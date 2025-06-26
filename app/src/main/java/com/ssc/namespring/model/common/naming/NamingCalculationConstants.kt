@@ -13,6 +13,7 @@ object NamingCalculationConstants {
     const val JEONG_MODULO = 81
     const val STROKE_MODULO = 10
     const val YIN_YANG_MODULO = 2
+    const val OHAENG_COUNT = 5  // 오행 개수 상수 추가
 
     // 최소 점수 기준
     object MinScore {
@@ -95,5 +96,14 @@ object NamingCalculationConstants {
         const val PREVIOUS_INDEX_OFFSET = 1
         const val MIN_HARMONY_SCORE = 0
         const val MIN_REQUIRED_SCORE = 1
+    }
+
+    // 점수 계산 상수
+    object ScoreConstants {
+        const val HARMONY_GENERATING_SCORE = 10
+        const val HARMONY_CONFLICTING_PENALTY = 15
+        const val SAGYEOK_SCORE_MULTIPLIER = 25
+        const val YIN_YANG_BALANCE_SCORE = 20
+        const val HOEKSU_GILHAN_SCORE = 10
     }
 }

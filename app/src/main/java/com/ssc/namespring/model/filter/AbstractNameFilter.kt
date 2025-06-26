@@ -12,13 +12,9 @@ abstract class AbstractNameFilter : NameFilterStrategy {
     override fun filter(names: List<GeneratedName>, context: FilterContext): List<GeneratedName> {
         return names.filter { name ->
             try {
-                isValid(name, context)
+                getValidationDetails(name, context).isValid
             } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "${getFilterName()} 필터 처리 중 오류 발생",
-                    filterName = getFilterName(),
-                    cause = e
-                )
+                handleFilterError(e)
             }
         }
     }
@@ -26,13 +22,9 @@ abstract class AbstractNameFilter : NameFilterStrategy {
     override fun filterBatch(names: Sequence<GeneratedName>, context: FilterContext): Sequence<GeneratedName> {
         return names.filter { name ->
             try {
-                isValid(name, context)
+                getValidationDetails(name, context).isValid
             } catch (e: Exception) {
-                throw NamingException.FilteringException(
-                    "${getFilterName()} 필터 배치 처리 중 오류 발생",
-                    filterName = getFilterName(),
-                    cause = e
-                )
+                handleFilterError(e)
             }
         }
     }
@@ -40,24 +32,38 @@ abstract class AbstractNameFilter : NameFilterStrategy {
     override fun evaluate(name: GeneratedName, context: FilterContext): FilteringStep {
         return try {
             val validationResult = getValidationDetails(name, context)
-
-            FilteringStep(
-                filterName = getFilterName(),
-                passed = validationResult.isValid,
-                reason = validationResult.reason,
-                details = validationResult.details
-            )
+            createFilteringStep(validationResult)
         } catch (e: Exception) {
-            FilteringStep(
-                filterName = getFilterName(),
-                passed = false,
-                reason = "평가 중 오류 발생: ${e.message}",
-                details = emptyMap()
-            )
+            createErrorFilteringStep(e)
         }
     }
 
     protected abstract fun getFilterName(): String
-    protected abstract fun isValid(name: GeneratedName, context: FilterContext): Boolean
     protected abstract fun getValidationDetails(name: GeneratedName, context: FilterContext): ValidationResult
+
+    protected fun createFilteringStep(validationResult: ValidationResult): FilteringStep {
+        return FilteringStep(
+            filterName = getFilterName(),
+            passed = validationResult.isValid,
+            reason = validationResult.reason,
+            details = validationResult.details
+        )
+    }
+
+    private fun createErrorFilteringStep(e: Exception): FilteringStep {
+        return FilteringStep(
+            filterName = getFilterName(),
+            passed = false,
+            reason = FilterConstants.EVALUATION_ERROR_TEMPLATE.format(e.message),
+            details = emptyMap()
+        )
+    }
+
+    private fun handleFilterError(e: Exception): Boolean {
+        throw NamingException.FilteringException(
+            FilterConstants.FILTER_ERROR_TEMPLATE.format(getFilterName()),
+            filterName = getFilterName(),
+            cause = e
+        )
+    }
 }

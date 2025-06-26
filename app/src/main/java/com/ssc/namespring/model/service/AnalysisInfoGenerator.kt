@@ -2,7 +2,7 @@
 package com.ssc.namespring.model.service
 
 import com.ssc.namespring.model.common.naming.NamingCalculationConstants
-import com.ssc.namespring.model.data.Sagyeok
+import com.ssc.namespring.model.common.naming.NamingCalculationConstants.ScoreConstants
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.data.analysis.NameAnalysisInfo
 import com.ssc.namespring.model.data.analysis.FilteringStep
@@ -10,11 +10,13 @@ import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.YinYangAnalysisInfo
 import com.ssc.namespring.model.data.analysis.component.OhaengAnalysisInfo
 import com.ssc.namespring.model.util.NamingCalculationUtils
+import com.ssc.namespring.model.util.OhaengCalculationUtils
 
 class AnalysisInfoGenerator(
     private val baleumOhaengCalculator: BaleumOhaengCalculator,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
+    private val yinYangAnalysisService = YinYangAnalysisService()
 
     fun generateAnalysisInfo(
         name: GeneratedName,
@@ -41,23 +43,7 @@ class AnalysisInfoGenerator(
     private fun analyzeYinYang(name: GeneratedName): YinYangAnalysisInfo {
         val fullName = name.surnameHangul + name.combinedPronounciation
         val eumyangValues = fullName.mapNotNull { baleumOhaengCalculator.getBaleumEumyang(it) }
-        val combinedEumyang = eumyangValues.joinToString("")
-
-        val yinCount = eumyangValues.count { it == 0 }
-        val yangCount = eumyangValues.count { it == 1 }
-        val balance = if (yinCount + yangCount > 0) {
-            yangCount.toFloat() / (yinCount + yangCount)
-        } else 0.5f
-
-        return YinYangAnalysisInfo(
-            combinedEumyang = combinedEumyang,
-            yinCount = yinCount,
-            yangCount = yangCount,
-            balance = balance,
-            pattern = analyzeYinYangPattern(combinedEumyang),
-            isBalanced = yinCount > 0 && yangCount > 0 && kotlin.math.abs(yinCount - yangCount) <= 2,
-            balanceDescription = describeYinYangBalance(yinCount, yangCount)
-        )
+        return yinYangAnalysisService.analyzeYinYang(eumyangValues)
     }
 
     private fun analyzeOhaeng(name: GeneratedName): OhaengAnalysisInfo {
@@ -68,9 +54,9 @@ class AnalysisInfoGenerator(
 
         return OhaengAnalysisInfo(
             baleumOhaeng = baleumOhaeng,
-            hoeksuOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(name.nameHanjaHoeksu),
+            hoeksuOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(name.nameHanjaHoeksu),
             jawonOhaeng = name.hanjaDetails.map { it.jawonOhaeng },
-            sagyeokSuriOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(name.sagyeok.getValues()),
+            sagyeokSuriOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(name.sagyeok.getValues()),
             harmonyScore = calculateHarmonyScore(generatingPairs.size, conflictingPairs.size),
             conflictingPairs = conflictingPairs,
             generatingPairs = generatingPairs,
@@ -78,28 +64,9 @@ class AnalysisInfoGenerator(
         )
     }
 
-    private fun analyzeYinYangPattern(eumyang: String): String {
-        return when {
-            eumyang.all { it == '0' } -> "전체 음(陰)"
-            eumyang.all { it == '1' } -> "전체 양(陽)"
-            eumyang.count { it == '0' } > eumyang.count { it == '1' } * 2 -> "음(陰) 과다"
-            eumyang.count { it == '1' } > eumyang.count { it == '0' } * 2 -> "양(陽) 과다"
-            kotlin.math.abs(eumyang.count { it == '0' } - eumyang.count { it == '1' }) <= 1 -> "음양 균형"
-            else -> "음양 편중"
-        }
-    }
-
-    private fun describeYinYangBalance(yinCount: Int, yangCount: Int): String {
-        val total = yinCount + yangCount
-        return if (total > 0) {
-            "음(陰) ${yinCount}개(${(yinCount * 100 / total)}%), 양(陽) ${yangCount}개(${(yangCount * 100 / total)}%)"
-        } else {
-            "음양 정보 없음"
-        }
-    }
-
     private fun calculateHarmonyScore(generatingCount: Int, conflictingCount: Int): Int {
-        return generatingCount * 10 - conflictingCount * 15
+        return generatingCount * ScoreConstants.HARMONY_GENERATING_SCORE -
+                conflictingCount * ScoreConstants.HARMONY_CONFLICTING_PENALTY
     }
 
     private fun evaluateOverallHarmony(generatingCount: Int, conflictingCount: Int): String {
@@ -118,10 +85,12 @@ class AnalysisInfoGenerator(
         ohaengInfo: OhaengAnalysisInfo
     ): Map<String, Int> {
         return mapOf(
-            "사격점수" to name.sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU } * 25,
-            "음양균형" to if (yinYangInfo.isBalanced) 20 else 0,
+            "사격점수" to NamingCalculationUtils.countGilhanHoeksu(name.sagyeok.getValues()) *
+                    ScoreConstants.SAGYEOK_SCORE_MULTIPLIER,
+            "음양균형" to if (yinYangInfo.isBalanced) ScoreConstants.YIN_YANG_BALANCE_SCORE else 0,
             "오행조화" to ohaengInfo.harmonyScore,
-            "획수길흉" to name.nameHanjaHoeksu.count { it in NamingCalculationConstants.GILHAN_HOEKSU } * 10
+            "획수길흉" to NamingCalculationUtils.countGilhanHoeksu(name.nameHanjaHoeksu) *
+                    ScoreConstants.HOEKSU_GILHAN_SCORE
         )
     }
 
@@ -157,7 +126,7 @@ class AnalysisInfoGenerator(
         }
 
         // 길한 획수
-        val gilhanCount = name.sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
+        val gilhanCount = NamingCalculationUtils.countGilhanHoeksu(name.sagyeok.getValues())
         if (gilhanCount >= 3) {
             recommendations.add("사격 중 ${gilhanCount}개가 길한 수로 매우 좋습니다.")
         }

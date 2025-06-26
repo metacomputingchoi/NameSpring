@@ -254,10 +254,10 @@ class NamingSystem(
                 filters.map { filter ->
                     FilteringStep(
                         filterName = when (filter) {
-                            is BaleumOhaengEumyangFilter -> "발음오행음양필터"
-                            is JawonOhaengFilter -> "자원오행필터"
-                            is BaleumNaturalFilter -> "발음자연스러움필터"
-                            else -> "알수없는필터"
+                            is BaleumOhaengEumyangFilter -> FilterConstants.BALEUM_OHAENG_EUMYANG_FILTER
+                            is JawonOhaengFilter -> FilterConstants.JAWON_OHAENG_FILTER
+                            is BaleumNaturalFilter -> FilterConstants.BALEUM_NATURAL_FILTER
+                            else -> FilterConstants.UNKNOWN_FILTER
                         },
                         passed = true,
                         reason = "필터 통과",

@@ -6,11 +6,13 @@ import com.ssc.namespring.model.data.GoodCombination
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.util.cartesianProduct
 import com.ssc.namespring.model.util.NamingCalculationUtils
+import com.ssc.namespring.model.util.OhaengCalculationUtils
 
 class NameSuriAnalyzer(
     private val hanjaHoeksuAnalyzer: HanjaHoeksuAnalyzer,
     private val multiOhaengHarmonyAnalyzer: MultiOhaengHarmonyAnalyzer
 ) {
+    private val yinYangAnalysisService = YinYangAnalysisService()
 
     fun analyzeNameCombinations(
         surHangul: String,
@@ -39,23 +41,23 @@ class NameSuriAnalyzer(
                 val hanjaHoeksuValues = indices.mapIndexed { i, idx -> hoeksuRanges[i][idx] }
 
                 val sagyeok = NamingCalculationUtils.calculateSagyeok(hanjaHoeksuValues, surLength)
-                val score = sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
+                val score = NamingCalculationUtils.countGilhanHoeksu(sagyeok.getValues())
 
                 val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
 
                 // 음양 체크
-                if (!isComplexSurnameSingleName && NamingCalculationUtils.isYinYangUnbalanced(nameBaleumEumyang)) {
+                if (!isComplexSurnameSingleName && yinYangAnalysisService.isYinYangUnbalanced(nameBaleumEumyang)) {
                     return@mapNotNull null
                 }
 
-                val nameHoeksuOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(hanjaHoeksuValues)
+                val nameHoeksuOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(hanjaHoeksuValues)
 
                 // 오행 체크
                 if (!multiOhaengHarmonyAnalyzer.checkHoeksuOhaengHarmony(nameHoeksuOhaeng, isComplexSurnameSingleName)) {
                     return@mapNotNull null
                 }
 
-                val sagyeokSuriOhaeng = NamingCalculationUtils.calculateHoeksuListToOhaeng(sagyeok.getValues())
+                val sagyeokSuriOhaeng = OhaengCalculationUtils.calculateHoeksuListToOhaeng(sagyeok.getValues())
 
                 // 사격 오행 체크
                 if (!multiOhaengHarmonyAnalyzer.checkSagyeokSuriOhaengHarmony(sagyeokSuriOhaeng, isComplexSurnameSingleName)) {
