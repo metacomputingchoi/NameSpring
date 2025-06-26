@@ -1,7 +1,8 @@
 // model/service/SajuCalculator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.saju.SajuConstants
+import com.ssc.namespring.model.common.parsing.ParsingConstants
 import com.ssc.namespring.model.data.analysis.component.SajuAnalysisInfo
 import com.ssc.namespring.model.exception.NamingException
 import com.ssc.namespring.model.repository.DataRepository
@@ -20,36 +21,36 @@ class SajuCalculator(private val dataRepository: DataRepository) {
             dateCalculator.adjustDate(year, month, day, hour, minute)
 
         val result = dataRepository.ymdData.find { data ->
-            data[Constants.JsonKeys.YEAR] == adjustedYear &&
-                    data[Constants.JsonKeys.MONTH] == adjustedMonth &&
-                    data[Constants.JsonKeys.DAY] == adjustedDay
-        } ?: throw NamingException.DataNotFoundException(Constants.ErrorMessages.DATE_NOT_FOUND)
+            data[ParsingConstants.JsonKeys.YEAR] == adjustedYear &&
+                    data[ParsingConstants.JsonKeys.MONTH] == adjustedMonth &&
+                    data[ParsingConstants.JsonKeys.DAY] == adjustedDay
+        } ?: throw NamingException.DataNotFoundException(ParsingConstants.ErrorMessages.DATE_NOT_FOUND)
 
-        val yeonju = result[Constants.JsonKeys.YEAR_PILLAR] as String
-        val wolju = result[Constants.JsonKeys.MONTH_PILLAR] as String
-        val ilju = result[Constants.JsonKeys.DAY_PILLAR] as String
+        val yeonju = result[ParsingConstants.JsonKeys.YEAR_PILLAR] as String
+        val wolju = result[ParsingConstants.JsonKeys.MONTH_PILLAR] as String
+        val ilju = result[ParsingConstants.JsonKeys.DAY_PILLAR] as String
 
         val colIdx = TimeCalculator.getColumnIndex(ilju[0])
         val rowIdx = TimeCalculator.getRowIndex(hour, minute, second)
-        val adjustedColIdx = (colIdx + yeolidxAdd) % Constants.SangsaengSanggeukRelations.ELEMENT_COUNT
-        val siju = Constants.SIJU[rowIdx][adjustedColIdx]
+        val adjustedColIdx = (colIdx + yeolidxAdd) % SajuConstants.Relations.ELEMENT_COUNT
+        val siju = SajuConstants.SIJU[rowIdx][adjustedColIdx]
 
         return arrayOf(yeonju, wolju, ilju, siju)
     }
 
     fun getSajuOhaengCount(yeonju: String, wolju: String, ilju: String, siju: String): Map<String, Int> {
         val elements = listOf(
-            Constants.CHEONGAN_OHAENG[yeonju[0].toString()],
-            Constants.JIJI_OHAENG[yeonju[1].toString()],
-            Constants.CHEONGAN_OHAENG[wolju[0].toString()],
-            Constants.JIJI_OHAENG[wolju[1].toString()],
-            Constants.CHEONGAN_OHAENG[ilju[0].toString()],
-            Constants.JIJI_OHAENG[ilju[1].toString()],
-            Constants.CHEONGAN_OHAENG[siju[0].toString()],
-            Constants.JIJI_OHAENG[siju[1].toString()]
+            SajuConstants.CHEONGAN_OHAENG[yeonju[0].toString()],
+            SajuConstants.JIJI_OHAENG[yeonju[1].toString()],
+            SajuConstants.CHEONGAN_OHAENG[wolju[0].toString()],
+            SajuConstants.JIJI_OHAENG[wolju[1].toString()],
+            SajuConstants.CHEONGAN_OHAENG[ilju[0].toString()],
+            SajuConstants.JIJI_OHAENG[ilju[1].toString()],
+            SajuConstants.CHEONGAN_OHAENG[siju[0].toString()],
+            SajuConstants.JIJI_OHAENG[siju[1].toString()]
         )
 
-        return Constants.OHAENG_SUNSE.associateWith { element ->
+        return SajuConstants.OHAENG_SUNSE.associateWith { element ->
             elements.count { it == element }
         }
     }

@@ -1,7 +1,7 @@
 // model/service/NameSuriAnalyzer.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.Sagyeok
 import com.ssc.namespring.model.data.GoodCombination
 import com.ssc.namespring.model.util.cartesianProduct
@@ -23,7 +23,7 @@ class NameSuriAnalyzer(
 
         val hoeksuRanges = buildList {
             addAll(surHanjaHoeksu.map { listOf(it) })
-            repeat(nameLength) { add((Constants.MIN_STROKE..Constants.MAX_STROKE).toList()) }
+            repeat(nameLength) { add((NamingCalculationConstants.MIN_STROKE..NamingCalculationConstants.MAX_STROKE).toList()) }
         }
 
         val isComplexSurnameSingleName = surLength >= 2 && nameLength == 1
@@ -36,9 +36,9 @@ class NameSuriAnalyzer(
             val hanjaHoeksuValues = indices.mapIndexed { i, idx -> hoeksuRanges[i][idx] }
 
             val sagyeok = calculateSagyeok(hanjaHoeksuValues, surLength)
-            val score = sagyeok.getValues().count { it in Constants.GILHAN_HOEKSU }
+            val score = sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
 
-            val nameBaleumEumyang = hanjaHoeksuValues.map { it % Constants.YIN_YANG_MODULO }
+            val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
 
             // 음양 체크
             if (!isComplexSurnameSingleName &&
@@ -47,9 +47,9 @@ class NameSuriAnalyzer(
             }
 
             val nameHoeksuOhaeng = hanjaHoeksuValues.map { sv ->
-                val ne = (sv % Constants.STROKE_MODULO) +
-                        (sv % Constants.STROKE_MODULO) % Constants.YIN_YANG_MODULO
-                if (ne == Constants.STROKE_MODULO) 0 else ne
+                val ne = (sv % NamingCalculationConstants.STROKE_MODULO) +
+                        (sv % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
+                if (ne == NamingCalculationConstants.STROKE_MODULO) 0 else ne
             }
 
             // 오행 체크
@@ -58,9 +58,9 @@ class NameSuriAnalyzer(
             }
 
             val sagyeokSuriOhaeng = sagyeok.getValues().map { ft ->
-                val te = (ft % Constants.STROKE_MODULO) +
-                        (ft % Constants.STROKE_MODULO) % Constants.YIN_YANG_MODULO
-                if (te == Constants.STROKE_MODULO) 0 else te
+                val te = (ft % NamingCalculationConstants.STROKE_MODULO) +
+                        (ft % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
+                if (te == NamingCalculationConstants.STROKE_MODULO) 0 else te
             }
 
             // 사격 오행 체크
@@ -86,7 +86,7 @@ class NameSuriAnalyzer(
         val hyeong = hanjaHoeksuValues.subList(surLength, hanjaHoeksuValues.size).sum()
         val won = hanjaHoeksuValues[surLength - 1] + hanjaHoeksuValues[surLength]
         val i = hanjaHoeksuValues.first() + hanjaHoeksuValues.last()
-        val jeong = hanjaHoeksuValues.sum() % Constants.JEONG_MODULO
+        val jeong = hanjaHoeksuValues.sum() % NamingCalculationConstants.JEONG_MODULO
 
         return Sagyeok(hyeong, won, i, jeong)
     }
@@ -97,9 +97,9 @@ class NameSuriAnalyzer(
         nameLength: Int
     ): Int {
         return when {
-            isComplexSurnameSingleName -> Constants.MinScore.COMPLEX_SURNAME_SINGLE_NAME
-            surLength == 1 && nameLength == 1 -> Constants.MinScore.SINGLE_SURNAME_SINGLE_NAME
-            else -> Constants.MinScore.DEFAULT
+            isComplexSurnameSingleName -> NamingCalculationConstants.MinScore.COMPLEX_SURNAME_SINGLE_NAME
+            surLength == 1 && nameLength == 1 -> NamingCalculationConstants.MinScore.SINGLE_SURNAME_SINGLE_NAME
+            else -> NamingCalculationConstants.MinScore.DEFAULT
         }
     }
 }

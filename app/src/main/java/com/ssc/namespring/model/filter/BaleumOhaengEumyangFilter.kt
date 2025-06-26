@@ -1,7 +1,7 @@
 // model/filter/BaleumOhaengEumyangFilter.kt
 package com.ssc.namespring.model.filter
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.FilterContext
 import com.ssc.namespring.model.data.GeneratedName
 import kotlin.math.abs
@@ -56,19 +56,19 @@ class BaleumOhaengEumyangFilter(
 
     private fun checkYinYangBalance(eumyang: String, surLength: Int, nameLength: Int): Boolean {
         val eumyangSet = eumyang.toSet()
-        if (eumyangSet.size < Constants.YinYangBalance.MIN_VARIETY) return false
+        if (eumyangSet.size < NamingCalculationConstants.YinYangBalance.MIN_VARIETY) return false
 
         val eumyangList = eumyang.map { it.toString().toInt() }
 
         return when (surLength to nameLength) {
-            Constants.NameLengthCombinations.SINGLE_SINGLE -> eumyang[0] != eumyang[eumyang.length - 1]
-            Constants.NameLengthCombinations.SINGLE_DOUBLE -> eumyang[0] != eumyang[eumyang.length - 1]
-            Constants.NameLengthCombinations.SINGLE_TRIPLE -> checkConsecutiveCount(eumyangList, Constants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
-            Constants.NameLengthCombinations.SINGLE_QUAD -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, Constants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
-            Constants.NameLengthCombinations.DOUBLE_SINGLE -> eumyang[0] != eumyang[eumyang.length - 1]
-            Constants.NameLengthCombinations.DOUBLE_DOUBLE -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, Constants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
-            Constants.NameLengthCombinations.DOUBLE_TRIPLE -> abs(eumyangList.count { it == 0 } - eumyangList.count { it == 1 }) == 1 && checkConsecutiveCount(eumyangList, Constants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
-            Constants.NameLengthCombinations.DOUBLE_QUAD -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, Constants.YinYangBalance.MAX_CONSECUTIVE_TRIPLE)
+            NamingCalculationConstants.NameLengthCombinations.SINGLE_SINGLE -> eumyang[0] != eumyang[eumyang.length - 1]
+            NamingCalculationConstants.NameLengthCombinations.SINGLE_DOUBLE -> eumyang[0] != eumyang[eumyang.length - 1]
+            NamingCalculationConstants.NameLengthCombinations.SINGLE_TRIPLE -> checkConsecutiveCount(eumyangList, NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
+            NamingCalculationConstants.NameLengthCombinations.SINGLE_QUAD -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
+            NamingCalculationConstants.NameLengthCombinations.DOUBLE_SINGLE -> eumyang[0] != eumyang[eumyang.length - 1]
+            NamingCalculationConstants.NameLengthCombinations.DOUBLE_DOUBLE -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_SINGLE)
+            NamingCalculationConstants.NameLengthCombinations.DOUBLE_TRIPLE -> abs(eumyangList.count { it == 0 } - eumyangList.count { it == 1 }) == 1 && checkConsecutiveCount(eumyangList, NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_DOUBLE)
+            NamingCalculationConstants.NameLengthCombinations.DOUBLE_QUAD -> eumyangList.count { it == 0 } == eumyangList.count { it == 1 } && checkConsecutiveCount(eumyangList, NamingCalculationConstants.YinYangBalance.MAX_CONSECUTIVE_TRIPLE)
             else -> true
         }
     }

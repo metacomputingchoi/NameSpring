@@ -1,7 +1,7 @@
 // model/data/NameConstraint.kt
 package com.ssc.namespring.model.data
 
-import com.ssc.namespring.model.common.Constants.ConstraintTypes
+import com.ssc.namespring.model.common.parsing.ParsingConstants.ConstraintTypes
 
 data class NameConstraint(
     val hangulType: String,

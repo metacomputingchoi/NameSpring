@@ -1,7 +1,7 @@
 // model/service/AnalysisInfoGenerator.kt
 package com.ssc.namespring.model.service
 
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.Sagyeok
 import com.ssc.namespring.model.data.GeneratedName
 import com.ssc.namespring.model.data.analysis.NameAnalysisInfo
@@ -99,17 +99,17 @@ class AnalysisInfoGenerator(
 
     private fun calculateHoeksuOhaeng(hoeksu: List<Int>): List<Int> {
         return hoeksu.map { sv ->
-            val ne = (sv % Constants.STROKE_MODULO) +
-                    (sv % Constants.STROKE_MODULO) % Constants.YIN_YANG_MODULO
-            if (ne == Constants.STROKE_MODULO) 0 else ne
+            val ne = (sv % NamingCalculationConstants.STROKE_MODULO) +
+                    (sv % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
+            if (ne == NamingCalculationConstants.STROKE_MODULO) 0 else ne
         }
     }
 
     private fun calculateSagyeokSuriOhaeng(sagyeok: Sagyeok): List<Int> {
         return sagyeok.getValues().map { ft ->
-            val te = (ft % Constants.STROKE_MODULO) +
-                    (ft % Constants.STROKE_MODULO) % Constants.YIN_YANG_MODULO
-            if (te == Constants.STROKE_MODULO) 0 else te
+            val te = (ft % NamingCalculationConstants.STROKE_MODULO) +
+                    (ft % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
+            if (te == NamingCalculationConstants.STROKE_MODULO) 0 else te
         }
     }
 
@@ -133,10 +133,10 @@ class AnalysisInfoGenerator(
         ohaengInfo: OhaengAnalysisInfo
     ): Map<String, Int> {
         return mapOf(
-            "사격점수" to name.sagyeok.getValues().count { it in Constants.GILHAN_HOEKSU } * 25,
+            "사격점수" to name.sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU } * 25,
             "음양균형" to if (yinYangInfo.isBalanced) 20 else 0,
             "오행조화" to ohaengInfo.harmonyScore,
-            "획수길흉" to name.nameHanjaHoeksu.count { it in Constants.GILHAN_HOEKSU } * 10
+            "획수길흉" to name.nameHanjaHoeksu.count { it in NamingCalculationConstants.GILHAN_HOEKSU } * 10
         )
     }
 
@@ -172,7 +172,7 @@ class AnalysisInfoGenerator(
         }
 
         // 길한 획수
-        val gilhanCount = name.sagyeok.getValues().count { it in Constants.GILHAN_HOEKSU }
+        val gilhanCount = name.sagyeok.getValues().count { it in NamingCalculationConstants.GILHAN_HOEKSU }
         if (gilhanCount >= 3) {
             recommendations.add("사격 중 ${gilhanCount}개가 길한 수로 매우 좋습니다.")
         }

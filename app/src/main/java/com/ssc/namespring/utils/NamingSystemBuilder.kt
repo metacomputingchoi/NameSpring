@@ -4,7 +4,7 @@ package com.ssc.namespring.utils
 import com.ssc.namespring.model.core.NamingSystem
 import com.ssc.namespring.model.util.logger.Logger
 import com.ssc.namespring.model.util.logger.PrintLogger
-import com.ssc.namespring.model.common.Constants
+import com.ssc.namespring.model.common.parsing.ParsingConstants
 
 class NamingSystemBuilder {
     private var logger: Logger? = null
@@ -21,7 +21,7 @@ class NamingSystemBuilder {
     }
 
     fun build(): NamingSystem {
-        val finalLogger = logger ?: PrintLogger(Constants.LOG_TAG)
+        val finalLogger = logger ?: PrintLogger(ParsingConstants.LOG_TAG)
         return NamingSystem(finalLogger)
     }
 

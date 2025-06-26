@@ -1,10 +1,7 @@
 // model/util/DateCalculator.kt
 package com.ssc.namespring.model.util
 
-import com.ssc.namespring.model.common.Constants
-import com.ssc.namespring.model.common.Constants.DateConstants
-import com.ssc.namespring.model.common.Constants.YAJASI_HOUR
-import com.ssc.namespring.model.common.Constants.YAJASI_MINUTE
+import com.ssc.namespring.model.common.datetime.DateTimeConstants
 
 object DateCalculator {
     operator fun invoke(useYajasi: Boolean) = DateCalculator(useYajasi)
@@ -16,8 +13,8 @@ object DateCalculator {
             var adjustedDay = day
             var yeolidxAdd = 0
 
-            if (hour == YAJASI_HOUR && minute >= YAJASI_MINUTE) {
-                yeolidxAdd = Constants.YAJASI_DAY_INCREMENT
+            if (hour == DateTimeConstants.YAJASI_HOUR && minute >= DateTimeConstants.YAJASI_MINUTE) {
+                yeolidxAdd = DateTimeConstants.YAJASI_DAY_INCREMENT
                 if (!useYajasi) {
                     adjustedDay++
                     val adjustment = adjustForMonthEnd(adjustedYear, adjustedMonth, adjustedDay)
@@ -34,7 +31,7 @@ object DateCalculator {
             val maxDay = getMaxDayOfMonth(year, month)
 
             return if (day > maxDay) {
-                if (month == DateConstants.DECEMBER) {
+                if (month == DateTimeConstants.Date.DECEMBER) {
                     Triple(year + 1, 1, 1)
                 } else {
                     Triple(year, month + 1, 1)
@@ -46,20 +43,20 @@ object DateCalculator {
 
         private fun getMaxDayOfMonth(year: Int, month: Int): Int {
             return when (month) {
-                DateConstants.FEBRUARY -> if (isLeapYear(year)) {
-                    DateConstants.DAYS_IN_FEBRUARY_LEAP
+                DateTimeConstants.Date.FEBRUARY -> if (isLeapYear(year)) {
+                    DateTimeConstants.Date.DAYS_IN_FEBRUARY_LEAP
                 } else {
-                    DateConstants.DAYS_IN_FEBRUARY
+                    DateTimeConstants.Date.DAYS_IN_FEBRUARY
                 }
-                DateConstants.APRIL, DateConstants.JUNE, 
-                DateConstants.SEPTEMBER, DateConstants.NOVEMBER -> DateConstants.DAYS_IN_SHORT_MONTH
-                else -> DateConstants.DAYS_IN_LONG_MONTH
+                DateTimeConstants.Date.APRIL, DateTimeConstants.Date.JUNE, 
+                DateTimeConstants.Date.SEPTEMBER, DateTimeConstants.Date.NOVEMBER -> DateTimeConstants.Date.DAYS_IN_SHORT_MONTH
+                else -> DateTimeConstants.Date.DAYS_IN_LONG_MONTH
             }
         }
 
         private fun isLeapYear(year: Int): Boolean {
-            return (year % DateConstants.LEAP_YEAR_DIVISOR == 0 && year % DateConstants.CENTURY_DIVISOR != 0) || 
-                   (year % DateConstants.LEAP_CENTURY_DIVISOR == 0)
+            return (year % DateTimeConstants.Date.LEAP_YEAR_DIVISOR == 0 && year % DateTimeConstants.Date.CENTURY_DIVISOR != 0) || 
+                   (year % DateTimeConstants.Date.LEAP_CENTURY_DIVISOR == 0)
         }
     }
 
