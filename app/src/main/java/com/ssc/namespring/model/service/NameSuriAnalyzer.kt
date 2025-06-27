@@ -43,7 +43,7 @@ class NameSuriAnalyzer(
                 val sagyeok = NamingCalculationUtils.calculateSagyeok(hanjaHoeksuValues, surLength)
                 val score = NamingCalculationUtils.countGilhanHoeksu(sagyeok.getValues())
 
-                val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
+                val nameBaleumEumyang = hanjaHoeksuValues.map { it % NamingCalculationConstants.EUMYANG_MODULO }
 
                 // 음양 체크
                 if (!isComplexSurnameSingleName && eumYangAnalysisService.isEumYangUnbalanced(nameBaleumEumyang)) {

@@ -12,7 +12,7 @@ object NamingCalculationConstants {
     // 사격 계산 상수
     const val JEONG_MODULO = 81
     const val STROKE_MODULO = 10
-    const val YIN_YANG_MODULO = 2
+    const val EUMYANG_MODULO = 2
     const val OHAENG_COUNT = 5  // 오행 개수 상수 추가
 
     // 최소 점수 기준
@@ -103,7 +103,7 @@ object NamingCalculationConstants {
         const val HARMONY_GENERATING_SCORE = 10
         const val HARMONY_CONFLICTING_PENALTY = 15
         const val SAGYEOK_SCORE_MULTIPLIER = 25
-        const val YIN_YANG_BALANCE_SCORE = 20
+        const val EUMYANG_BALANCE_SCORE = 20
         const val HOEKSU_GILHAN_SCORE = 10
     }
 }

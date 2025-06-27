@@ -140,7 +140,7 @@ class NameGenerator(
                 }
 
                 if (requireMinScore) {
-                    val nameBaleumEumyang = allHoeksu.map { it % NamingCalculationConstants.YIN_YANG_MODULO }
+                    val nameBaleumEumyang = allHoeksu.map { it % NamingCalculationConstants.EUMYANG_MODULO }
                     val isComplexSurnameSingleName = NamingCalculationUtils.isComplexSurnameSingleName(surLength, nameLength)
 
                     if (!isComplexSurnameSingleName && eumYangAnalysisService.isEumYangUnbalanced(nameBaleumEumyang)) {

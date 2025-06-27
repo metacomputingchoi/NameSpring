@@ -86,7 +86,7 @@ class AnalysisInfoGenerator(
         return mapOf(
             "사격점수" to NamingCalculationUtils.countGilhanHoeksu(name.sagyeok.getValues()) *
                     ScoreConstants.SAGYEOK_SCORE_MULTIPLIER,
-            "음양균형" to if (eumYangInfo.isBalanced) ScoreConstants.YIN_YANG_BALANCE_SCORE else 0,
+            "음양균형" to if (eumYangInfo.isBalanced) ScoreConstants.EUMYANG_BALANCE_SCORE else 0,
             "오행조화" to ohaengInfo.harmonyScore,
             "획수길흉" to NamingCalculationUtils.countGilhanHoeksu(name.nameHanjaHoeksu) *
                     ScoreConstants.HOEKSU_GILHAN_SCORE

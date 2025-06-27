@@ -19,13 +19,13 @@ class HanjaRepository(private val dataRepository: DataRepository) {
             dataRepository.nameCharTripleDict.forEach { (key, data) ->
                 (data[JsonKeys.INTEGRATED_INFO] as? Map<*, *>)?.let { info ->
 
-                    val baleumEumyangValue = when (val value = info[JsonKeys.PRONUNCIATION_YINYANG]) {
+                    val baleumEumyangValue = when (val value = info[JsonKeys.PRONUNCIATION_EUMYANG]) {
                         is Number -> if (value.toInt() == 0) "陰" else "陽"
                         is String -> value
                         else -> ""
                     }
 
-                    val hoeksuEumyangValue = when (val value = info[JsonKeys.STROKE_YINYANG]) {
+                    val hoeksuEumyangValue = when (val value = info[JsonKeys.STROKE_EUMYANG]) {
                         is Number -> if (value.toInt() == 0) "陰" else "陽"
                         is String -> value
                         else -> ""

@@ -8,7 +8,7 @@ object OhaengCalculationUtils {
 
     fun calculateHoeksuToOhaeng(hoeksu: Int): Int {
         val ne = (hoeksu % NamingCalculationConstants.STROKE_MODULO) +
-                (hoeksu % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.YIN_YANG_MODULO
+                (hoeksu % NamingCalculationConstants.STROKE_MODULO) % NamingCalculationConstants.EUMYANG_MODULO
         return if (ne == NamingCalculationConstants.STROKE_MODULO) 0 else ne
     }
 
