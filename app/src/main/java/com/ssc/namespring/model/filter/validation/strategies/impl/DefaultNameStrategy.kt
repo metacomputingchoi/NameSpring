@@ -1,19 +1,19 @@
-// model/filter/strategy/impl/DefaultNameStrategy.kt
-package com.ssc.namespring.model.filter.strategy.impl
+// model/filter/validation/strategies/impl/DefaultNameStrategy.kt
+package com.ssc.namespring.model.filter.validation.strategies.impl
 
 import com.ssc.namespring.model.data.analysis.ValidationResult
-import com.ssc.namespring.model.filter.strategy.NameLengthStrategy
-import com.ssc.namespring.model.util.ValidationResultFactory
+import com.ssc.namespring.model.filter.validation.strategies.AbstractNameLengthStrategy
 
-class DefaultNameStrategy : NameLengthStrategy {
+class DefaultNameStrategy : AbstractNameLengthStrategy() {
 
     override fun validateEumYang(
         eumyangList: List<Int>,
         details: MutableMap<String, Any>
     ): ValidationResult {
-        return ValidationResultFactory.createSuccess(
+        return createValidationResult(
+            true,
             "기타 구조",
-            *details.toList().toTypedArray()
+            details
         )
     }
 
@@ -23,9 +23,11 @@ class DefaultNameStrategy : NameLengthStrategy {
         oneElements: List<String>,
         details: MutableMap<String, Any>
     ): ValidationResult {
-        return ValidationResultFactory.createSuccess(
+        addElementComposition(jawonElements, details)
+        return createValidationResult(
+            true,
             "기타 구조",
-            *details.toList().toTypedArray()
+            details
         )
     }
 }

@@ -5,7 +5,7 @@ import com.ssc.namespring.model.common.naming.NamingCalculationConstants
 import com.ssc.namespring.model.data.analysis.ValidationResult
 import com.ssc.namespring.model.data.analysis.component.EumYangAnalysisInfo
 import com.ssc.namespring.model.filter.FilterValidationHelper
-import com.ssc.namespring.model.filter.strategy.NameLengthStrategyFactory
+import com.ssc.namespring.model.filter.validation.strategies.*
 import kotlin.math.abs
 
 class EumYangAnalysisService {

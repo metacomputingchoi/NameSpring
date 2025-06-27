@@ -13,6 +13,10 @@ class NamingSystem(
     private var isInitialized = false
     private lateinit var nameGenerationProcessor: NameGenerationProcessor
 
+    companion object {
+        fun builder() = Builder()
+    }
+
     fun initializeFromJson(
         ymdJson: String,
         nameCharTripleJson: String,
@@ -25,9 +29,7 @@ class NamingSystem(
         dictHangulGivenNamesJson: String,
         surnameChosungToKoreanJson: String
     ) {
-        // 초기화 위임
-        val initializer = NamingSystemInitializer(logger)
-        val dataRepository = initializer.initialize(
+        val config = NamingSystemConfig(
             ymdJson, nameCharTripleJson, surnameCharTripleJson,
             nameKoreanToTripleJson, nameHanjaToTripleJson,
             surnameKoreanToTripleJson, surnameHanjaToTripleJson,
@@ -35,30 +37,30 @@ class NamingSystem(
             surnameChosungToKoreanJson
         )
 
-        // 팩토리를 통한 의존성 생성
-        val factory = NamingSystemFactory(dataRepository, logger)
+        initializeWithConfig(config)
+    }
+
+    private fun initializeWithConfig(config: NamingSystemConfig) {
+        val initializer = NamingSystemInitializer.builder()
+            .withLogger(logger)
+            .withConfig(config)
+            .build()
+
+        val dataRepository = initializer.initialize()
+
+        val factory = NamingSystemFactory.builder()
+            .withDataRepository(dataRepository)
+            .withLogger(logger)
+            .build()
+
         val services = factory.createServices()
         val filters = factory.createFilters(services)
 
-        // 프로세서 생성
-        val surnameProcessor = SurnameProcessor(
-            services.nameParser,
-            services.surnameValidator,
-            logger
-        )
-
-        val filteringProcessor = FilteringProcessor(
-            filters,
-            services.analysisInfoGenerator,
-            logger
-        )
-
-        nameGenerationProcessor = NameGenerationProcessor(
-            services,
-            surnameProcessor,
-            filteringProcessor,
-            logger
-        )
+        nameGenerationProcessor = NameGenerationProcessor.builder()
+            .withServices(services)
+            .withFilters(filters)
+            .withLogger(logger)
+            .build()
 
         isInitialized = true
         logger.d("NamingSystem initialized successfully")
@@ -80,5 +82,43 @@ class NamingSystem(
             verbose,
             withoutFilter
         )
+    }
+
+    class Builder {
+        private var logger: Logger = PrintLogger(ParsingConstants.LOG_TAG)
+        private var config: NamingSystemConfig? = null
+
+        fun withLogger(logger: Logger) = apply { this.logger = logger }
+
+        fun withJsonData(
+            ymdJson: String,
+            nameCharTripleJson: String,
+            surnameCharTripleJson: String,
+            nameKoreanToTripleJson: String,
+            nameHanjaToTripleJson: String,
+            surnameKoreanToTripleJson: String,
+            surnameHanjaToTripleJson: String,
+            surnameHanjaPairJson: String,
+            dictHangulGivenNamesJson: String,
+            surnameChosungToKoreanJson: String
+        ) = apply {
+            config = NamingSystemConfig(
+                ymdJson, nameCharTripleJson, surnameCharTripleJson,
+                nameKoreanToTripleJson, nameHanjaToTripleJson,
+                surnameKoreanToTripleJson, surnameHanjaToTripleJson,
+                surnameHanjaPairJson, dictHangulGivenNamesJson,
+                surnameChosungToKoreanJson
+            )
+        }
+
+        fun withConfig(config: NamingSystemConfig) = apply {
+            this.config = config
+        }
+
+        fun build(): NamingSystem {
+            val namingSystem = NamingSystem(logger)
+            config?.let { namingSystem.initializeWithConfig(it) }
+            return namingSystem
+        }
     }
 }

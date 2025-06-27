@@ -1,5 +1,5 @@
-// model/filter/FilterValidationHelper.kt
-package com.ssc.namespring.model.filter
+// model/filter/utils/FilterValidationHelper.kt
+package com.ssc.namespring.model.filter.utils
 
 import com.ssc.namespring.model.util.normalizeNFC
 

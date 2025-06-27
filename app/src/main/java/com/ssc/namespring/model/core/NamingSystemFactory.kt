@@ -7,54 +7,114 @@ import com.ssc.namespring.model.repository.HanjaRepository
 import com.ssc.namespring.model.service.*
 import com.ssc.namespring.model.util.logger.Logger
 
-internal class NamingSystemFactory(
+internal class NamingSystemFactory private constructor(
     private val dataRepository: DataRepository,
     private val logger: Logger
 ) {
+
+    companion object {
+        fun builder() = Builder()
+    }
+
     fun createServices(): Services {
-        val hanjaRepository = HanjaRepository(dataRepository)
-        val cacheManager = CacheManager()
-
-        val nameParser = NameParser()
-        val surnameValidator = SurnameValidator(dataRepository)
-        val sajuCalculator = SajuCalculator(dataRepository)
-        val baleumOhaengCalculator = BaleumOhaengCalculator(cacheManager)
-        val multiOhaengHarmonyAnalyzer = MultiOhaengHarmonyAnalyzer(cacheManager)
-        val hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository)
-        val nameSuriAnalyzer = NameSuriAnalyzer(hanjaHoeksuAnalyzer, multiOhaengHarmonyAnalyzer)
-        val analysisInfoGenerator = AnalysisInfoGenerator(baleumOhaengCalculator, multiOhaengHarmonyAnalyzer)
-
-        val nameGenerator = NameGenerator(
-            hanjaRepository,
-            nameSuriAnalyzer,
-            hanjaHoeksuAnalyzer,
-            multiOhaengHarmonyAnalyzer
-        )
-
-        return Services(
-            hanjaRepository = hanjaRepository,
-            nameParser = nameParser,
-            surnameValidator = surnameValidator,
-            sajuCalculator = sajuCalculator,
-            baleumOhaengCalculator = baleumOhaengCalculator,
-            multiOhaengHarmonyAnalyzer = multiOhaengHarmonyAnalyzer,
-            hanjaHoeksuAnalyzer = hanjaHoeksuAnalyzer,
-            nameSuriAnalyzer = nameSuriAnalyzer,
-            nameGenerator = nameGenerator,
-            analysisInfoGenerator = analysisInfoGenerator
-        )
+        return ServicesBuilder()
+            .withDataRepository(dataRepository)
+            .build()
     }
 
     fun createFilters(services: Services): List<NameFilterStrategy> {
-        return listOf(
-            BaleumOhaengEumyangFilter(
+        return FilterBuilder()
+            .withBaleumOhaengEumyangFilter(
                 services.baleumOhaengCalculator::getBaleumOhaeng,
                 services.baleumOhaengCalculator::getBaleumEumyang,
                 services.multiOhaengHarmonyAnalyzer::checkBaleumOhaengHarmony
-            ),
-            JawonOhaengFilter(),
-            BaleumNaturalFilter { dataRepository.dictHangulGivenNames }
-        )
+            )
+            .withJawonOhaengFilter()
+            .withBaleumNaturalFilter { dataRepository.dictHangulGivenNames }
+            .build()
+    }
+
+    class Builder {
+        private lateinit var dataRepository: DataRepository
+        private lateinit var logger: Logger
+
+        fun withDataRepository(repository: DataRepository) = apply {
+            this.dataRepository = repository
+        }
+
+        fun withLogger(logger: Logger) = apply {
+            this.logger = logger
+        }
+
+        fun build() = NamingSystemFactory(dataRepository, logger)
+    }
+
+    private class ServicesBuilder {
+        private lateinit var dataRepository: DataRepository
+
+        fun withDataRepository(repository: DataRepository) = apply {
+            this.dataRepository = repository
+        }
+
+        fun build(): Services {
+            val hanjaRepository = HanjaRepository(dataRepository)
+            val cacheManager = CacheManager()
+
+            return Services(
+                hanjaRepository = hanjaRepository,
+                nameParser = NameParser(),
+                surnameValidator = SurnameValidator(dataRepository),
+                sajuCalculator = SajuCalculator(dataRepository),
+                baleumOhaengCalculator = BaleumOhaengCalculator(cacheManager),
+                multiOhaengHarmonyAnalyzer = MultiOhaengHarmonyAnalyzer(cacheManager),
+                hanjaHoeksuAnalyzer = HanjaHoeksuAnalyzer(dataRepository, hanjaRepository),
+                nameSuriAnalyzer = NameSuriAnalyzer(
+                    HanjaHoeksuAnalyzer(dataRepository, hanjaRepository),
+                    MultiOhaengHarmonyAnalyzer(cacheManager)
+                ),
+                nameGenerator = NameGenerator(
+                    hanjaRepository,
+                    NameSuriAnalyzer(
+                        HanjaHoeksuAnalyzer(dataRepository, hanjaRepository),
+                        MultiOhaengHarmonyAnalyzer(cacheManager)
+                    ),
+                    HanjaHoeksuAnalyzer(dataRepository, hanjaRepository),
+                    MultiOhaengHarmonyAnalyzer(cacheManager)
+                ),
+                analysisInfoGenerator = AnalysisInfoGenerator(
+                    BaleumOhaengCalculator(cacheManager),
+                    MultiOhaengHarmonyAnalyzer(cacheManager)
+                )
+            )
+        }
+    }
+
+    private class FilterBuilder {
+        private val filters = mutableListOf<NameFilterStrategy>()
+
+        fun withBaleumOhaengEumyangFilter(
+            getBaleumOhaeng: (Char) -> String?,
+            getBaleumEumyang: (Char) -> Int?,
+            checkBaleumOhaengHarmony: (String) -> Boolean
+        ) = apply {
+            filters.add(
+                BaleumOhaengEumyangFilter(
+                    getBaleumOhaeng,
+                    getBaleumEumyang,
+                    checkBaleumOhaengHarmony
+                )
+            )
+        }
+
+        fun withJawonOhaengFilter() = apply {
+            filters.add(JawonOhaengFilter())
+        }
+
+        fun withBaleumNaturalFilter(dictProvider: () -> Set<String>) = apply {
+            filters.add(BaleumNaturalFilter(dictProvider))
+        }
+
+        fun build(): List<NameFilterStrategy> = filters.toList()
     }
 }
 

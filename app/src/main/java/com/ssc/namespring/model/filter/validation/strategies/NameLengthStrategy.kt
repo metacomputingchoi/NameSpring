@@ -1,5 +1,5 @@
-// model/filter/strategy/NameLengthStrategy.kt
-package com.ssc.namespring.model.filter.strategy
+// model/filter/validation/strategies/NameLengthStrategy.kt
+package com.ssc.namespring.model.filter.validation.strategies
 
 import com.ssc.namespring.model.data.analysis.ValidationResult
 
