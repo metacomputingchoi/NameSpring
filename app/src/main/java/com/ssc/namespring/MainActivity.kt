@@ -39,19 +39,16 @@ class MainActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                // Builder 패턴으로 NamingSystem 생성 및 초기화
                 val namingSystem = NamingSystemBuilder()
                     .withLogger(AndroidLogger("NamingSystem"))
                     .withJsonFileLoader(jsonFileLoader)
                     .buildAndInitialize()
 
-                // UI 업데이트는 메인 스레드에서
                 withContext(Dispatchers.Main) {
                     Log.d(TAG, "NamingSystem 초기화 완료")
                     showLoading(false)
                 }
 
-                // 테스트 실행
                 val nameGeneratorTester = NameGeneratorTester(namingSystem)
                 nameGeneratorTester.runAllTests()
 
