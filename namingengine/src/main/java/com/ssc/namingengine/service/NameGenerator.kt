@@ -1,4 +1,4 @@
-// model/service/NameGenerator.kt
+// service/NameGenerator.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.parsing.ParsingConstants

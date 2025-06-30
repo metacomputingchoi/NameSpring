@@ -1,4 +1,4 @@
-// model/common/parsing/ParsingConstants.kt
+// common/parsing/ParsingConstants.kt
 package com.ssc.namingengine.common.parsing
 
 object ParsingConstants {

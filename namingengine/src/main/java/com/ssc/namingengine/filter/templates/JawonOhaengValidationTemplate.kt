@@ -1,4 +1,4 @@
-// model/filter/templates/JawonOhaengValidationTemplate.kt
+// filter/templates/JawonOhaengValidationTemplate.kt
 package com.ssc.namingengine.filter.templates
 
 import com.ssc.namingengine.data.analysis.ValidationResult

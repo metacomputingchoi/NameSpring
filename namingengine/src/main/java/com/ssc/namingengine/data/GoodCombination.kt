@@ -1,4 +1,4 @@
-// model/data/GoodCombination.kt
+// data/GoodCombination.kt
 package com.ssc.namingengine.data
 
 data class GoodCombination(

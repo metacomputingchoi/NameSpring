@@ -1,4 +1,4 @@
-// model/util/JsonParser.kt
+// util/JsonParser.kt
 package com.ssc.namingengine.util
 
 import com.ssc.namingengine.common.parsing.ParsingConstants.JsonKeys

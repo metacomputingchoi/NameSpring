@@ -1,4 +1,4 @@
-// model/exception/NamingException.kt
+// exception/NamingException.kt
 package com.ssc.namingengine.exception
 
 sealed class NamingException(

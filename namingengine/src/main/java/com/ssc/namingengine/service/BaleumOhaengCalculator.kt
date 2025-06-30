@@ -1,4 +1,4 @@
-// model/service/BaleumOhaengCalculator.kt
+// service/BaleumOhaengCalculator.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.hangul.HangulConstants

@@ -1,4 +1,4 @@
-// model/data/analysis/ValidationResult.kt
+// data/analysis/ValidationResult.kt
 package com.ssc.namingengine.data.analysis
 
 data class ValidationResult(

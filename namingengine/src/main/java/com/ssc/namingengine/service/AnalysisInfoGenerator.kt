@@ -1,4 +1,4 @@
-// model/service/AnalysisInfoGenerator.kt
+// service/AnalysisInfoGenerator.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.naming.NamingCalculationConstants.ScoreConstants

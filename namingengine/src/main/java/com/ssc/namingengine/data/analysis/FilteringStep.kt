@@ -1,4 +1,4 @@
-// model/data/analysis/FilteringStep.kt
+// data/analysis/FilteringStep.kt
 package com.ssc.namingengine.data.analysis
 
 data class FilteringStep(

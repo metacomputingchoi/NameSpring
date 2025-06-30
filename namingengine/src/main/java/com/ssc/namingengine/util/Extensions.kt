@@ -1,4 +1,4 @@
-// model/util/Extensions.kt
+// util/Extensions.kt
 package com.ssc.namingengine.util
 
 import com.ssc.namingengine.common.hangul.HangulConstants

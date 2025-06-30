@@ -1,4 +1,4 @@
-// model/util/OhaengCalculationUtils.kt
+// util/OhaengCalculationUtils.kt
 package com.ssc.namingengine.util
 
 import com.ssc.namingengine.common.naming.NamingCalculationConstants

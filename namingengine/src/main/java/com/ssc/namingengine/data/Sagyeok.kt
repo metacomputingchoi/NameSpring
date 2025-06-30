@@ -1,4 +1,4 @@
-// model/data/Sagyeok.kt
+// data/Sagyeok.kt
 package com.ssc.namingengine.data
 
 data class Sagyeok(

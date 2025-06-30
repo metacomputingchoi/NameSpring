@@ -1,4 +1,4 @@
-// model/common/datetime/DateTimeConstants.kt
+// common/datetime/DateTimeConstants.kt
 package com.ssc.namingengine.common.datetime
 
 import java.time.LocalTime

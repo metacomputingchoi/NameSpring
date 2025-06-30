@@ -1,4 +1,4 @@
-// model/filter/core/FilterChain.kt
+// filter/core/FilterChain.kt
 package com.ssc.namingengine.filter.core
 
 import com.ssc.namingengine.data.FilterContext

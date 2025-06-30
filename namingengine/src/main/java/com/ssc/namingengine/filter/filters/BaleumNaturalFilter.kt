@@ -1,4 +1,4 @@
-// model/filter/filters/BaleumNaturalFilter.kt
+// filter/filters/BaleumNaturalFilter.kt
 package com.ssc.namingengine.filter.filters
 
 import com.ssc.namingengine.data.FilterContext

@@ -1,4 +1,4 @@
-// model/common/naming/NamingCalculationConstants.kt
+// common/naming/NamingCalculationConstants.kt
 package com.ssc.namingengine.common.naming
 
 object NamingCalculationConstants {

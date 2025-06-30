@@ -1,4 +1,4 @@
-// model/data/NameConstraint.kt
+// data/NameConstraint.kt
 package com.ssc.namingengine.data
 
 import com.ssc.namingengine.common.parsing.ParsingConstants.ConstraintTypes

@@ -1,4 +1,4 @@
-// model/core/NamingSystemFactory.kt
+// core/NamingSystemFactory.kt
 package com.ssc.namingengine.core
 
 import com.ssc.namingengine.filter.*

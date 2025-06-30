@@ -1,4 +1,4 @@
-// model/data/analysis/NameAnalysisInfo.kt
+// data/analysis/NameAnalysisInfo.kt
 package com.ssc.namingengine.data.analysis
 
 import com.ssc.namingengine.data.analysis.component.SajuAnalysisInfo

@@ -1,4 +1,4 @@
-// model/filter/validation/strategies/impl/TripleCharNameStrategy.kt
+// filter/validation/strategies/impl/TripleCharNameStrategy.kt
 package com.ssc.namingengine.filter.validation.strategies.impl
 
 import com.ssc.namingengine.data.analysis.ValidationResult

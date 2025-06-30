@@ -1,4 +1,4 @@
-// model/data/analysis/component/SajuAnalysisInfo.kt
+// data/analysis/component/SajuAnalysisInfo.kt
 package com.ssc.namingengine.data.analysis.component
 
 data class SajuAnalysisInfo(

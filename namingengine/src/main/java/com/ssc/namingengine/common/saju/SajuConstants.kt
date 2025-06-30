@@ -1,4 +1,4 @@
-// model/common/saju/SajuConstants.kt
+// common/saju/SajuConstants.kt
 package com.ssc.namingengine.common.saju
 
 object SajuConstants {

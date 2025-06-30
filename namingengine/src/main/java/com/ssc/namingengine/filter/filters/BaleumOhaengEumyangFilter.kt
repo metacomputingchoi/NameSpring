@@ -1,4 +1,4 @@
-// model/filter/filters/BaleumOhaengEumyangFilter.kt
+// filter/filters/BaleumOhaengEumyangFilter.kt
 package com.ssc.namingengine.filter.filters
 
 import com.ssc.namingengine.data.FilterContext

@@ -1,4 +1,4 @@
-// model/service/MultiOhaengHarmonyAnalyzer.kt
+// service/MultiOhaengHarmonyAnalyzer.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.saju.SajuConstants

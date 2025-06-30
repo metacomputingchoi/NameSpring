@@ -1,4 +1,4 @@
-// model/filter/validation/rules/eumyang/EumYangValidator.kt
+// filter/validation/rules/eumyang/EumYangValidator.kt
 package com.ssc.namingengine.filter.validation.rules.eumyang
 
 import com.ssc.namingengine.service.EumYangAnalysisService

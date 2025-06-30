@@ -1,4 +1,4 @@
-// model/data/GeneratedName.kt
+// data/GeneratedName.kt
 package com.ssc.namingengine.data
 
 import com.ssc.namingengine.data.analysis.NameAnalysisInfo

@@ -1,4 +1,4 @@
-// model/service/CacheManager.kt
+// service/CacheManager.kt
 package com.ssc.namingengine.service
 
 class CacheManager {

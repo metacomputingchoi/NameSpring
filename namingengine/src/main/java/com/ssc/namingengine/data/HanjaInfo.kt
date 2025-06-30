@@ -1,4 +1,4 @@
-// model/data/HanjaInfo.kt
+// data/HanjaInfo.kt
 package com.ssc.namingengine.data
 
 data class HanjaInfo(

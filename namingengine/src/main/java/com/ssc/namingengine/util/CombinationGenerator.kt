@@ -1,4 +1,4 @@
-// model/util/CombinationGenerator.kt
+// util/CombinationGenerator.kt
 package com.ssc.namingengine.util
 
 object CombinationGenerator {

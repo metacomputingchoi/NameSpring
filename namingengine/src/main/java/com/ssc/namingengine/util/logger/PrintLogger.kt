@@ -1,4 +1,4 @@
-// model/util/logger/PrintLogger.kt
+// util/logger/PrintLogger.kt
 package com.ssc.namingengine.util.logger
 
 class PrintLogger(private val tag: String) : Logger {

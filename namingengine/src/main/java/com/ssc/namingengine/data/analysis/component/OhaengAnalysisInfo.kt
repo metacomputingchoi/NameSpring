@@ -1,4 +1,4 @@
-// model/data/analysis/component/OhaengAnalysisInfo.kt
+// data/analysis/component/OhaengAnalysisInfo.kt
 package com.ssc.namingengine.data.analysis.component
 
 data class OhaengAnalysisInfo(

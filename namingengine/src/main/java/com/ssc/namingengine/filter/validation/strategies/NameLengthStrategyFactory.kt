@@ -1,4 +1,4 @@
-// model/filter/validation/strategies/NameLengthStrategyFactory.kt
+// filter/validation/strategies/NameLengthStrategyFactory.kt
 package com.ssc.namingengine.filter.validation.strategies
 
 object NameLengthStrategyFactory {

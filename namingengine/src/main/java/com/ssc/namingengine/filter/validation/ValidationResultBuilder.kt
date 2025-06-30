@@ -1,4 +1,4 @@
-// model/filter/validation/ValidationResultBuilder.kt
+// filter/validation/ValidationResultBuilder.kt
 package com.ssc.namingengine.filter.validation
 
 import com.ssc.namingengine.data.analysis.ValidationResult

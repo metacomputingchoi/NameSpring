@@ -1,4 +1,4 @@
-// model/data/FilterContext.kt
+// data/FilterContext.kt
 package com.ssc.namingengine.data
 
 data class FilterContext(

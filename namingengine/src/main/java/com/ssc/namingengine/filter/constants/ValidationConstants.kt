@@ -1,4 +1,4 @@
-// model/filter/constants/ValidationConstants.kt
+// filter/constants/ValidationConstants.kt
 package com.ssc.namingengine.filter.constants
 
 object ValidationConstants {

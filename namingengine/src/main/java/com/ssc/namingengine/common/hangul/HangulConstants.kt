@@ -1,4 +1,4 @@
-// model/common/hangul/HangulConstants.kt
+// common/hangul/HangulConstants.kt
 package com.ssc.namingengine.common.hangul
 
 object HangulConstants {

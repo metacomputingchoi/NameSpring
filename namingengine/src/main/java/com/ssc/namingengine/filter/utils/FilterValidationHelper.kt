@@ -1,4 +1,4 @@
-// model/filter/utils/FilterValidationHelper.kt
+// filter/utils/FilterValidationHelper.kt
 package com.ssc.namingengine.filter.utils
 
 import com.ssc.namingengine.util.normalizeNFC

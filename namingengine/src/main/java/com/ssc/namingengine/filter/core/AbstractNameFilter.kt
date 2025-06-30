@@ -1,4 +1,4 @@
-// model/filter/core/AbstractNameFilter.kt
+// filter/core/AbstractNameFilter.kt
 package com.ssc.namingengine.filter.core
 
 import com.ssc.namingengine.data.FilterContext

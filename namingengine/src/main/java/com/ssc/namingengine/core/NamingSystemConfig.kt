@@ -1,4 +1,4 @@
-// model/core/NamingSystemConfig.kt
+// core/NamingSystemConfig.kt
 package com.ssc.namingengine.core
 
 data class NamingSystemConfig(

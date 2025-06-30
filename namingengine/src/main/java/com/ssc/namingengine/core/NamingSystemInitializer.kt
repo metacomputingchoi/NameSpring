@@ -1,4 +1,4 @@
-// model/core/NamingSystemInitializer.kt
+// core/NamingSystemInitializer.kt
 package com.ssc.namingengine.core
 
 import com.ssc.namingengine.exception.NamingException

@@ -1,4 +1,4 @@
-// model/repository/HanjaRepository.kt
+// repository/HanjaRepository.kt
 package com.ssc.namingengine.repository
 
 import com.ssc.namingengine.common.parsing.ParsingConstants.JsonKeys

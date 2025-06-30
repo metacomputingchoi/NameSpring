@@ -1,4 +1,4 @@
-// model/service/NameParser.kt
+// service/NameParser.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.parsing.ParsingConstants

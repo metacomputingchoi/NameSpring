@@ -1,4 +1,4 @@
-// model/service/SurnameValidator.kt
+// service/SurnameValidator.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.parsing.ParsingConstants

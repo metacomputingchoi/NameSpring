@@ -1,4 +1,4 @@
-// model/service/SajuCalculator.kt
+// service/SajuCalculator.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.datetime.DateTimeConstants

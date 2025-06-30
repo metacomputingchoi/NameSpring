@@ -1,4 +1,4 @@
-// model/service/EumYangAnalysisService.kt
+// service/EumYangAnalysisService.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.naming.NamingCalculationConstants

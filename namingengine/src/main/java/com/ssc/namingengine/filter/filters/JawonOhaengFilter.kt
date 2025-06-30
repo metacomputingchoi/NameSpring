@@ -1,4 +1,4 @@
-// model/filter/filters/JawonOhaengFilter.kt
+// filter/filters/JawonOhaengFilter.kt
 package com.ssc.namingengine.filter.filters
 
 import com.ssc.namingengine.data.FilterContext

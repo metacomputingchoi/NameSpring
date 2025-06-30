@@ -1,4 +1,4 @@
-// model/core/NameGenerationProcessor.kt
+// core/NameGenerationProcessor.kt
 package com.ssc.namingengine.core
 
 import com.ssc.namingengine.common.parsing.ParsingConstants

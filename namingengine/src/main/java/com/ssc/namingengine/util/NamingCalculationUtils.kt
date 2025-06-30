@@ -1,4 +1,4 @@
-// model/util/NamingCalculationUtils.kt
+// util/NamingCalculationUtils.kt
 package com.ssc.namingengine.util
 
 import com.ssc.namingengine.common.naming.NamingCalculationConstants

@@ -1,4 +1,4 @@
-// model/util/ValidationResultFactory.kt
+// util/ValidationResultFactory.kt
 package com.ssc.namingengine.util
 
 import com.ssc.namingengine.data.analysis.ValidationResult

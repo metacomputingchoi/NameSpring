@@ -1,4 +1,4 @@
-// model/service/NameSuriAnalyzer.kt
+// service/NameSuriAnalyzer.kt
 package com.ssc.namingengine.service
 
 import com.ssc.namingengine.common.naming.NamingCalculationConstants

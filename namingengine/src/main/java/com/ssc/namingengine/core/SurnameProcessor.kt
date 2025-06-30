@@ -1,4 +1,4 @@
-// model/core/SurnameProcessor.kt
+// core/SurnameProcessor.kt
 package com.ssc.namingengine.core
 
 import com.ssc.namingengine.common.parsing.ParsingConstants

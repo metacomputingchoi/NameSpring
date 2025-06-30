@@ -1,4 +1,4 @@
-// model/filter/constants/FilterConstants.kt
+// filter/constants/FilterConstants.kt
 package com.ssc.namingengine.filter.constants
 
 object FilterConstants {

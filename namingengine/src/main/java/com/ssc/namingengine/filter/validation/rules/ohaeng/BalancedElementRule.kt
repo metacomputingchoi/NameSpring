@@ -1,4 +1,4 @@
-// model/filter/validation/rules/ohaeng/BalancedElementRule.kt
+// filter/validation/rules/ohaeng/BalancedElementRule.kt
 package com.ssc.namingengine.filter.validation.rules.ohaeng
 
 import com.ssc.namingengine.data.analysis.ValidationResult

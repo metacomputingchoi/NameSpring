@@ -1,4 +1,4 @@
-// model/filter/extractors/BaleumDataValidator.kt
+// filter/extractors/BaleumDataValidator.kt
 package com.ssc.namingengine.filter.extractors
 
 import com.ssc.namingengine.data.FilterContext

@@ -1,4 +1,4 @@
-// model/data/analysis/component/EumYangAnalysisInfo.kt
+// data/analysis/component/EumYangAnalysisInfo.kt
 package com.ssc.namingengine.data.analysis.component
 
 data class EumYangAnalysisInfo(

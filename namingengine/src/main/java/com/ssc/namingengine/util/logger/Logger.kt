@@ -1,4 +1,4 @@
-// model/util/logger/Logger.kt
+// util/logger/Logger.kt
 package com.ssc.namingengine.util.logger
 
 interface Logger {

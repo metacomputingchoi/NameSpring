@@ -1,4 +1,4 @@
-// model/repository/DataRepository.kt
+// repository/DataRepository.kt
 package com.ssc.namingengine.repository
 
 import com.ssc.namingengine.exception.NamingException

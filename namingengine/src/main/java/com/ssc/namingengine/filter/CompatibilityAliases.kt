@@ -1,4 +1,4 @@
-// model/filter/CompatibilityAliases.kt
+// filter/CompatibilityAliases.kt
 package com.ssc.namingengine.filter
 
 typealias NameFilterStrategy = com.ssc.namingengine.filter.core.NameFilter

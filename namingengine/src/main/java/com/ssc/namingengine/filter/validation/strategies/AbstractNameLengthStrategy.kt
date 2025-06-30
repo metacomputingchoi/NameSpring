@@ -1,4 +1,4 @@
-// model/filter/validation/strategies/AbstractNameLengthStrategy.kt
+// filter/validation/strategies/AbstractNameLengthStrategy.kt
 package com.ssc.namingengine.filter.validation.strategies
 
 import com.ssc.namingengine.data.analysis.ValidationResult
