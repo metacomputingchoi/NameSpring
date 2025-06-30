@@ -1,3 +1,4 @@
+// settings.gradle.kts
 pluginManagement {
     repositories {
         google {
@@ -21,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NameSpring"
 include(":app")
- 
+include(":namingengine")

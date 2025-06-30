@@ -1,12 +1,12 @@
-// MainActivity.kt
+// namespring/src/main/java/com/ssc/namespring/MainActivity.kt
 package com.ssc.namespring
 
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.utils.JsonFileLoader
-import com.ssc.namespring.utils.NameGeneratorTester
-import com.ssc.namespring.utils.NamingSystemBuilder
+import com.ssc.namingengine.NamingEngineSDK
+import com.ssc.namingengine.core.NamingSystem
+import com.ssc.namingengine.api.NameGeneratorTester
 import com.ssc.namespring.utils.logger.AndroidLogger
 import kotlinx.coroutines.*
 
@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-    private lateinit var jsonFileLoader: JsonFileLoader
+    private lateinit var namingSystem: NamingSystem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,12 +26,15 @@ class MainActivity : AppCompatActivity() {
         startInitialization()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     private fun initializeComponents() {
-        jsonFileLoader = JsonFileLoader(assets)
+        try {
+            namingSystem = NamingEngineSDK.create(
+                context = this,
+                logger = AndroidLogger("NamingEngine")
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "NamingEngine SDK 초기화 실패", e)
+        }
     }
 
     private fun startInitialization() {
@@ -39,13 +42,8 @@ class MainActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                val namingSystem = NamingSystemBuilder()
-                    .withLogger(AndroidLogger("NamingSystem"))
-                    .withJsonFileLoader(jsonFileLoader)
-                    .buildAndInitialize()
-
                 withContext(Dispatchers.Main) {
-                    Log.d(TAG, "NamingSystem 초기화 완료")
+                    Log.d(TAG, "NamingEngine SDK 초기화 완료")
                     showLoading(false)
                 }
 

@@ -1,8 +1,8 @@
-// utils/logger/AndroidLogger.kt
+// namespring/src/main/java/com/ssc/namespring/utils/logger/AndroidLogger.kt
 package com.ssc.namespring.utils.logger
 
 import android.util.Log
-import com.ssc.namespring.model.util.logger.Logger
+import com.ssc.namingengine.util.logger.Logger
 
 class AndroidLogger(private val tag: String) : Logger {
     override fun d(message: String) {
