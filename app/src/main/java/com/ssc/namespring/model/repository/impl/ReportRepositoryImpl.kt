@@ -1,5 +1,5 @@
-// repository/ReportRepositoryImpl.kt
-package com.ssc.namespring.repository
+// model/repository/impl/ReportRepositoryImpl.kt
+package com.ssc.namespring.model.repository.impl
 
 import com.ssc.namespring.model.data.ComparisonReport
 import com.ssc.namespring.model.data.EvaluationReport

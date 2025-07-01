@@ -1,5 +1,5 @@
-// repository/FavoriteRepositoryImpl.kt
-package com.ssc.namespring.repository
+// model/repository/impl/FavoriteRepositoryImpl.kt
+package com.ssc.namespring.model.repository.impl
 
 import com.ssc.namespring.model.data.Favorite
 import com.ssc.namespring.model.repository.FavoriteRepository

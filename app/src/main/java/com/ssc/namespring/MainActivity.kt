@@ -7,8 +7,9 @@ import androidx.lifecycle.lifecycleScope
 import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.controller.*
 import com.ssc.namespring.model.*
-import com.ssc.namespring.model.repository.*
-import com.ssc.namespring.repository.*
+import com.ssc.namespring.model.repository.impl.FavoriteRepositoryImpl
+import com.ssc.namespring.model.repository.impl.ProfileRepositoryImpl
+import com.ssc.namespring.model.repository.impl.ReportRepositoryImpl
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.*
 import com.ssc.namespring.view.impl.*

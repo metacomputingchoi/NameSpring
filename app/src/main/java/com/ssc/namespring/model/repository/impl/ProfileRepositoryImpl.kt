@@ -1,5 +1,5 @@
-// repository/ProfileRepositoryImpl.kt
-package com.ssc.namespring.repository
+// model/repository/impl/ProfileRepositoryImpl.kt
+package com.ssc.namespring.model.repository.impl
 
 import com.ssc.namespring.model.data.Profile
 import com.ssc.namespring.model.repository.ProfileRepository
