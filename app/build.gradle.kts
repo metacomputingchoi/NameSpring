@@ -35,7 +35,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        // Java 8+ Time API 지원 (SDK 호환성을 위해 추가)
         isCoreLibraryDesugaringEnabled = true
     }
 
@@ -68,8 +67,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
-    // Testing
-    testImplementation(libs.junit)
+    // Unit Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.20")
+
+    // Android Instrumented Testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
 }
