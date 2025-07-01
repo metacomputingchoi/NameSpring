@@ -1,23 +1,42 @@
-// model/TestResultFormatter.kt
-package com.ssc.namespring.model
+// namegenerator/view/TestResultView.kt
+package com.ssc.namespring.namegenerator.view
 
 import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namingengine.data.analysis.FilteringStep
+import com.ssc.namespring.namegenerator.model.TestResult
+import com.ssc.namespring.namegenerator.model.TestType
 
-class TestResultFormatter {
+class TestResultView {
 
     companion object {
         private const val MAX_DISPLAY_RESULTS = 5
         private const val MAX_EVALUATION_RESULTS = 10
     }
 
-    fun printTestHeader(testInput: String) {
-        println("=" * 80)
-        println("테스트 입력: $testInput")
-        println("=" * 80)
+    fun showTestHeader(testInput: String, description: String? = null) {
+        println("=".repeat(80))
+        if (description != null) {
+            println("테스트 입력: $testInput\n설명: $description")
+        } else {
+            println("테스트 입력: $testInput")
+        }
+        println("=".repeat(80))
     }
 
-    fun printTestResults(results: List<GeneratedName>, elapsedTime: Long) {
+    fun showTestTypeHeader(testType: TestType, birthDateTime: String) {
+        when (testType) {
+            TestType.GENERATION -> {
+                println("====== 필터링 생성 테스트 시작 ======")
+                println("생년월일시분: $birthDateTime")
+            }
+            TestType.EVALUATION -> {
+                println("\n\n====== 생성 평가 테스트 시작 ======")
+                println("생년월일시분: $birthDateTime")
+            }
+        }
+    }
+
+    fun showGenerationResults(results: List<GeneratedName>, elapsedTime: Long) {
         println("\n=== 최종 결과: ${results.size}개 (소요시간: ${elapsedTime}ms) ===")
 
         if (results.isEmpty()) {
@@ -36,7 +55,7 @@ class TestResultFormatter {
         }
     }
 
-    fun printEvaluationResults(results: List<GeneratedName>, elapsedTime: Long) {
+    fun showEvaluationResults(results: List<GeneratedName>, elapsedTime: Long) {
         println("\n=== 평가 결과: ${results.size}개 (소요시간: ${elapsedTime}ms) ===")
 
         if (results.isEmpty()) {
@@ -58,11 +77,11 @@ class TestResultFormatter {
         }
     }
 
-    fun printError(message: String) {
+    fun showError(message: String) {
         println("[X] [ERROR] $message")
     }
 
-    fun printTestSummary(testResults: List<TestResult>) {
+    fun showTestSummary(testResults: List<TestResult>) {
         println("\n\n====== 테스트 요약 ======")
         val successCount = testResults.count { it.error == null }
         val failureCount = testResults.count { it.error != null }
@@ -178,5 +197,3 @@ class TestResultFormatter {
         }
     }
 }
-
-private operator fun String.times(count: Int): String = repeat(count)

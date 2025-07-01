@@ -2,28 +2,26 @@
 package com.ssc.namespring
 
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namingengine.NamingEngine
-import com.ssc.namespring.model.NameGeneratorTester
+import com.ssc.namingengine.data.GeneratedName
+import com.ssc.namespring.controller.NameGeneratorController
+import com.ssc.namespring.model.NameGeneratorModel
 import com.ssc.namespring.utils.logger.AndroidLogger
-import kotlinx.coroutines.*
+import com.ssc.namespring.view.NameGeneratorView
 
-class MainActivity : AppCompatActivity() {
-
-    companion object {
-        private const val TAG = "MainActivity"
-    }
+class MainActivity : AppCompatActivity(), NameGeneratorView {
 
     private lateinit var namingEngine: NamingEngine
-    private lateinit var nameGeneratorTester: NameGeneratorTester
+    private lateinit var model: NameGeneratorModel
+    private lateinit var controller: NameGeneratorController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_layout)
 
         initializeComponents()
-        startInitialization()
     }
 
     private fun initializeComponents() {
@@ -31,49 +29,28 @@ class MainActivity : AppCompatActivity() {
             namingEngine = NamingEngine.create(
                 logger = AndroidLogger("NamingEngine")
             )
+            model = NameGeneratorModel(namingEngine)
+            controller = NameGeneratorController(model, this)
 
-            nameGeneratorTester = NameGeneratorTester(namingEngine)
-
-            Log.d(TAG, "모든 컴포넌트 초기화 완료")
+            showToast("초기화 완료")
         } catch (e: Exception) {
-            Log.e(TAG, "컴포넌트 초기화 실패", e)
+            showError("초기화 실패: ${e.message}")
         }
     }
 
-    private fun startInitialization() {
-        showLoading(true)
-
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                Log.d(TAG, "NamingEngine 초기화 완료")
-                Log.d(TAG, "NamingEngine 버전: ${NamingEngine.VERSION}")
-
-                showLoading(false)
-
-                // 테스트 실행
-                nameGeneratorTester.runAllTests()
-
-            } catch (e: Exception) {
-                Log.e(TAG, "초기화 중 오류 발생", e)
-                withContext(Dispatchers.Main) {
-                    showError("초기화 중 오류가 발생했습니다: ${e.message}")
-                }
-                showLoading(false)
-            }
-        }
+    override fun showLoading(isLoading: Boolean) {
+        showToast(if (isLoading) "로딩 중..." else "로딩 완료")
     }
 
-    private fun showLoading(show: Boolean) {
-        runOnUiThread {
-            if (show) {
-                Log.d(TAG, "로딩 시작...")
-            } else {
-                Log.d(TAG, "로딩 완료")
-            }
-        }
+    override fun showResults(names: List<GeneratedName>, elapsedTime: Long) {
+        showToast("${names.size}개 생성 (${elapsedTime}ms)")
     }
 
-    private fun showError(message: String) {
-        Log.e(TAG, message)
+    override fun showError(message: String) {
+        showToast("❌ $message", Toast.LENGTH_LONG)
+    }
+
+    private fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+        Toast.makeText(this, message, duration).show()
     }
 }
