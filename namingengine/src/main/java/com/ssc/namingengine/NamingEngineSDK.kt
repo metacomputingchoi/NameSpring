@@ -2,6 +2,7 @@
 package com.ssc.namingengine
 
 import android.content.Context
+import com.ssc.namingengine.api.NamingEngineAPI
 import com.ssc.namingengine.core.NamingSystem
 import com.ssc.namingengine.core.NamingSystemConfig
 import com.ssc.namingengine.util.logger.Logger
@@ -44,6 +45,16 @@ object NamingEngineSDK {
         } catch (e: Exception) {
             throw NamingEngineException("Failed to initialize NamingEngine: ${e.message}", e)
         }
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun createAPI(
+        context: Context,
+        logger: Logger? = null
+    ): NamingEngineAPI {
+        val namingSystem = create(context, logger)
+        return NamingEngineAPI(namingSystem)
     }
 
     @JvmStatic
