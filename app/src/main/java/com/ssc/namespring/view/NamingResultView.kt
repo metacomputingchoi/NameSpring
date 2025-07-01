@@ -42,8 +42,22 @@ interface NamingResultView {
      * 페이지네이션 표시
      * - 현재 페이지 / 전체 페이지
      * - 이전/다음 버튼
+     * - 더보기 버튼
      */
     fun showPagination(currentPage: Int, totalPages: Int)
+
+    /**
+     * 더보기 버튼 표시
+     * - 다음 10개 로드
+     */
+    fun showLoadMore(hasMore: Boolean)
+
+    /**
+     * 결과 요약 정보 표시
+     * - 총 생성 개수
+     * - 현재 표시 개수
+     */
+    fun showResultSummary(totalCount: Int, displayedCount: Int)
 
     /**
      * 로딩 상태 표시

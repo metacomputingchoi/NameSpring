@@ -115,16 +115,21 @@ class NamingController(
                 // 정렬 적용
                 val sortedNames = sortNames(generatedNames, currentSortType)
 
-                // 결과 표시
-                namingResultView.showNameCards(sortedNames)
+                // 첫 페이지 표시 (10개)
+                val firstPageNames = sortedNames.take(10)
+                namingResultView.showNameCards(firstPageNames)
                 namingResultView.showSortOptions()
 
-                // 페이지네이션
+                // 결과 요약 정보
+                namingResultView.showResultSummary(generatedNames.size, firstPageNames.size)
+
+                // 페이지네이션 및 더보기
                 val totalPages = (generatedNames.size + 9) / 10
                 namingResultView.showPagination(1, totalPages)
+                namingResultView.showLoadMore(generatedNames.size > 10)
 
                 // 즐겨찾기 상태 표시
-                updateFavoriteStates(sortedNames.take(10), profile.id)
+                updateFavoriteStates(firstPageNames, profile.id)
 
                 // 테스트: 첫 번째 이름을 즐겨찾기에 추가
                 simulateFavoriteSelection(sortedNames.first())
