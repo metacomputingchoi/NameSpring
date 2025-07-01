@@ -2,55 +2,162 @@
 package com.ssc.namespring
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.ssc.namingengine.NamingEngine
-import com.ssc.namingengine.data.GeneratedName
-import com.ssc.namespring.controller.NameGeneratorController
-import com.ssc.namespring.model.NameGeneratorModel
+import com.ssc.namespring.controller.*
+import com.ssc.namespring.model.*
+import com.ssc.namespring.model.repository.*
+import com.ssc.namespring.repository.*
 import com.ssc.namespring.utils.logger.AndroidLogger
-import com.ssc.namespring.view.NameGeneratorView
+import com.ssc.namespring.view.*
+import com.ssc.namespring.view.impl.*
+import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), NameGeneratorView {
+class MainActivity : AppCompatActivity() {
 
+    private val logger = AndroidLogger("MainActivity")
+
+    // Models
     private lateinit var namingEngine: NamingEngine
-    private lateinit var model: NameGeneratorModel
-    private lateinit var controller: NameGeneratorController
+    private lateinit var profileModel: ProfileModel
+    private lateinit var favoriteModel: FavoriteModel
+    private lateinit var reportModel: ReportModel
+    private lateinit var themeModel: ThemeModel
+    private lateinit var nameGeneratorModel: NameGeneratorModel
+
+    // Views
+    private lateinit var mainView: MainView
+    private lateinit var profileManagementView: ProfileManagementView
+    private lateinit var profileInputView: ProfileInputView
+    private lateinit var namingSettingsView: NamingSettingsView
+    private lateinit var namingResultView: NamingResultView
+    private lateinit var evaluationInputView: EvaluationInputView
+    private lateinit var evaluationResultView: EvaluationResultView
+    private lateinit var comparisonView: ComparisonView
+    private lateinit var favoriteView: FavoriteView
+    private lateinit var splashView: SplashView
+
+    // Controllers
+    private lateinit var appController: AppController
+    private lateinit var profileController: ProfileController
+    private lateinit var mainController: MainController
+    private lateinit var namingController: NamingController
+    private lateinit var evaluationController: EvaluationController
+    private lateinit var comparisonController: ComparisonController
+    private lateinit var favoriteController: FavoriteController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_layout)
 
-        initializeComponents()
-    }
+        // 스플래시 화면 표시
+        showSplash()
 
-    private fun initializeComponents() {
-        try {
-            namingEngine = NamingEngine.create(
-                logger = AndroidLogger("NamingEngine")
-            )
-            model = NameGeneratorModel(namingEngine)
-            controller = NameGeneratorController(model, this)
-
-            showToast("초기화 완료")
-        } catch (e: Exception) {
-            showError("초기화 실패: ${e.message}")
+        // 컴포넌트 초기화
+        lifecycleScope.launch {
+            initializeComponents()
+            // 메인 화면으로 이동
+            showMainScreen()
         }
     }
 
-    override fun showLoading(isLoading: Boolean) {
-        showToast(if (isLoading) "로딩 중..." else "로딩 완료")
+    private fun showSplash() {
+        splashView = SplashViewImpl(this)
+        splashView.showSplashAnimation()
     }
 
-    override fun showResults(names: List<GeneratedName>, elapsedTime: Long) {
-        showToast("${names.size}개 생성 (${elapsedTime}ms)")
+    private suspend fun initializeComponents() {
+        try {
+            // NamingEngine 초기화
+            namingEngine = NamingEngine.create(
+                logger = AndroidLogger("NamingEngine")
+            )
+
+            // Repository 초기화 (메모리 기반)
+            val profileRepository = ProfileRepositoryImpl()
+            val favoriteRepository = FavoriteRepositoryImpl()
+            val reportRepository = ReportRepositoryImpl()
+
+            // Model 초기화
+            profileModel = ProfileModel(profileRepository, namingEngine)
+            favoriteModel = FavoriteModel(favoriteRepository)
+            reportModel = ReportModel(reportRepository)
+            themeModel = ThemeModel()
+            nameGeneratorModel = NameGeneratorModel(namingEngine)
+
+            // View 초기화
+            mainView = MainViewImpl(this)
+            profileManagementView = ProfileManagementViewImpl(this)
+            profileInputView = ProfileInputViewImpl(this)
+            namingSettingsView = NamingSettingsViewImpl(this)
+            namingResultView = NamingResultViewImpl(this)
+            evaluationInputView = EvaluationInputViewImpl(this)
+            evaluationResultView = EvaluationResultViewImpl(this)
+            comparisonView = ComparisonViewImpl(this)
+            favoriteView = FavoriteViewImpl(this)
+
+            // Controller 초기화
+            profileController = ProfileController(
+                profileModel = profileModel,
+                profileManagementView = profileManagementView,
+                profileInputView = profileInputView
+            )
+
+            mainController = MainController(
+                profileModel = profileModel,
+                themeModel = themeModel,
+                mainView = mainView
+            )
+
+            namingController = NamingController(
+                nameGeneratorModel = nameGeneratorModel,
+                favoriteModel = favoriteModel,
+                namingSettingsView = namingSettingsView,
+                namingResultView = namingResultView
+            )
+
+            evaluationController = EvaluationController(
+                nameGeneratorModel = nameGeneratorModel,
+                reportModel = reportModel,
+                evaluationInputView = evaluationInputView,
+                evaluationResultView = evaluationResultView
+            )
+
+            comparisonController = ComparisonController(
+                reportModel = reportModel,
+                comparisonView = comparisonView
+            )
+
+            favoriteController = FavoriteController(
+                favoriteModel = favoriteModel,
+                favoriteView = favoriteView
+            )
+
+            // App Controller 초기화 (activity 파라미터 제거)
+            appController = AppController(
+                profileController = profileController,
+                mainController = mainController,
+                namingController = namingController,
+                evaluationController = evaluationController,
+                comparisonController = comparisonController,
+                favoriteController = favoriteController
+            )
+
+            logger.d("모든 컴포넌트 초기화 완료")
+
+        } catch (e: Exception) {
+            logger.e("초기화 실패", e)
+            finish()
+        }
     }
 
-    override fun showError(message: String) {
-        showToast("❌ $message", Toast.LENGTH_LONG)
+    private suspend fun showMainScreen() {
+        appController.showMainScreen()
     }
 
-    private fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
-        Toast.makeText(this, message, duration).show()
+    override fun onBackPressed() {
+        if (!appController.handleBackPress()) {
+            super.onBackPressed()
+        }
     }
 }

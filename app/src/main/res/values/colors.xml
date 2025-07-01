@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 기존 색상들 -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -14,4 +15,92 @@
     <color name="gray">#808080</color>
     <color name="primary">#90C695</color>
     <color name="primaryGreen">#6B9C6E</color>
+    <color name="darker_gray">#555555</color>
+    <color name="holo_blue_light">#FF33B5E5</color>
+
+    <!-- 봄 테마별 색상 -->
+    <!-- 화창한 봄 (80-100점) -->
+    <color name="sunny_spring_primary">#FFB6D7</color> <!-- 연한 핑크 -->
+    <color name="sunny_spring_bg">#FFF5F8</color> <!-- 매우 연한 핑크 배경 -->
+    <color name="sunny_spring_accent">#B4E4B8</color> <!-- 연두색 -->
+    <color name="sunny_spring_secondary">#A8D8EA</color> <!-- 하늘색 -->
+
+    <!-- 따뜻한 봄 (60-79점) -->
+    <color name="warm_spring_primary">#FFCBA4</color> <!-- 살구색 -->
+    <color name="warm_spring_bg">#FFF9F0</color> <!-- 따뜻한 베이지 배경 -->
+    <color name="warm_spring_accent">#FFE5A0</color> <!-- 연노랑 -->
+    <color name="warm_spring_secondary">#C8E6C9</color> <!-- 연초록 -->
+
+    <!-- 흐린 봄 (40-59점) -->
+    <color name="cloudy_spring_primary">#D3D3D3</color> <!-- 연회색 -->
+    <color name="cloudy_spring_bg">#F5F5F5</color> <!-- 미색 배경 -->
+    <color name="cloudy_spring_accent">#E8E8E8</color> <!-- 밝은 회색 -->
+    <color name="cloudy_spring_secondary">#B8D4E3</color> <!-- 옅은 청색 -->
+
+    <!-- 비내리는 봄 (20-39점) -->
+    <color name="rainy_spring_primary">#9FA8DA</color> <!-- 청회색 -->
+    <color name="rainy_spring_bg">#EBEDF7</color> <!-- 연한 청회색 배경 -->
+    <color name="rainy_spring_accent">#C5B9E3</color> <!-- 연보라 -->
+    <color name="rainy_spring_secondary">#C0C0C0</color> <!-- 은색 -->
+
+    <!-- 쌀쌀한 봄 (0-19점) -->
+    <color name="cold_spring_primary">#7DA3C7</color> <!-- 차가운 청색 -->
+    <color name="cold_spring_bg">#E6F2F8</color> <!-- 차가운 배경 -->
+    <color name="cold_spring_accent">#A0A0A0</color> <!-- 회색 -->
+    <color name="cold_spring_secondary">#D6D6D6</color> <!-- 밝은 회색 -->
+
+    <!-- 새싹 상태별 색상 -->
+    <color name="flower_pink">#FF69B4</color> <!-- 꽃 핑크 (BLOOMING) -->
+    <color name="leaf_green">#228B22</color> <!-- 잎 녹색 (GROWING) -->
+    <color name="sprout_green">#7CFC00</color> <!-- 새싹 연두색 (SPROUTING) -->
+    <color name="seed_brown">#8B4513</color> <!-- 씨앗 갈색 (SEED) -->
+    <color name="dormant_gray">#696969</color> <!-- 휴면 회색 (DORMANT) -->
+
+    <!-- 추가 UI 색상 -->
+    <color name="divider">#E0E0E0</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_shadow">#1A000000</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+
+    <!-- 점수별 색상 -->
+    <color name="score_excellent">#4CAF50</color> <!-- 우수 (80-100) -->
+    <color name="score_good">#8BC34A</color> <!-- 좋음 (60-79) -->
+    <color name="score_average">#FFC107</color> <!-- 보통 (40-59) -->
+    <color name="score_below">#FF9800</color> <!-- 미흡 (20-39) -->
+    <color name="score_poor">#F44336</color> <!-- 나쁨 (0-19) -->
+
+    <!-- 오행 색상 -->
+    <color name="ohaeng_wood">#228B22</color> <!-- 목(木) - 녹색 -->
+    <color name="ohaeng_fire">#FF4500</color> <!-- 화(火) - 빨강 -->
+    <color name="ohaeng_earth">#DAA520</color> <!-- 토(土) - 황색 -->
+    <color name="ohaeng_metal">#C0C0C0</color> <!-- 금(金) - 은색 -->
+    <color name="ohaeng_water">#1E90FF</color> <!-- 수(水) - 파랑 -->
+
+    <!-- 음양 색상 -->
+    <color name="eum_color">#4169E1</color> <!-- 음(陰) - 진한 파랑 -->
+    <color name="yang_color">#FF6347</color> <!-- 양(陽) - 주황빨강 -->
+
+    <!-- 버튼 상태 색상 -->
+    <color name="button_enabled">#90C695</color>
+    <color name="button_disabled">#CCCCCC</color>
+    <color name="button_pressed">#6B9C6E</color>
+
+    <!-- 즐겨찾기 색상 -->
+    <color name="favorite_active">#FFD700</color> <!-- 금색 -->
+    <color name="favorite_inactive">#E0E0E0</color>
+
+    <!-- 투명도가 있는 색상들 -->
+    <color name="black_alpha_50">#80000000</color>
+    <color name="white_alpha_50">#80FFFFFF</color>
+    <color name="primary_alpha_20">#3390C695</color>
+
+    <!-- 그라데이션용 색상 -->
+    <color name="gradient_start">#90C695</color>
+    <color name="gradient_end">#6B9C6E</color>
+
+    <!-- 애니메이션 효과 색상 -->
+    <color name="ripple_color">#1A90C695</color>
+    <color name="highlight_color">#FFE082</color>
 </resources>

@@ -1,0 +1,213 @@
+// controller/ComparisonController.kt
+package com.ssc.namespring.controller
+
+import com.ssc.namingengine.data.GeneratedName
+import com.ssc.namingengine.data.HanjaInfo
+import com.ssc.namingengine.data.Sagyeok
+import com.ssc.namingengine.data.analysis.*
+import com.ssc.namespring.model.ReportModel
+import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.utils.logger.AndroidLogger
+import com.ssc.namespring.view.ComparisonView
+import com.ssc.namingengine.data.analysis.component.EumYangAnalysisInfo
+import com.ssc.namingengine.data.analysis.component.OhaengAnalysisInfo
+import com.ssc.namingengine.data.analysis.component.SajuAnalysisInfo
+import kotlinx.coroutines.*
+
+class ComparisonController(
+    private val reportModel: ReportModel,
+    private val comparisonView: ComparisonView
+) {
+
+    private val logger = AndroidLogger("ComparisonController")
+
+    // 컨트롤러 전용 코루틴 스코프
+    private val controllerScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    private val selectedNames = mutableListOf<GeneratedName>()
+    private var selectedProfile: Profile? = null
+
+    // 비교 완료 콜백
+    var onComparisonCompleted: (() -> Unit)? = null
+
+    suspend fun showComparison(profiles: List<Profile>) {
+        comparisonView.showNameSelectors(2) // 기본 2개 비교
+        comparisonView.showProfileSelector(profiles)
+
+        // 테스트용 자동 실행
+        if (profiles.isNotEmpty()) {
+            selectedProfile = profiles.first()
+            simulateNameSelection()
+        }
+    }
+
+    suspend fun handleNameSelection(names: List<GeneratedName>) {
+        selectedNames.clear()
+        selectedNames.addAll(names)
+
+        if (selectedNames.size >= 2) {
+            comparisonView.enableCompareButton(true)
+        }
+    }
+
+    suspend fun handleComparison() {
+        val profile = selectedProfile ?: return
+
+        if (selectedNames.size < 2) {
+            comparisonView.showError("2개 이상의 이름을 선택하세요")
+            return
+        }
+
+        comparisonView.showLoading(true)
+
+        try {
+            val report = reportModel.generateComparisonReport(
+                names = selectedNames,
+                profile = profile
+            ).getOrThrow()
+
+            // 비교 결과 표시
+            handleRankingDisplay(report)
+
+        } catch (e: Exception) {
+            comparisonView.showError("비교 실패: ${e.message}")
+        } finally {
+            comparisonView.showLoading(false)
+        }
+    }
+
+    fun handleRankingDisplay(report: com.ssc.namespring.model.data.ComparisonReport) {
+        // 비교표 표시
+        comparisonView.showComparisonTable(report)
+
+        // 순위 표시
+        comparisonView.showRankings(report.rankings)
+
+        // 최종 추천
+        comparisonView.showWinner(report.winnerName)
+
+        // 비교 완료 콜백 호출
+        controllerScope.launch {
+            delay(2000)
+            onComparisonCompleted?.invoke()
+        }
+    }
+
+    // 테스트용 이름 선택 시뮬레이션
+    private suspend fun simulateNameSelection() {
+        logger.d("테스트용 이름 생성 중...")
+
+        // 실제 GeneratedName 구조에 맞는 테스트 데이터 생성
+        val testNames = listOf(
+            createTestName("민준", "民俊", listOf(
+                HanjaInfo("民", "백성", "민", "陰", "陰", "水", "土", 5, 5),
+                HanjaInfo("俊", "뛰어날", "준", "陰", "陽", "水", "木", 9, 9)
+            ), 140, mapOf("사격점수" to 75, "음양균형" to 20, "오행조화" to 15, "획수길흉" to 15)),
+
+            createTestName("서준", "瑞俊", listOf(
+                HanjaInfo("瑞", "상서로울", "서", "陰", "陰", "木", "金", 14, 13),
+                HanjaInfo("俊", "뛰어날", "준", "陰", "陽", "水", "木", 9, 9)
+            ), 155, mapOf("사격점수" to 100, "음양균형" to 15, "오행조화" to 20, "획수길흉" to 20)),
+
+            createTestName("도윤", "道潤", listOf(
+                HanjaInfo("道", "길", "도", "陽", "陰", "火", "土", 13, 12),
+                HanjaInfo("潤", "윤택할", "윤", "陰", "陰", "水", "水", 16, 15)
+            ), 130, mapOf("사격점수" to 50, "음양균형" to 20, "오행조화" to 20, "획수길흉" to 20))
+        )
+
+        handleNameSelection(testNames)
+        handleComparison()
+    }
+
+    private fun createTestName(
+        hangul: String,
+        hanja: String,
+        hanjaInfoList: List<HanjaInfo>,
+        totalScore: Int,
+        scoreBreakdown: Map<String, Int>
+    ): GeneratedName {
+        val profile = selectedProfile ?: Profile(
+            id = "test",
+            profileName = "테스트",
+            surname = "김",
+            surnameHanja = "金",
+            givenName = "테스트",
+            givenNameHanja = "測試",
+            birthDateTime = java.time.LocalDateTime.now(),
+            useYajasi = false
+        )
+
+        // 사격 계산 (간단한 예시)
+        val sagyeok = Sagyeok(
+            hyeong = 15 + hanjaInfoList[0].wonHoeksu,
+            won = hanjaInfoList.sumOf { it.wonHoeksu },
+            i = hanjaInfoList[1].wonHoeksu + 1,
+            jeong = 15 + hanjaInfoList.sumOf { it.wonHoeksu }
+        )
+
+        // 사주 분석 정보 (테스트용)
+        val sajuInfo = SajuAnalysisInfo(
+            fourPillars = arrayOf("甲子", "乙丑", "丙寅", "丁卯"),
+            sajuOhaengCount = mapOf("木" to 2, "火" to 2, "土" to 1, "金" to 1, "水" to 2),
+            missingElements = listOf("土"),
+            dominantElements = listOf("木", "火"),
+            elementBalance = mapOf("木" to 0.25f, "火" to 0.25f, "土" to 0.125f, "金" to 0.125f, "水" to 0.25f)
+        )
+
+        // 음양 분석 정보
+        val eumYangInfo = EumYangAnalysisInfo(
+            combinedEumyang = "011",
+            eumCount = hanjaInfoList.count { it.baleumEumyang == "陰" },
+            yangCount = hanjaInfoList.count { it.baleumEumyang == "陽" },
+            balance = 0.5f,
+            pattern = "음양 균형",
+            isBalanced = true,
+            balanceDescription = "음양이 균형을 이룹니다"
+        )
+
+        // 오행 분석 정보
+        val ohaengInfo = OhaengAnalysisInfo(
+            baleumOhaeng = hanjaInfoList.map { it.baleumOhaeng }.joinToString(""),
+            hoeksuOhaeng = listOf(8, 8, 0),
+            jawonOhaeng = hanjaInfoList.map { it.jawonOhaeng },
+            sagyeokSuriOhaeng = listOf(6, 8, 8, 4),
+            harmonyScore = scoreBreakdown["오행조화"] ?: 15,
+            conflictingPairs = emptyList(),
+            generatingPairs = listOf("木" to "火"),
+            overallHarmony = if ((scoreBreakdown["오행조화"] ?: 0) >= 15) "조화로움" else "보통"
+        )
+
+        // 필터링 정보
+        val filteringSteps = listOf(
+            FilteringStep("발음오행음양필터", true, "필터 통과", emptyMap()),
+            FilteringStep("자원오행필터", true, "필터 통과", emptyMap()),
+            FilteringStep("발음자연스러움필터", true, "필터 통과", emptyMap())
+        )
+
+        // 분석 정보 생성
+        val analysisInfo = NameAnalysisInfo(
+            sajuInfo = sajuInfo,
+            eumYangInfo = eumYangInfo,
+            ohaengInfo = ohaengInfo,
+            filteringSteps = filteringSteps,
+            totalScore = totalScore,
+            scoreBreakdown = scoreBreakdown,
+            recommendations = listOf(
+                "음양이 조화롭게 균형을 이루고 있습니다.",
+                "오행이 서로 상생하여 조화롭습니다.",
+                "이름의 뜻: ${hanjaInfoList.joinToString(" + ") { it.inmyongMeaning }}"
+            )
+        )
+
+        return GeneratedName(
+            surnameHangul = profile.surname,
+            surnameHanja = profile.surnameHanja,
+            combinedHanja = hanja,
+            combinedPronounciation = hangul,
+            sagyeok = sagyeok,
+            nameHanjaHoeksu = hanjaInfoList.map { it.wonHoeksu },
+            hanjaDetails = hanjaInfoList,
+            analysisInfo = analysisInfo
+        )
+    }
+}
