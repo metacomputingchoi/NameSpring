@@ -6,6 +6,7 @@ import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.NamingResultView
 import com.ssc.namespring.utils.UiHelper
+import com.ssc.namespring.utils.JsonLoader
 
 class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
 
@@ -33,9 +34,44 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                 logger.d("   특징: ${features.joinToString(", ")}")
             }
 
-            // 이름의 의미 표시
-            val meaning = name.hanjaDetails.joinToString(" + ") { it.inmyongMeaning }
-            logger.d("   의미: $meaning")
+            // 이름의 의미 표시 (한자 의미 결합)
+            val meanings = name.hanjaDetails.map { hanja ->
+                // JSON에서 한자 의미 정보 가져오기
+                val hanjaInfo = JsonLoader.getHanjaMeaning(hanja.hanja)
+                val origin = hanjaInfo?.origin ?: ""
+                "${hanja.hanja}(${hanja.inmyongMeaning}${if (origin.isNotEmpty()) " - $origin" else ""})"
+            }
+            logger.d("   의미: ${meanings.joinToString(" + ")}")
+
+            // 사격의 주요 특성 표시 (stroke_meanings.json 활용)
+            name.sagyeok?.let { sagyeok ->
+                val wonMeaning = JsonLoader.getStrokeMeaning(sagyeok.won)
+                logger.d("   성격: ${wonMeaning.personalityTraits.take(3).joinToString(", ")}")
+
+                // 특별한 운이 있으면 표시
+                if (JsonLoader.isBusinessLuckStroke(sagyeok.won)) {
+                    logger.d("   💼 사업운이 좋은 이름")
+                }
+                if (JsonLoader.isLeadershipStroke(sagyeok.hyeong)) {
+                    logger.d("   👑 리더십이 뛰어난 이름")
+                }
+            }
+
+            // 오행 조화 정보 표시
+            name.analysisInfo?.ohaengInfo?.let { ohaengInfo ->
+                if (ohaengInfo.overallHarmony.contains("조화")) {
+                    val elements = (ohaengInfo.baleumOhaeng.toSet() + ohaengInfo.jawonOhaeng.toSet())
+                        .filterNot { it.toString().isEmpty() }
+                    if (elements.isNotEmpty()) {
+                        val elementColors = elements.mapNotNull { element ->
+                            JsonLoader.elementCharacteristics.elementColors[element.toString()]?.firstOrNull()
+                        }
+                        if (elementColors.isNotEmpty()) {
+                            logger.d("   행운색: ${elementColors.joinToString(", ")}")
+                        }
+                    }
+                }
+            }
         }
     }
 

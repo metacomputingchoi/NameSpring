@@ -7,9 +7,8 @@ import androidx.lifecycle.lifecycleScope
 import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.controller.*
 import com.ssc.namespring.model.*
-import com.ssc.namespring.model.repository.impl.FavoriteRepositoryImpl
-import com.ssc.namespring.model.repository.impl.ProfileRepositoryImpl
-import com.ssc.namespring.model.repository.impl.ReportRepositoryImpl
+import com.ssc.namespring.model.repository.impl.*
+import com.ssc.namespring.utils.JsonLoader
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.*
 import com.ssc.namespring.view.impl.*
@@ -58,6 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         // 컴포넌트 초기화
         lifecycleScope.launch {
+            initializeJsonData()
             initializeComponents()
             // 메인 화면으로 이동
             showMainScreen()
@@ -67,6 +67,18 @@ class MainActivity : AppCompatActivity() {
     private fun showSplash() {
         splashView = SplashViewImpl(this)
         splashView.showSplashAnimation()
+    }
+
+    private suspend fun initializeJsonData() {
+        try {
+            logger.d("JSON 데이터 초기화 중...")
+            JsonLoader.initialize(this)
+            logger.d("JSON 데이터 초기화 완료")
+        } catch (e: Exception) {
+            logger.e("JSON 데이터 초기화 실패", e)
+            // 앱을 종료하거나 에러 화면 표시
+            finish()
+        }
     }
 
     private suspend fun initializeComponents() {

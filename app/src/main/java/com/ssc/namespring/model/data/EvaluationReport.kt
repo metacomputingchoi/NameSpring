@@ -16,6 +16,9 @@ data class EvaluationReport(
     val pronunciationNaturalness: ScoreDetail, // 발음 자연스러움
     val recommendations: List<String>,         // 추천사항
     val improvements: List<String>,            // 개선사항
+    val personalityAnalysis: PersonalityAnalysis? = null,  // 성격 분석
+    val careerGuidance: CareerGuidance? = null,           // 적합 직업
+    val lifePeriodAnalysis: LifePeriodAnalysis? = null,   // 인생 시기별 분석
     val createdAt: LocalDateTime = LocalDateTime.now()
 ) {
     fun getRadarChartData(): Map<String, Int> = mapOf(
@@ -26,10 +29,10 @@ data class EvaluationReport(
         "발음자연" to pronunciationNaturalness.score
     )
 
-    fun getDisplayName(): String = 
+    fun getDisplayName(): String =
         "${evaluatedName.surnameHangul}${evaluatedName.combinedPronounciation}"
 
-    fun getDisplayHanja(): String = 
+    fun getDisplayHanja(): String =
         "${evaluatedName.surnameHanja}${evaluatedName.combinedHanja}"
 
     fun getStrengthsAndWeaknesses(): Pair<List<String>, List<String>> {
@@ -81,3 +84,34 @@ enum class ScoreLevel {
     BELOW,      // 미흡 (20-39)
     POOR        // 나쁨 (0-19)
 }
+
+// 성격 분석 결과
+data class PersonalityAnalysis(
+    val coreTraits: List<String>,      // 핵심 성격 특성
+    val strengths: List<String>,       // 강점
+    val weaknesses: List<String>,      // 약점
+    val description: String            // 종합 설명
+)
+
+// 적합 직업 안내
+data class CareerGuidance(
+    val recommendedCareers: List<String>,  // 추천 직업 목록
+    val careerFields: List<String>,        // 추천 분야
+    val workStyle: String,                 // 업무 스타일
+    val successFactors: List<String>       // 성공 요인
+)
+
+// 인생 시기별 분석
+data class LifePeriodAnalysis(
+    val periods: List<LifePeriod>,        // 시기별 분석
+    val overallFlow: String,              // 전체 인생 흐름
+    val criticalAges: List<Int>           // 주요 변화 시기
+)
+
+data class LifePeriod(
+    val name: String,                     // 시기 이름 (유년기, 청년기 등)
+    val description: String,              // 시기 설명
+    val challenges: List<String>,         // 주의사항
+    val opportunities: List<String>,      // 기회 요인
+    val advice: String                    // 조언
+)

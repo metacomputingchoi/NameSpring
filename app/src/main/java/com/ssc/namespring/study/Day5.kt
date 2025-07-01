@@ -43,4 +43,10 @@ class Day5 {
     // BFS
     // 각 액티비티 레이아웃과 전환연결만 우선 구현하자.
     // 그리고 각 액티비티를 DFS로 채워넣자!
+
+    // API SDK 둘 중 하나만. API 같은 글자를 직접 붙이진 않음.
+    // namingengine/main/java/com/ssc/namingengine/NamingEngine.kt
+    // json 파일은 namingengine 내부 resources에 담아두고 활용하기로 결정(안드로이드 assets과 독립시킴).
+    // 테스트코드들을 포로덕션 코드 밖으로 떼어내기.
+    // json 한자 미포함 이슈 해결
 }

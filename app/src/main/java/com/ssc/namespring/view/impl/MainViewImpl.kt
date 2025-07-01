@@ -7,6 +7,7 @@ import com.ssc.namespring.model.data.SajuInfo
 import com.ssc.namespring.model.data.Theme
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.MainView
+import com.ssc.namespring.utils.JsonLoader
 
 class MainViewImpl(private val activity: Activity) : MainView {
 
@@ -35,6 +36,11 @@ class MainViewImpl(private val activity: Activity) : MainView {
             else -> "🌰"
         }
         logger.d("새싹 레벨: $sproutIcon")
+
+        // 점수에 따른 평가 메시지 표시
+        val grade = JsonLoader.getGrade(profile.namebomScore)
+        val gradeAssessment = JsonLoader.scoreEvaluations.gradeAssessments[grade]
+        logger.d("등급: ${grade}등급 - $gradeAssessment")
     }
 
     override fun showSajuSummary(sajuInfo: SajuInfo?) {
@@ -56,6 +62,21 @@ class MainViewImpl(private val activity: Activity) : MainView {
 
         if (sajuInfo.missingElements.isNotEmpty()) {
             logger.d("⚠️ 부족한 오행: ${sajuInfo.missingElements.joinToString(", ")}")
+
+            // 부족한 오행에 대한 보완 방법 표시
+            logger.d("💡 보완 방법:")
+            sajuInfo.missingElements.forEach { element ->
+                val recommendation = JsonLoader.elementCharacteristics.elementLackingRecommendations[element]
+                if (recommendation != null) {
+                    logger.d("  - $element: $recommendation")
+                }
+
+                // 추천 색상도 표시
+                val colors = JsonLoader.elementCharacteristics.elementColors[element]
+                if (!colors.isNullOrEmpty()) {
+                    logger.d("    행운색: ${colors.joinToString(", ")}")
+                }
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import com.ssc.namespring.view.ComparisonView
 import com.ssc.namingengine.data.analysis.component.EumYangAnalysisInfo
 import com.ssc.namingengine.data.analysis.component.OhaengAnalysisInfo
 import com.ssc.namingengine.data.analysis.component.SajuAnalysisInfo
+import com.ssc.namespring.utils.JsonLoader
 import kotlinx.coroutines.*
 
 class ComparisonController(
@@ -93,7 +94,7 @@ class ComparisonController(
         }
     }
 
-    // 테스트용 이름 선택 시뮬레이션
+    // 테스트용 이름 선택 시뮬레이션 (개선됨)
     private suspend fun simulateNameSelection() {
         logger.d("테스트용 이름 생성 중...")
 
@@ -102,17 +103,17 @@ class ComparisonController(
             createTestName("민준", "民俊", listOf(
                 HanjaInfo("民", "백성", "민", "陰", "陰", "水", "土", 5, 5),
                 HanjaInfo("俊", "뛰어날", "준", "陰", "陽", "水", "木", 9, 9)
-            ), 140, mapOf("사격점수" to 75, "음양균형" to 20, "오행조화" to 15, "획수길흉" to 15)),
+            ), 82, mapOf("사격점수" to 75, "음양균형" to 16, "오행조화" to 15, "획수길흉" to 15)),
 
             createTestName("서준", "瑞俊", listOf(
                 HanjaInfo("瑞", "상서로울", "서", "陰", "陰", "木", "金", 14, 13),
                 HanjaInfo("俊", "뛰어날", "준", "陰", "陽", "水", "木", 9, 9)
-            ), 155, mapOf("사격점수" to 100, "음양균형" to 15, "오행조화" to 20, "획수길흉" to 20)),
+            ), 89, mapOf("사격점수" to 100, "음양균형" to 10, "오행조화" to 20, "획수길흉" to 20)),
 
             createTestName("도윤", "道潤", listOf(
                 HanjaInfo("道", "길", "도", "陽", "陰", "火", "土", 13, 12),
                 HanjaInfo("潤", "윤택할", "윤", "陰", "陰", "水", "水", 16, 15)
-            ), 130, mapOf("사격점수" to 50, "음양균형" to 20, "오행조화" to 20, "획수길흉" to 20))
+            ), 73, mapOf("사격점수" to 50, "음양균형" to 16, "오행조화" to 15, "획수길흉" to 10))
         )
 
         handleNameSelection(testNames)
@@ -156,13 +157,13 @@ class ComparisonController(
 
         // 음양 분석 정보
         val eumYangInfo = EumYangAnalysisInfo(
-            combinedEumyang = "011",
+            combinedEumyang = if (hanjaInfoList.count { it.baleumEumyang == "陰" } > hanjaInfoList.count { it.baleumEumyang == "陽" }) "음음음" else "음양음",
             eumCount = hanjaInfoList.count { it.baleumEumyang == "陰" },
             yangCount = hanjaInfoList.count { it.baleumEumyang == "陽" },
-            balance = 0.5f,
-            pattern = "음양 균형",
-            isBalanced = true,
-            balanceDescription = "음양이 균형을 이룹니다"
+            balance = if (hanjaInfoList.count { it.baleumEumyang == "陰" } == hanjaInfoList.count { it.baleumEumyang == "陽" }) 0.5f else 0.67f,
+            pattern = if (hanjaInfoList.count { it.baleumEumyang == "陰" } == hanjaInfoList.count { it.baleumEumyang == "陽" }) "음양 균형" else "음 우세",
+            isBalanced = hanjaInfoList.count { it.baleumEumyang == "陰" } in 1..2,
+            balanceDescription = "음양 균형이 적절합니다"
         )
 
         // 오행 분석 정보
