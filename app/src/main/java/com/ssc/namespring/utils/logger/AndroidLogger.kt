@@ -1,4 +1,4 @@
-// namespring/src/main/java/com/ssc/namespring/utils/logger/AndroidLogger.kt
+// utils/logger/AndroidLogger.kt
 package com.ssc.namespring.utils.logger
 
 import android.util.Log

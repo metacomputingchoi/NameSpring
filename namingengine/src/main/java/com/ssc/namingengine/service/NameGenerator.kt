@@ -9,6 +9,7 @@ import com.ssc.namingengine.util.NamingCalculationUtils
 import com.ssc.namingengine.util.OhaengCalculationUtils
 import com.ssc.namingengine.util.HangulUtils
 import com.ssc.namingengine.util.CombinationGenerator
+import com.ssc.namingengine.util.normalizeNFC
 
 class NameGenerator(
     private val hanjaRepository: HanjaRepository,
@@ -175,7 +176,7 @@ class NameGenerator(
 
     private fun matchesConstraint(hanja: HanjaInfo, constraint: NameConstraint): Boolean {
         if (constraint.hanjaType == ParsingConstants.ConstraintTypes.COMPLETE &&
-            hanja.hanja != constraint.hanjaValue) {
+            hanja.hanja != constraint.hanjaValue?.normalizeNFC()) {
             return false
         }
 

@@ -2,12 +2,12 @@
 package com.ssc.namespring.model
 
 import android.util.Log
-import com.ssc.namingengine.api.NamingEngineAPI
-import com.ssc.namingengine.api.ApiException
+import com.ssc.namingengine.NamingEngine
+import com.ssc.namingengine.exception.NamingEngineException
 import java.time.LocalDateTime
 
 class NameGeneratorTester(
-    private val namingEngineAPI: NamingEngineAPI
+    private val namingEngine: NamingEngine
 ) {
 
     companion object {
@@ -45,6 +45,17 @@ class NameGeneratorTester(
                         )
                     ),
                     defaultBirthDateTime = LocalDateTime.of(1986, 4, 19, 5, 45, 0),
+                    testType = TestType.EVALUATION
+                ),
+                TestConfiguration(
+                    testCases = listOf(
+                        TestCase(
+                            input = "[김/金][우/禹][현/鉉]",
+                            description = "김우현 - 쇠 김(金), 하우씨 우(禹), 솥귀 현(鉉)",
+                            withoutFilter = true
+                        )
+                    ),
+                    defaultBirthDateTime = LocalDateTime.of(1989, 1, 10, 1, 15, 0),
                     testType = TestType.EVALUATION
                 )
             )
@@ -95,7 +106,8 @@ class NameGeneratorTester(
         }
 
         return try {
-            val validationResult = namingEngineAPI.validateInput(testCase.input)
+            // 입력 검증
+            val validationResult = namingEngine.validateInput(testCase.input)
             if (!validationResult.isValid) {
                 resultFormatter.printError("입력 검증 실패: ${validationResult.errorMessage}")
                 return TestResult(
@@ -108,7 +120,8 @@ class NameGeneratorTester(
 
             val startTime = System.currentTimeMillis()
 
-            val results = namingEngineAPI.generateNames(
+            // 이름 생성
+            val results = namingEngine.generateNames(
                 userInput = testCase.input,
                 birthDateTime = birthDateTime,
                 useYajasi = true,
@@ -130,7 +143,7 @@ class NameGeneratorTester(
                 elapsedTime = elapsedTime
             )
 
-        } catch (e: ApiException) {
+        } catch (e: NamingEngineException) {
             val errorMessage = "에러 발생: ${e.message}"
             resultFormatter.printError(errorMessage)
             TestResult(

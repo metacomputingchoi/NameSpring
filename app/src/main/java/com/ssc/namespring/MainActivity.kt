@@ -4,9 +4,7 @@ package com.ssc.namespring
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namingengine.NamingEngineSDK
-import com.ssc.namingengine.api.NamingEngineAPI
-import com.ssc.namingengine.core.NamingSystem
+import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.model.NameGeneratorTester
 import com.ssc.namespring.utils.logger.AndroidLogger
 import kotlinx.coroutines.*
@@ -17,8 +15,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-    private lateinit var namingSystem: NamingSystem
-    private lateinit var namingEngineAPI: NamingEngineAPI
+    private lateinit var namingEngine: NamingEngine
     private lateinit var nameGeneratorTester: NameGeneratorTester
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,13 +28,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeComponents() {
         try {
-            namingSystem = NamingEngineSDK.create(
-                context = this,
+            namingEngine = NamingEngine.create(
                 logger = AndroidLogger("NamingEngine")
             )
 
-            namingEngineAPI = NamingEngineAPI(namingSystem)
-            nameGeneratorTester = NameGeneratorTester(namingEngineAPI)
+            nameGeneratorTester = NameGeneratorTester(namingEngine)
 
             Log.d(TAG, "모든 컴포넌트 초기화 완료")
         } catch (e: Exception) {
@@ -50,54 +45,31 @@ class MainActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                withContext(Dispatchers.Main) {
-                    Log.d(TAG, "NamingEngine SDK 초기화 완료")
-                    showLoading(false)
-                }
+                Log.d(TAG, "NamingEngine 초기화 완료")
+                Log.d(TAG, "NamingEngine 버전: ${NamingEngine.VERSION}")
 
-                val apiInfo = namingEngineAPI.getApiInfo()
-                Log.d(TAG, "API 버전: ${apiInfo.version}")
-                Log.d(TAG, "API 기능: ${apiInfo.capabilities.joinToString(", ")}")
+                showLoading(false)
 
+                // 테스트 실행
                 nameGeneratorTester.runAllTests()
-                runCustomTest()
 
             } catch (e: Exception) {
+                Log.e(TAG, "초기화 중 오류 발생", e)
                 withContext(Dispatchers.Main) {
-                    Log.e(TAG, "초기화 중 오류 발생", e)
                     showError("초기화 중 오류가 발생했습니다: ${e.message}")
-                    showLoading(false)
                 }
-            }
-        }
-    }
-
-    private fun runCustomTest() {
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                val result = nameGeneratorTester.runCustomTest(
-                    userInput = "[박/朴][_/_][_/_]",
-                    birthDateTime = java.time.LocalDateTime.now(),
-                    withoutFilter = false,
-                    description = "박씨 성을 가진 이름 생성 테스트"
-                )
-
-                withContext(Dispatchers.Main) {
-                    Log.d(TAG, "커스텀 테스트 완료: ${result.results.size}개 생성됨")
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e(TAG, "커스텀 테스트 실행 중 오류", e)
-                }
+                showLoading(false)
             }
         }
     }
 
     private fun showLoading(show: Boolean) {
-        if (show) {
-            Log.d(TAG, "로딩 시작...")
-        } else {
-            Log.d(TAG, "로딩 완료")
+        runOnUiThread {
+            if (show) {
+                Log.d(TAG, "로딩 시작...")
+            } else {
+                Log.d(TAG, "로딩 완료")
+            }
         }
     }
 
