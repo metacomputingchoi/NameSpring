@@ -6,6 +6,7 @@ import com.ssc.namespring.model.FavoriteModel
 import com.ssc.namespring.model.NameGeneratorModel
 import com.ssc.namespring.model.data.FilterMode
 import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.model.data.DynamicFilterInput
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.NamingResultView
 import com.ssc.namespring.view.NamingSettingsView
@@ -45,6 +46,9 @@ class NamingController(
     suspend fun showNamingSettings(profile: Profile) {
         currentProfile = profile
 
+        // 프로필 기반 동적 필터 입력 초기화
+        val dynamicFilter = DynamicFilterInput.fromProfile(profile)
+
         namingSettingsView.showDynamicFilterInput()
         namingSettingsView.showFilterModeToggle()
         namingSettingsView.enableGenerateButton(true)
@@ -82,9 +86,16 @@ class NamingController(
             val profile = currentProfile ?: return
             val nameInput = filter.toInputString()
 
+            // 입력 유효성 검증
+            val validationResult = nameGeneratorModel.validateInput(nameInput)
+            if (!validationResult.isValid) {
+                namingResultView.showError("입력 오류: ${validationResult.errorMessage}")
+                return
+            }
+
             val startTime = System.currentTimeMillis()
 
-            // 이름 생성
+            // 이름 생성 (NameGeneratorModel 사용)
             generatedNames = withContext(Dispatchers.IO) {
                 nameGeneratorModel.generateNames(
                     userInput = nameInput,

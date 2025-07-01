@@ -15,7 +15,8 @@ class AppController(
     private val namingController: NamingController,
     private val evaluationController: EvaluationController,
     private val comparisonController: ComparisonController,
-    private val favoriteController: FavoriteController
+    private val favoriteController: FavoriteController,
+    private val reportController: ReportController
 ) {
 
     private val logger = AndroidLogger("AppController")
@@ -29,7 +30,7 @@ class AppController(
     enum class Screen {
         SPLASH, MAIN, PROFILE_MANAGEMENT, PROFILE_INPUT,
         NAMING_SETTINGS, NAMING_RESULT, EVALUATION_INPUT, EVALUATION_RESULT,
-        COMPARISON, FAVORITE
+        COMPARISON, FAVORITE, REPORT
     }
 
     init {
@@ -113,6 +114,15 @@ class AppController(
         }
     }
 
+    fun showReports() {
+        currentScreen = Screen.REPORT
+        controllerScope.launch {
+            currentProfile?.let { profile ->
+                reportController.showReportsByProfile(profile.id)
+            } ?: reportController.showRecentReports()
+        }
+    }
+
     fun handleBackPress(): Boolean {
         return when (currentScreen) {
             Screen.MAIN -> false // 시스템이 처리
@@ -120,7 +130,8 @@ class AppController(
             Screen.NAMING_SETTINGS,
             Screen.EVALUATION_INPUT,
             Screen.COMPARISON,
-            Screen.FAVORITE -> {
+            Screen.FAVORITE,
+            Screen.REPORT -> {
                 controllerScope.launch {
                     showMainScreen()
                 }
@@ -142,6 +153,7 @@ class AppController(
         logger.d("3. 비교")
         logger.d("4. 기록")
         logger.d("5. 프로필 관리")
+        logger.d("6. 보고서")
 
         // NamingController의 콜백 설정
         namingController.onNamingCompleted = {
@@ -170,7 +182,15 @@ class AppController(
         // ComparisonController의 콜백 설정
         comparisonController.onComparisonCompleted = {
             logger.d("")
-            logger.d("비교 완료! 전체 테스트 시나리오 종료")
+            logger.d("비교 완료! 다음 기능으로 이동합니다.")
+            logger.d("→ 보고서 보기")
+            showReports()
+        }
+
+        // ReportController의 콜백 설정
+        reportController.onReportsViewed = {
+            logger.d("")
+            logger.d("보고서 확인 완료! 전체 테스트 시나리오 종료")
             logger.d("")
             logger.d("=== 앱 기능 테스트 완료 ===")
             logger.d("✅ 프로필 생성")
@@ -178,8 +198,10 @@ class AppController(
             logger.d("✅ 평가 기능")
             logger.d("✅ 즐겨찾기 관리")
             logger.d("✅ 이름 비교")
+            logger.d("✅ 보고서 생성 및 저장")
             logger.d("")
             logger.d("모든 기능이 정상적으로 작동합니다!")
+            logger.d("이름봄 앱 준비 완료! 🌸")
         }
 
         // 테스트를 위해 작명 기능 실행

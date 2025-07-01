@@ -426,6 +426,54 @@ class ReportModel(
         // 공유 로직은 별도 유틸리티에서 구현
         return Result.success(true)
     }
+
+    suspend fun getEvaluationReport(reportId: String): EvaluationReport? {
+        return try {
+            repository.getEvaluationReport(reportId)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getComparisonReport(reportId: String): ComparisonReport? {
+        return try {
+            repository.getComparisonReport(reportId)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getRecentReports(limit: Int = 10): List<Any> {
+        return try {
+            repository.getRecentReports(limit)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getEvaluationReportsByProfile(profileId: String): List<EvaluationReport> {
+        return try {
+            repository.getEvaluationReportsByProfile(profileId)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getComparisonReportsByProfile(profileId: String): List<ComparisonReport> {
+        return try {
+            repository.getComparisonReportsByProfile(profileId)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun deleteEvaluationReport(reportId: String) {
+        repository.deleteEvaluationReport(reportId)
+    }
+
+    suspend fun deleteComparisonReport(reportId: String) {
+        repository.deleteComparisonReport(reportId)
+    }
 }
 
 // Extension property for ScoreLevel range

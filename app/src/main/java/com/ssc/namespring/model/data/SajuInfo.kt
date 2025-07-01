@@ -2,6 +2,7 @@
 package com.ssc.namespring.model.data
 
 import java.time.LocalTime
+import java.time.LocalDateTime
 
 /**
  * 사주 정보를 담는 데이터 클래스
@@ -71,6 +72,26 @@ data class SajuInfo(
         }
     }
 
+    /**
+     * 야자시 처리가 필요한지 확인
+     */
+    fun needsYajasiAdjustment(birthTime: LocalDateTime): Boolean {
+        return birthTime.toLocalTime() >= YAJASI_START_TIME
+    }
+
+    /**
+     * 야자시 적용된 일진 계산
+     */
+    fun getAdjustedDayPillar(birthDateTime: LocalDateTime, useYajasi: Boolean): Pillar {
+        return if (useYajasi && needsYajasiAdjustment(birthDateTime)) {
+            // 야자시 적용 시 다음날 일진으로 계산
+            // 실제 구현은 NamingEngine에서 처리
+            dayPillar // 임시로 원래 일진 반환
+        } else {
+            dayPillar
+        }
+    }
+
     companion object {
         // 오행 순서 (엔진의 OHAENG_SUNSE와 동일)
         private val OHAENG_ORDER = listOf("木", "火", "土", "金", "水")
@@ -117,6 +138,19 @@ data class SajuInfo(
                 19, 20 -> "술시(戌時)"
                 21, 22 -> "해시(亥時)"
                 else -> ""
+            }
+        }
+
+        /**
+         * 12지지로 다음날 계산
+         */
+        fun getNextDayBranch(currentBranch: String): String {
+            val branches = listOf("子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥")
+            val currentIndex = branches.indexOf(currentBranch)
+            return if (currentIndex >= 0) {
+                branches[(currentIndex + 1) % 12]
+            } else {
+                currentBranch
             }
         }
     }

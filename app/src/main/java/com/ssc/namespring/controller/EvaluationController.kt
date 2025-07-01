@@ -1,17 +1,18 @@
 // controller/EvaluationController.kt
 package com.ssc.namespring.controller
 
-import com.ssc.namespring.model.NameGeneratorModel
+import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.model.ReportModel
 import com.ssc.namespring.model.data.Profile
 import com.ssc.namespring.utils.logger.AndroidLogger
+import com.ssc.namespring.utils.PdfExportUtil
 import com.ssc.namespring.view.EvaluationInputView
 import com.ssc.namespring.view.EvaluationResultView
 import com.ssc.namespring.view.impl.EvaluationInputViewImpl
 import kotlinx.coroutines.*
 
 class EvaluationController(
-    private val nameGeneratorModel: NameGeneratorModel,
+    private val namingEngine: NamingEngine,
     private val reportModel: ReportModel,
     private val evaluationInputView: EvaluationInputView,
     private val evaluationResultView: EvaluationResultView
@@ -64,7 +65,7 @@ class EvaluationController(
 
             // 평가 실행
             val evaluatedNames = withContext(Dispatchers.IO) {
-                nameGeneratorModel.generateNames(
+                namingEngine.generateNames(
                     userInput = nameInput,
                     birthDateTime = profile.birthDateTime,
                     useYajasi = profile.useYajasi,
@@ -125,7 +126,7 @@ class EvaluationController(
         when (format) {
             ExportFormat.PDF -> {
                 logger.d("PDF로 저장 중...")
-                // PDF 생성 로직
+                // PDF 생성은 MainActivity에서 context를 받아 처리
             }
             ExportFormat.IMAGE -> {
                 logger.d("이미지로 저장 중...")

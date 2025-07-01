@@ -21,10 +21,10 @@ class MainActivity : AppCompatActivity() {
     // Models
     private lateinit var namingEngine: NamingEngine
     private lateinit var profileModel: ProfileModel
+    private lateinit var nameGeneratorModel: NameGeneratorModel
     private lateinit var favoriteModel: FavoriteModel
     private lateinit var reportModel: ReportModel
     private lateinit var themeModel: ThemeModel
-    private lateinit var nameGeneratorModel: NameGeneratorModel
 
     // Views
     private lateinit var mainView: MainView
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var evaluationResultView: EvaluationResultView
     private lateinit var comparisonView: ComparisonView
     private lateinit var favoriteView: FavoriteView
+    private lateinit var reportView: ReportView
     private lateinit var splashView: SplashView
 
     // Controllers
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var evaluationController: EvaluationController
     private lateinit var comparisonController: ComparisonController
     private lateinit var favoriteController: FavoriteController
+    private lateinit var reportController: ReportController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,10 +82,10 @@ class MainActivity : AppCompatActivity() {
 
             // Model 초기화
             profileModel = ProfileModel(profileRepository, namingEngine)
+            nameGeneratorModel = NameGeneratorModel(namingEngine)
             favoriteModel = FavoriteModel(favoriteRepository)
             reportModel = ReportModel(reportRepository)
             themeModel = ThemeModel()
-            nameGeneratorModel = NameGeneratorModel(namingEngine)
 
             // View 초기화
             mainView = MainViewImpl(this)
@@ -95,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             evaluationResultView = EvaluationResultViewImpl(this)
             comparisonView = ComparisonViewImpl(this)
             favoriteView = FavoriteViewImpl(this)
+            reportView = ReportViewImpl(this)
 
             // Controller 초기화
             profileController = ProfileController(
@@ -117,7 +120,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             evaluationController = EvaluationController(
-                nameGeneratorModel = nameGeneratorModel,
+                namingEngine = namingEngine,
                 reportModel = reportModel,
                 evaluationInputView = evaluationInputView,
                 evaluationResultView = evaluationResultView
@@ -133,14 +136,21 @@ class MainActivity : AppCompatActivity() {
                 favoriteView = favoriteView
             )
 
-            // App Controller 초기화 (activity 파라미터 제거)
+            reportController = ReportController(
+                reportModel = reportModel,
+                reportView = reportView,
+                context = this
+            )
+
+            // App Controller 초기화
             appController = AppController(
                 profileController = profileController,
                 mainController = mainController,
                 namingController = namingController,
                 evaluationController = evaluationController,
                 comparisonController = comparisonController,
-                favoriteController = favoriteController
+                favoriteController = favoriteController,
+                reportController = reportController
             )
 
             logger.d("모든 컴포넌트 초기화 완료")
