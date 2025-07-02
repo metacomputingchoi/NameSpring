@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="8dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/tvPosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="첫째"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:layout_marginEnd="12dp" />
+
+    <EditText
+        android:id="@+id/etKorean"
+        android:layout_width="60dp"
+        android:layout_height="48dp"
+        android:hint="한글 (선택)"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:maxLength="1"
+        android:inputType="text"
+        android:background="@drawable/bg_input_field" />
+
+    <EditText
+        android:id="@+id/etHanja"
+        android:layout_width="60dp"
+        android:layout_height="48dp"
+        android:hint="한자 (선택)"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:maxLength="1"
+        android:inputType="text"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_input_field" />
+
+    <Button
+        android:id="@+id/btnSearchHanja"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="한자 검색"
+        android:textSize="12sp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/button_enabled" />
+
+    <!-- 작은 초기화 버튼 추가 -->
+    <ImageButton
+        android:id="@+id/btnClearChar"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_clear"
+        android:tint="@color/text_secondary"
+        android:contentDescription="초기화" />
+
+</LinearLayout>

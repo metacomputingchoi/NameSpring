@@ -3,28 +3,35 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_name_card">
+
     <TextView
+        android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="김우현"
-        android:textSize="32dp"
-        android:textColor="@color/black">
-    </TextView>
+        android:textSize="32sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/nanum_myeongjo_bold" />
 
     <TextView
+        android:id="@+id/tvBirthDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_marginTop="8dp"
         android:text="2024년 3월 15일 오후 2시 30분생"
-        android:textSize="16dp"
-        android:textColor="@color/black">
-    </TextView>
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/nanum_square_round_r" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
         <include layout="@layout/name_card_item"/>
         <include layout="@layout/name_card_item"/>
@@ -32,12 +39,15 @@
         <include layout="@layout/name_card_item"/>
         <include layout="@layout/name_card_item"/>
     </LinearLayout>
+
     <TextView
+        android:id="@+id/tvOhaengInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_marginTop="12dp"
         android:text="부족한 오행: 수(水), 많은 오행: 화(火)"
-        android:textSize="16dp"
-        android:textColor="@color/black">
-    </TextView>
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/nanum_square_round_r" />
 </LinearLayout>

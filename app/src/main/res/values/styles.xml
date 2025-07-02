@@ -1,7 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CustomPickerTheme" parent="Theme.AppCompat.Light.Dialog">
+    <!-- Dialog styles -->
+    <style name="CustomPickerTheme" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorAccent">@color/default_btn_color</item>
         <item name="android:colorAccent">@color/default_btn_color</item>
+    </style>
+
+    <!-- Base application theme -->
+    <style name="Theme.NameSpring" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <!-- Launch theme -->
+    <style name="Theme.NameSpring.Launch" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <!-- Splash theme -->
+    <style name="Theme.NameSpring.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Custom NoActionBar theme for NameSpring -->
+    <style name="Theme.NameSpring.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
     </style>
 </resources>

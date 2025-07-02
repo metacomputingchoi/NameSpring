@@ -12,8 +12,9 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NameSpring.Launch"
+        android:theme="@style/Theme.NameSpring"
         tools:targetApi="31" >
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -25,34 +26,40 @@
         </activity>
 
         <activity
+            android:name=".ProfileListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
 
         <activity
             android:name=".NamingActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
 
         <activity
             android:name=".EvaluationActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
 
         <activity
             android:name=".CompareActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
 
         <activity
             android:name=".HistoryActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
 
         <activity
             android:name=".ProfileFormActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar" />
+
     </application>
 
 </manifest>

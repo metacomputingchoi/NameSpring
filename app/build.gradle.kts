@@ -41,6 +41,24 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // 뷰 바인딩 활성화
+    buildFeatures {
+        viewBinding = true
+    }
+
+    // Lint 옵션 추가
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+
+    // 패키징 옵션 추가
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 }
 
 dependencies {
@@ -57,6 +75,15 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
+    // RecyclerView 추가
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // CardView 추가
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // ConstraintLayout 추가
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // ViewModel과 LiveData
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

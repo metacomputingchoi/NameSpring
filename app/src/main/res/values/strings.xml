@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">이름봄</string>
+    <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="input_date">생년월일시분 정보 입력</string>
     <string name="get_names">작명받기</string>
     <string name="reset_inputs">초기화</string>

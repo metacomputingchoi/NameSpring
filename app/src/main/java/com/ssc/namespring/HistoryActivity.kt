@@ -1,3 +1,4 @@
+// HistoryActivity.kt
 package com.ssc.namespring
 
 import android.os.Bundle

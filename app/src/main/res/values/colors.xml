@@ -26,6 +26,7 @@
     <color name="primary">#6B8E23</color>
     <color name="primaryGreen">#6B9C6E</color>
     <color name="primary_alpha_20">#3390C695</color>
+    <color name="button_secondary">#E0E0E0</color>
     <color name="button_enabled">#90C695</color>
     <color name="button_disabled">#CCCCCC</color>
     <color name="button_pressed">#6B9C6E</color>
