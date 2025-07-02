@@ -118,10 +118,10 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
             JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
                 logger.d("")
                 logger.d("【${tips.description}】")
-                tips.tips?.take(2)?.forEach { tip ->
+                tips.tips?.take(2)?.forEach { tip ->  // nullable 체크
                     logger.d("• $tip")
                 }
-                if (tips.recommendedHanja!!.isNotEmpty()) {
+                if (!tips.recommendedHanja.isNullOrEmpty()) {  // nullable 체크
                     logger.d("추천 한자: ${tips.recommendedHanja.take(5).joinToString(", ")}")
                 }
             }
@@ -137,16 +137,35 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
         // 발음 팁
         logger.d("")
         logger.d("【${JsonLoader.namingTips.pronunciationTips.title}】")
-        JsonLoader.namingTips.pronunciationTips.tips!!.take(2).forEach { tip ->
+        JsonLoader.namingTips.pronunciationTips.tips.take(2).forEach { tip ->
             logger.d("• $tip")
         }
 
-        // 길한 획수 정보
+        // 좋은 발음 예시
+        JsonLoader.getPronunciationExamples("good")?.let { examples ->
+            logger.d("좋은 예: ${examples.joinToString(", ")}")
+        }
+
+        // 길한 획수 정보 (수정됨)
         val goodNumbers = JsonLoader.namingTips.strokeNumberTips.goodNumbers
         logger.d("")
         logger.d("【${goodNumbers.description}】")
-        logger.d("${goodNumbers.numbers.take(10).joinToString(", ")} 등")
+        val allGoodNumbers = goodNumbers.numbers.values.flatten()
+        logger.d("${allGoodNumbers.take(10).joinToString(", ")} 등")
         logger.d("💡 ${goodNumbers.tip}")
+
+        // 획수별 특별 고려사항
+        JsonLoader.getStrokeSpecialConsideration("여성")?.let {
+            logger.d("")
+            logger.d("💡 여성의 경우: $it")
+        }
+
+        // AI 시대 작명 팁 추가
+        logger.d("")
+        logger.d("【${JsonLoader.namingTips.aiEraNaming.title}】")
+        JsonLoader.getAiEraNamingConsiderations().take(3).forEach { consideration ->
+            logger.d("• $consideration")
+        }
     }
 
     override fun showFilterModeToggle() {

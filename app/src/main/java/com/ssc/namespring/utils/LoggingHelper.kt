@@ -166,7 +166,7 @@ object LoggingHelper {
             JsonLoader.getSajuBasedTips(element)?.let { tips ->
                 logger.d("")
                 logger.d("【${tips.description}】")
-                // null 체크 추가
+                // nullable 체크 추가
                 tips.tips?.take(2)?.forEach { tip ->
                     logger.d("• $tip")
                 }
@@ -176,13 +176,26 @@ object LoggingHelper {
             }
         }
 
-        // 현대 작명 트렌드
+        // 현대 작명 트렌드 (수정됨)
         val modernTrends = JsonLoader.getModernNamingTrends()
         logger.d("")
         logger.d("【${modernTrends.title}】")
-        // null 체크 추가
-        modernTrends.tips?.take(3)?.forEach { tip ->
-            logger.d("• $tip")
+        modernTrends.trends.take(3).forEach { trend ->  // trends 필드 사용
+            logger.d("• $trend")
+        }
+
+        // 인기 테마 표시
+        logger.d("")
+        logger.d("【인기 테마별 한자】")
+        modernTrends.popularThemes.forEach { (theme, hanjas) ->
+            logger.d("• $theme: ${hanjas.take(3).joinToString(", ")}")
+        }
+
+        // AI 시대 작명 고려사항
+        logger.d("")
+        logger.d("【${JsonLoader.namingTips.aiEraNaming.title}】")
+        JsonLoader.getAiEraNamingConsiderations().take(3).forEach { consideration ->
+            logger.d("• $consideration")
         }
     }
 

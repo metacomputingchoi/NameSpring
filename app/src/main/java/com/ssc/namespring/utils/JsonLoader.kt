@@ -166,14 +166,31 @@ object JsonLoader {
     }
 
     /**
-     * 한자의 의미 정보 조회
+     * 한자의 의미 정보 조회 (수정됨)
      */
-    fun getHanjaMeaning(hanja: String): HanjaInfo? {
-        return HanjaInfo(
-            origin = hanjaMeanings.hanjaOrigins[hanja],
-            components = hanjaMeanings.hanjaComponents[hanja],
-            relatedCharacters = hanjaMeanings.hanjaRelatedCharacters[hanja]
-        )
+    fun getHanjaMeaning(hanja: String): HanjaOriginDetail? {
+        return hanjaMeanings.hanjaOrigins[hanja]
+    }
+
+    /**
+     * 한자의 구성 요소 조회
+     */
+    fun getHanjaComponent(hanja: String): HanjaComponent? {
+        return hanjaMeanings.hanjaComponents[hanja]
+    }
+
+    /**
+     * 한자의 관련 글자들 조회
+     */
+    fun getHanjaRelatedCharacters(hanja: String): List<String>? {
+        return hanjaMeanings.hanjaRelatedCharacters[hanja]
+    }
+
+    /**
+     * 조합된 한자의 의미 조회
+     */
+    fun getCombinedMeaning(hanja1: String, hanja2: String): String? {
+        return hanjaMeanings.combinedMeanings["$hanja1$hanja2"]
     }
 
     /**
@@ -202,11 +219,13 @@ object JsonLoader {
     }
 
     /**
-     * 두 한자의 의미가 조화로운지 확인
+     * 두 한자의 의미가 조화로운지 확인 (수정됨)
      */
     fun isMeaningHarmony(meaning1: String, meaning2: String): Boolean {
-        val pattern = "${meaning1}_${meaning2}"
-        return hanjaMeanings.meaningHarmonyPatterns[pattern] ?: false
+        // meaningHarmonyPatterns는 이제 Map<String, String>이므로 키가 존재하는지 확인
+        return hanjaMeanings.meaningHarmonyPatterns.keys.any { key ->
+            key.contains(meaning1) && key.contains(meaning2)
+        }
     }
 
     /**
@@ -350,17 +369,33 @@ object JsonLoader {
     }
 
     /**
-     * 좋은 획수 리스트 가져오기
+     * 좋은 획수 리스트 가져오기 (수정됨)
      */
     fun getGoodStrokeNumbers(): List<Int> {
-        return namingTips.strokeNumberTips.goodNumbers.numbers
+        val goodNumbers = namingTips.strokeNumberTips.goodNumbers
+        return goodNumbers.numbers.values.flatten()
     }
 
     /**
-     * 피해야 할 획수 리스트 가져오기
+     * 피해야 할 획수 리스트 가져오기 (수정됨)
      */
     fun getAvoidStrokeNumbers(): List<Int> {
-        return namingTips.strokeNumberTips.avoidNumbers.numbers
+        val avoidNumbers = namingTips.strokeNumberTips.avoidNumbers
+        return avoidNumbers.numbers.values.flatten()
+    }
+
+    /**
+     * 대길수 리스트 가져오기
+     */
+    fun getGreatGoodStrokeNumbers(): List<Int> {
+        return namingTips.strokeNumberTips.goodNumbers.numbers["대길수"] ?: emptyList()
+    }
+
+    /**
+     * 길수 리스트 가져오기
+     */
+    fun getGoodStrokeNumbersOnly(): List<Int> {
+        return namingTips.strokeNumberTips.goodNumbers.numbers["길수"] ?: emptyList()
     }
 
     /**
@@ -371,16 +406,93 @@ object JsonLoader {
     }
 
     /**
-     * 현대 작명 트렌드 가져오기
+     * 현대 작명 트렌드 가져오기 (수정됨 - 반환 타입 변경)
      */
-    fun getModernNamingTrends(): Tips {
+    fun getModernNamingTrends(): ModernNamingTrends {
         return namingTips.modernNamingTrends
     }
 
     /**
-     * 특별 상황 작명 팁 가져오기 (쌍둥이, 입양 등)
+     * 특별 고려사항 가져오기 (수정됨)
      */
-    fun getSpecialConsiderationTips(situation: String): Tips? {
+    fun getSpecialConsiderationTips(situation: String): SpecialConsideration? {
         return namingTips.specialConsiderations[situation]
+    }
+
+    /**
+     * 오행의 방향 조회
+     */
+    fun getElementDirection(element: String): String? {
+        return elementCharacteristics.elementDirections[element]
+    }
+
+    /**
+     * 오행의 계절 조회
+     */
+    fun getElementSeason(element: String): String? {
+        return elementCharacteristics.elementSeasons[element]
+    }
+
+    /**
+     * 오행의 맛 조회
+     */
+    fun getElementTaste(element: String): String? {
+        return elementCharacteristics.elementTastes[element]
+    }
+
+    /**
+     * 오행의 숫자 조회
+     */
+    fun getElementNumbers(element: String): List<String>? {
+        return elementCharacteristics.elementNumbers[element]
+    }
+
+    /**
+     * 발음 예시 가져오기
+     */
+    fun getPronunciationExamples(type: String): List<String>? {
+        return namingTips.pronunciationTips.examples[type]
+    }
+
+    /**
+     * 인기있는 테마별 한자 가져오기
+     */
+    fun getPopularThemeHanja(theme: String): List<String>? {
+        return namingTips.modernNamingTrends.popularThemes[theme]
+    }
+
+    /**
+     * AI 시대 작명 고려사항 가져오기
+     */
+    fun getAiEraNamingConsiderations(): List<String> {
+        return namingTips.aiEraNaming.considerations
+    }
+
+    /**
+     * 전문가 상담 체크리스트 가져오기
+     */
+    fun getConsultationChecklist(): List<String> {
+        return namingTips.consultationAdvice.checklist
+    }
+
+    /**
+     * 획수별 특별 고려사항 가져오기
+     */
+    fun getStrokeSpecialConsideration(type: String): String? {
+        return namingTips.strokeNumberTips.specialConsiderations[type]
+    }
+
+    /**
+     * 현대 작명 고려사항 가져오기
+     */
+    fun getModernNamingConsideration(type: String): String? {
+        return when(type) {
+            "globalization" -> hanjaMeanings.modernNamingConsiderations.globalization
+            "gender_neutral" -> hanjaMeanings.modernNamingConsiderations.genderNeutral
+            "meaning_focus" -> hanjaMeanings.modernNamingConsiderations.meaningFocus
+            "pronunciation" -> hanjaMeanings.modernNamingConsiderations.pronunciation
+            "uniqueness" -> hanjaMeanings.modernNamingConsiderations.uniqueness
+            else -> null
+        }
     }
 }

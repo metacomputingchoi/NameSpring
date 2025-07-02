@@ -120,24 +120,48 @@ class ProfileInputViewImpl(private val activity: Activity) : ProfileInputView {
             logger.d("")
             logger.d("【입력 이름 간단 분석】")
 
-            // 각 한자의 의미 표시
+            // 각 한자의 의미 표시 (수정됨)
             givenNameHanja.forEach { hanja ->
-                JsonLoader.getHanjaMeaning(hanja.toString())?.let { hanjaInfo ->
-                    hanjaInfo.origin?.let { origin ->
-                        logger.d("• $hanja: $origin")
-                    }
+                JsonLoader.getHanjaMeaning(hanja.toString())?.let { hanjaDetail ->
+                    logger.d("• $hanja: ${hanjaDetail.meaning}")
+                    logger.d("  - 유래: ${hanjaDetail.origin}")
+                    logger.d("  - 용법: ${hanjaDetail.usage}")
+                }
+
+                // 한자 구성 요소 표시
+                JsonLoader.getHanjaComponent(hanja.toString())?.let { component ->
+                    logger.d("  - 구성: ${component.parts.joinToString("+")}")
+                    logger.d("  - 획수: ${component.strokes}획")
+                    logger.d("  - 부수: ${component.radical}")
+                }
+            }
+
+            // 조합된 의미 체크
+            if (givenNameHanja.length >= 2) {
+                val combined = JsonLoader.getCombinedMeaning(
+                    givenNameHanja[0].toString(),
+                    givenNameHanja[1].toString()
+                )
+                combined?.let {
+                    logger.d("")
+                    logger.d("✨ 조합 의미: $it")
                 }
             }
 
             // 긍정적인 의미 체크
             val hasPositiveMeaning = givenNameHanja.any { hanja ->
-                JsonLoader.hanjaMeanings.positiveMeanings.any { positive ->
-                    hanja.toString() == positive
-                }
+                JsonLoader.hanjaMeanings.positiveMeanings.contains(hanja.toString())
             }
 
             if (hasPositiveMeaning) {
                 logger.d("✨ 긍정적인 의미를 담은 좋은 한자가 포함되어 있습니다")
+            }
+
+            // 현대적 작명 고려사항 표시
+            logger.d("")
+            logger.d("【현대 작명 트렌드】")
+            JsonLoader.getModernNamingConsideration("globalization")?.let {
+                logger.d("• $it")
             }
         }
     }

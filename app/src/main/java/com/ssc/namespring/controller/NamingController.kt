@@ -103,11 +103,14 @@ class NamingController(
      * 특별 상황에 대한 팁 표시
      */
     private fun showSpecialConsiderationTips(situation: String) {
-        JsonLoader.getSpecialConsiderationTips(situation)?.let { tips ->
+        JsonLoader.getSpecialConsiderationTips(situation)?.let { specialConsideration ->
             logger.d("")
-            logger.d("【${tips.title}】")
-            tips.tips?.forEach { tip ->
+            logger.d("【${specialConsideration.title}】")
+            specialConsideration.tips.forEach { tip ->  // tips는 nullable이 아님
                 logger.d("• $tip")
+            }
+            specialConsideration.examples?.forEach { example ->  // examples는 nullable
+                logger.d("  예: $example")
             }
         }
     }
@@ -240,7 +243,7 @@ class NamingController(
         val tips = JsonLoader.namingTips.pronunciationTips
         logger.d("")
         logger.d("【${tips.title}】")
-        tips.tips?.take(2)?.forEach { tip ->
+        tips.tips.take(2).forEach { tip ->  // tips는 nullable이 아님
             logger.d("💡 $tip")
         }
     }

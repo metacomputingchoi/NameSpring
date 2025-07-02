@@ -87,16 +87,22 @@ data class NamingTips(
     val strokeNumberTips: StrokeNumberTips,
 
     @SerializedName("pronunciation_tips")
-    val pronunciationTips: Tips,
+    val pronunciationTips: PronunciationTips,
 
     @SerializedName("meaning_combination_tips")
     val meaningCombinationTips: MeaningTips,
 
     @SerializedName("modern_naming_trends")
-    val modernNamingTrends: Tips,
+    val modernNamingTrends: ModernNamingTrends,
 
     @SerializedName("special_considerations")
-    val specialConsiderations: Map<String, Tips>
+    val specialConsiderations: Map<String, SpecialConsideration>,
+
+    @SerializedName("ai_era_naming")
+    val aiEraNaming: AiEraNaming,
+
+    @SerializedName("consultation_advice")
+    val consultationAdvice: ConsultationAdvice
 )
 
 data class GeneralTips(
@@ -106,28 +112,56 @@ data class GeneralTips(
 
 data class SajuTips(
     val description: String,
-    val tips: List<String>?,  // nullable로 변경
+    val tips: List<String>?,
     @SerializedName("recommended_hanja")
-    val recommendedHanja: List<String>?  // nullable로 변경
+    val recommendedHanja: List<String>?
 )
 
 data class StrokeNumberTips(
     @SerializedName("good_numbers")
-    val goodNumbers: NumberInfo,
+    val goodNumbers: GoodNumbers,
 
     @SerializedName("avoid_numbers")
-    val avoidNumbers: NumberInfo
+    val avoidNumbers: AvoidNumbers,
+
+    @SerializedName("special_considerations")
+    val specialConsiderations: Map<String, String>
 )
 
-data class NumberInfo(
+data class GoodNumbers(
     val description: String,
-    val numbers: List<Int>,
+    val numbers: Map<String, List<Int>>,
     val tip: String
+)
+
+data class AvoidNumbers(
+    val description: String,
+    val numbers: Map<String, List<Int>>,
+    val tip: String
+)
+
+data class PronunciationTips(
+    val title: String,
+    val tips: List<String>,
+    val examples: Map<String, List<String>>
+)
+
+data class ModernNamingTrends(
+    val title: String,
+    val trends: List<String>,
+    @SerializedName("popular_themes")
+    val popularThemes: Map<String, List<String>>
+)
+
+data class SpecialConsideration(
+    val title: String,
+    val tips: List<String>,
+    val examples: List<String>? = null
 )
 
 data class Tips(
     val title: String,
-    val tips: List<String>?  // nullable로 변경
+    val tips: List<String>?
 )
 
 data class MeaningTips(
@@ -138,6 +172,16 @@ data class MeaningTips(
 
     @SerializedName("avoid_combinations")
     val avoidCombinations: List<String>
+)
+
+data class AiEraNaming(
+    val title: String,
+    val considerations: List<String>
+)
+
+data class ConsultationAdvice(
+    val title: String,
+    val checklist: List<String>
 )
 
 // user_guide_strings.json 관련 클래스들

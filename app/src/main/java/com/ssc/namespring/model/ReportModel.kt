@@ -128,9 +128,9 @@ class ReportModel(
             else -> "사주 보완 효과가 제한적입니다"
         }
 
-        // 부족한 오행에 대한 추천사항 추가
-        val lackingRecommendations = missingElements.mapNotNull { element ->
-            JsonLoader.elementCharacteristics.elementLackingRecommendations[element]
+        // 부족한 오행에 대한 추천사항 추가 (수정됨)
+        val lackingRecommendations = missingElements.flatMap { element ->
+            JsonLoader.elementCharacteristics.elementLackingRecommendations[element] ?: emptyList()
         }
 
         // 오행별 추천 색상 추가
@@ -261,12 +261,28 @@ class ReportModel(
                     append("• $element: $characteristic\n")
                 }
 
-                // 오행별 추천 직업 분야
+                // 오행별 추천 직업 분야 (수정됨)
                 append("\n【오행별 추천 분야】\n")
                 uniqueElements.forEach { element ->
-                    val careerField = JsonLoader.elementCharacteristics.elementCareerFields[element.toString()]
-                    if (careerField != null) {
-                        append("• $element: $careerField\n")
+                    val careerFields = JsonLoader.elementCharacteristics.elementCareerFields[element.toString()]
+                    if (careerFields != null && careerFields.isNotEmpty()) {
+                        append("• $element: ${careerFields.take(3).joinToString(", ")}\n")
+                    }
+                }
+
+                // 오행별 계절/방향 정보 추가
+                append("\n【오행별 특성 정보】\n")
+                uniqueElements.forEach { element ->
+                    val direction = JsonLoader.getElementDirection(element.toString())
+                    val season = JsonLoader.getElementSeason(element.toString())
+                    val numbers = JsonLoader.getElementNumbers(element.toString())
+
+                    if (direction != null || season != null) {
+                        append("• $element: ")
+                        direction?.let { append("방향($it) ") }
+                        season?.let { append("계절($it) ") }
+                        numbers?.let { append("숫자(${it.joinToString(",")})") }
+                        append("\n")
                     }
                 }
             }
@@ -434,7 +450,7 @@ class ReportModel(
     }
 
     /**
-     * 적합 직업 분석 (stroke_meanings.json + element_characteristics.json 활용)
+     * 적합 직업 분석 (stroke_meanings.json + element_characteristics.json 활용) - 수정됨
      */
     private fun analyzeCareerWithJson(name: GeneratedName, analysisInfo: NameAnalysisInfo): CareerGuidance {
         val sagyeok = name.sagyeok
@@ -450,14 +466,14 @@ class ReportModel(
             allCareers.addAll(meaning.suitableCareer)
         }
 
-        // 오행별 추천 직업 분야 추가
+        // 오행별 추천 직업 분야 추가 (수정됨)
         val ohaengInfo = analysisInfo.ohaengInfo
         val uniqueElements = (ohaengInfo.baleumOhaeng.toSet() + ohaengInfo.jawonOhaeng.toSet())
             .filterNot { it.toString().isEmpty() }
 
-        val elementCareerFields = uniqueElements.mapNotNull { element ->
-            JsonLoader.elementCharacteristics.elementCareerFields[element.toString()]
-        }
+        val elementCareerFields = uniqueElements.flatMap { element ->
+            JsonLoader.elementCharacteristics.elementCareerFields[element.toString()] ?: emptyList()
+        }.distinct().take(10)
 
         // 중복을 제거하고 빈도순으로 정렬
         val careerFrequency = allCareers.groupingBy { it }.eachCount()

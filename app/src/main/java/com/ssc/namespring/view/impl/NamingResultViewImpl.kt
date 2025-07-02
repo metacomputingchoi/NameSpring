@@ -69,21 +69,22 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                 logger.d("   특징: ${features.joinToString(", ")}")
             }
 
-            // 이름의 의미 표시 (한자 의미 결합)
+            // 이름의 의미 표시 (한자 의미 결합) - 수정됨
             val meanings = name.hanjaDetails.map { hanja ->
                 // JSON에서 한자 의미 정보 가져오기
-                val hanjaInfo = JsonLoader.getHanjaMeaning(hanja.hanja)
-                val origin = hanjaInfo?.origin ?: ""
-                "${hanja.hanja}(${hanja.inmyongMeaning}${if (origin.isNotEmpty()) " - $origin" else ""})"
+                val hanjaDetail = JsonLoader.getHanjaMeaning(hanja.hanja)
+                val meaning = hanjaDetail?.meaning ?: hanja.inmyongMeaning
+                val origin = hanjaDetail?.origin ?: ""
+                "${hanja.hanja}($meaning${if (origin.isNotEmpty()) " - $origin" else ""})"
             }
             logger.d("   의미: ${meanings.joinToString(" + ")}")
 
-            // 한자 의미 조합 평가
-            if (name.hanjaDetails.size >= 2) {
-                val meaning1 = name.hanjaDetails[0].inmyongMeaning
-                val meaning2 = name.hanjaDetails[1].inmyongMeaning
-                if (JsonLoader.isMeaningHarmony(meaning1, meaning2)) {
-                    logger.d("   💫 의미가 조화롭게 어우러집니다")
+            // 한자 구성 요소 표시
+            name.hanjaDetails.forEach { hanja ->
+                JsonLoader.getHanjaComponent(hanja.hanja)?.let { component ->
+                    if (component.parts.isNotEmpty()) {
+                        logger.d("   구성: ${hanja.hanja} = ${component.parts.joinToString("+")}")
+                    }
                 }
             }
 
@@ -117,10 +118,20 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                 }
             }
 
-            // 부족한 오행 보완 팁
+            // 부족한 오행 보완 팁 (수정됨)
             name.analysisInfo?.sajuInfo?.missingElements?.forEach { missingElement ->
                 JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
-                    logger.d("   💡 ${tips.tips?.firstOrNull()}")
+                    tips.tips?.firstOrNull()?.let { tip ->  // nullable 체크
+                        logger.d("   💡 $tip")
+                    }
+                }
+            }
+
+            // 인기 테마 한자 체크
+            val popularThemes = JsonLoader.namingTips.modernNamingTrends.popularThemes
+            popularThemes.forEach { (theme, hanjaList) ->
+                if (name.hanjaDetails.any { hanjaList.contains(it.hanja) }) {
+                    logger.d("   🏷️ ${theme} 테마")
                 }
             }
         }

@@ -186,6 +186,19 @@ class ComparisonController(
                 (analysisInfo.scoreBreakdown["사격점수"] ?: 0) >= 75) {
                 specialCombinations.add("${ranking.getDisplayName()}: 음양오행이 완벽히 조화된 이름")
             }
+
+            // 오행별 직업 특성 체크
+            val elements = (analysisInfo.ohaengInfo.baleumOhaeng.toSet() +
+                    analysisInfo.ohaengInfo.jawonOhaeng.toSet())
+                .filterNot { it.toString().isEmpty() }
+
+            val careerFields = elements.flatMap { element ->
+                JsonLoader.elementCharacteristics.elementCareerFields[element.toString()] ?: emptyList()
+            }.distinct()
+
+            if (careerFields.size >= 5) {
+                specialCombinations.add("${ranking.getDisplayName()}: 다양한 진로 가능성")
+            }
         }
 
         if (specialCombinations.isNotEmpty()) {

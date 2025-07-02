@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName
 
 data class HanjaMeanings(
     @SerializedName("hanja_origins")
-    val hanjaOrigins: Map<String, String>,
+    val hanjaOrigins: Map<String, HanjaOriginDetail>,
 
     @SerializedName("hanja_components")
-    val hanjaComponents: Map<String, List<String>>,
+    val hanjaComponents: Map<String, HanjaComponent>,
 
     @SerializedName("hanja_related_characters")
     val hanjaRelatedCharacters: Map<String, List<String>>,
@@ -26,7 +26,32 @@ data class HanjaMeanings(
     val positiveMeanings: List<String>,
 
     @SerializedName("meaning_harmony_patterns")
-    val meaningHarmonyPatterns: Map<String, Boolean>
+    val meaningHarmonyPatterns: Map<String, String>,
+
+    @SerializedName("modern_naming_considerations")
+    val modernNamingConsiderations: ModernNamingConsiderations
+)
+
+data class HanjaOriginDetail(
+    val meaning: String,
+    val origin: String,
+    val usage: String
+)
+
+data class HanjaComponent(
+    val parts: List<String>,
+    val strokes: Int,
+    val radical: String
+)
+
+data class ModernNamingConsiderations(
+    val globalization: String,
+    @SerializedName("gender_neutral")
+    val genderNeutral: String,
+    @SerializedName("meaning_focus")
+    val meaningFocus: String,
+    val pronunciation: String,
+    val uniqueness: String
 )
 
 data class CharacterMeaningStrings(
@@ -62,10 +87,4 @@ data class CharacterMeaningStrings(
 
     @SerializedName("pattern_delimiter")
     val patternDelimiter: String
-)
-
-data class HanjaInfo(
-    val origin: String?,
-    val components: List<String>?,
-    val relatedCharacters: List<String>?
 )

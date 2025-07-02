@@ -17,11 +17,23 @@ data class ElementCharacteristics(
     val elementControllingRelations: Map<String, String>,
 
     @SerializedName("element_career_fields")
-    val elementCareerFields: Map<String, String>,
+    val elementCareerFields: Map<String, List<String>>,
 
     @SerializedName("element_development_areas")
     val elementDevelopmentAreas: Map<String, String>,
 
     @SerializedName("element_lacking_recommendations")
-    val elementLackingRecommendations: Map<String, String>
+    val elementLackingRecommendations: Map<String, List<String>>,
+
+    @SerializedName("element_directions")
+    val elementDirections: Map<String, String>,
+
+    @SerializedName("element_seasons")
+    val elementSeasons: Map<String, String>,
+
+    @SerializedName("element_tastes")
+    val elementTastes: Map<String, String>,
+
+    @SerializedName("element_numbers")
+    val elementNumbers: Map<String, List<String>>
 )
