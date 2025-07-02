@@ -1321,7 +1321,7 @@
       "special_characteristics": "적시 은퇴의 지혜",
       "challenge_period": "변화의 시기마다 주의",
       "opportunity_area": null,
-      "lucky_level": "흉운수"
+      "lucky_level": "중운수"
     },
     "50": {
       "number": 50,
@@ -1375,7 +1375,7 @@
       "special_characteristics": "늦깎이 성공",
       "challenge_period": "초중년 파란",
       "opportunity_area": null,
-      "lucky_level": "양운수"
+      "lucky_level": "중운수"
     },
     "52": {
       "number": 52,
@@ -1483,7 +1483,7 @@
       "special_characteristics": null,
       "challenge_period": "감정 기복 주의",
       "opportunity_area": null,
-      "lucky_level": "흉운수"
+      "lucky_level": "중운수"
     },
     "56": {
       "number": 56,
@@ -2050,7 +2050,7 @@
       "special_characteristics": "노년 성공",
       "challenge_period": "초중년 빈곤",
       "opportunity_area": null,
-      "lucky_level": "양운수"
+      "lucky_level": "중운수"
     },
     "77": {
       "number": 77,
@@ -2131,7 +2131,7 @@
       "special_characteristics": null,
       "challenge_period": "말년 전체 주의",
       "opportunity_area": null,
-      "lucky_level": "최흉운수"
+      "lucky_level": "중운수"
     },
     "80": {
       "number": 80,
