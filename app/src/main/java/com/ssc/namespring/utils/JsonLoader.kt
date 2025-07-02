@@ -146,6 +146,74 @@ object JsonLoader {
     }
 
     /**
+     * 획수의 lucky_level 점수 조회
+     */
+    fun getStrokeLuckyScore(stroke: Int): Int {
+        return getStrokeMeaning(stroke).getLuckyScore()
+    }
+
+    /**
+     * 획수의 lucky_level 등급 조회
+     */
+    fun getStrokeLuckyGrade(stroke: Int): String {
+        return getStrokeMeaning(stroke).getLuckyGrade()
+    }
+
+    /**
+     * 사격(4개 격)의 평균 lucky_level 점수 계산
+     */
+    fun getSagyeokAverageLuckyScore(hyeong: Int, won: Int, i: Int, jeong: Int): Int {
+        val scores = listOf(
+            getStrokeLuckyScore(hyeong),
+            getStrokeLuckyScore(won),
+            getStrokeLuckyScore(i),
+            getStrokeLuckyScore(jeong)
+        )
+        return scores.average().toInt()
+    }
+
+    /**
+     * 사격의 상세 lucky_level 정보
+     */
+    fun getSagyeokLuckyDetails(hyeong: Int, won: Int, i: Int, jeong: Int): SagyeokLuckyDetails {
+        return SagyeokLuckyDetails(
+            hyeongLevel = getStrokeMeaning(hyeong).luckyLevel,
+            hyeongScore = getStrokeLuckyScore(hyeong),
+            hyeongGrade = getStrokeLuckyGrade(hyeong),
+            wonLevel = getStrokeMeaning(won).luckyLevel,
+            wonScore = getStrokeLuckyScore(won),
+            wonGrade = getStrokeLuckyGrade(won),
+            iLevel = getStrokeMeaning(i).luckyLevel,
+            iScore = getStrokeLuckyScore(i),
+            iGrade = getStrokeLuckyGrade(i),
+            jeongLevel = getStrokeMeaning(jeong).luckyLevel,
+            jeongScore = getStrokeLuckyScore(jeong),
+            jeongGrade = getStrokeLuckyGrade(jeong),
+            averageScore = getSagyeokAverageLuckyScore(hyeong, won, i, jeong)
+        )
+    }
+
+    /**
+     * 최상운수 획수 리스트
+     */
+    fun getBestLuckyStrokes(): List<Int> {
+        return strokeMeanings.strokeMeanings.values
+            .filter { it.luckyLevel == "최상운수" }
+            .map { it.number }
+            .sorted()
+    }
+
+    /**
+     * lucky_level별 획수 리스트
+     */
+    fun getStrokesByLuckyLevel(luckyLevel: String): List<Int> {
+        return strokeMeanings.strokeMeanings.values
+            .filter { it.luckyLevel == luckyLevel }
+            .map { it.number }
+            .sorted()
+    }
+
+    /**
      * 오행의 특성 조회
      */
     fun getElementCharacteristic(element: String): String {
@@ -496,3 +564,22 @@ object JsonLoader {
         }
     }
 }
+
+/**
+ * 사격의 lucky_level 상세 정보
+ */
+data class SagyeokLuckyDetails(
+    val hyeongLevel: String,
+    val hyeongScore: Int,
+    val hyeongGrade: String,
+    val wonLevel: String,
+    val wonScore: Int,
+    val wonGrade: String,
+    val iLevel: String,
+    val iScore: Int,
+    val iGrade: String,
+    val jeongLevel: String,
+    val jeongScore: Int,
+    val jeongGrade: String,
+    val averageScore: Int
+)

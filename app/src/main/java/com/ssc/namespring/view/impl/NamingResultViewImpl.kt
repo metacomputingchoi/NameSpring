@@ -88,8 +88,36 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                 }
             }
 
-            // 사격의 주요 특성 표시 (stroke_meanings.json 활용)
+            // lucky_level 기반 사격 정보 표시
             name.sagyeok?.let { sagyeok ->
+                val luckyDetails = JsonLoader.getSagyeokLuckyDetails(
+                    sagyeok.hyeong,
+                    sagyeok.won,
+                    sagyeok.i,
+                    sagyeok.jeong
+                )
+
+                // 사격 평균 점수와 등급 표시
+                logger.d("   사격: 평균 ${luckyDetails.averageScore}점")
+
+                // 각 격의 lucky_level 표시
+                val luckyLevels = listOf(
+                    "형격" to luckyDetails.hyeongLevel,
+                    "원격" to luckyDetails.wonLevel,
+                    "이격" to luckyDetails.iLevel,
+                    "정격" to luckyDetails.jeongLevel
+                )
+
+                val bestCount = luckyLevels.count { it.second == "최상운수" }
+                val goodCount = luckyLevels.count { it.second in listOf("최상운수", "상운수") }
+
+                if (bestCount > 0) {
+                    logger.d("   ⭐ 최상운수 ${bestCount}개 포함")
+                } else if (goodCount >= 2) {
+                    logger.d("   ✨ 길한 운수가 많습니다")
+                }
+
+                // 주격(원격)의 특성 표시
                 val wonMeaning = JsonLoader.getStrokeMeaning(sagyeok.won)
                 logger.d("   성격: ${wonMeaning.personalityTraits.take(3).joinToString(", ")}")
 

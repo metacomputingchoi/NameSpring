@@ -293,72 +293,97 @@ class ReportModel(
     }
 
     /**
-     * JSON 데이터를 활용한 획수 길흉 평가
+     * JSON 데이터를 활용한 획수 길흉 평가 - lucky_level 활용
      */
     private fun evaluateStrokeAuspiciousnessWithJson(
         name: GeneratedName,
         analysisInfo: NameAnalysisInfo
     ): ScoreDetail {
         val sagyeok = name.sagyeok
-        val sagyeokScore = analysisInfo.scoreBreakdown["사격점수"] ?: 0
 
-        val score = when {
-            sagyeokScore >= 100 -> 95
-            sagyeokScore >= 75 -> 80
-            sagyeokScore >= 50 -> 65
-            sagyeokScore >= 25 -> 45
-            else -> 25
-        }
-
-        val auspiciousCount = sagyeokScore / 25
-
-        // JSON에서 각 획수의 의미 가져오기
-        val strokeMeanings = listOf(
-            "형격" to JsonLoader.getStrokeMeaning(sagyeok.hyeong),
-            "원격" to JsonLoader.getStrokeMeaning(sagyeok.won),
-            "이격" to JsonLoader.getStrokeMeaning(sagyeok.i),
-            "정격" to JsonLoader.getStrokeMeaning(sagyeok.jeong)
+        // lucky_level 기반 상세 점수 계산
+        val luckyDetails = JsonLoader.getSagyeokLuckyDetails(
+            sagyeok.hyeong,
+            sagyeok.won,
+            sagyeok.i,
+            sagyeok.jeong
         )
 
-        val description = when (auspiciousCount) {
-            4 -> "모든 사격이 길한 수로 최상의 획수입니다"
-            3 -> "대부분의 사격이 길한 수입니다"
-            2 -> "절반의 사격이 길한 수입니다"
-            1 -> "일부 사격이 길한 수입니다"
-            else -> "길한 획수가 부족합니다"
+        // 평균 점수를 사용
+        val score = luckyDetails.averageScore
+
+        // 각 격의 lucky_level 정보
+        val strokeDetails = listOf(
+            "형격(${sagyeok.hyeong}수)" to Triple(luckyDetails.hyeongLevel, luckyDetails.hyeongScore, luckyDetails.hyeongGrade),
+            "원격(${sagyeok.won}수)" to Triple(luckyDetails.wonLevel, luckyDetails.wonScore, luckyDetails.wonGrade),
+            "이격(${sagyeok.i}수)" to Triple(luckyDetails.iLevel, luckyDetails.iScore, luckyDetails.iGrade),
+            "정격(${sagyeok.jeong}수)" to Triple(luckyDetails.jeongLevel, luckyDetails.jeongScore, luckyDetails.jeongGrade)
+        )
+
+        // 최상운수 개수 계산
+        val bestLuckCount = strokeDetails.count { (_, triple) -> triple.first == "최상운수" }
+        val goodLuckCount = strokeDetails.count { (_, triple) ->
+            triple.first == "최상운수" || triple.first == "상운수"
+        }
+        val badLuckCount = strokeDetails.count { (_, triple) ->
+            triple.first == "흉운수" || triple.first == "최흉운수"
+        }
+
+        val description = when {
+            bestLuckCount == 4 -> "모든 사격이 최상운수로 완벽한 획수입니다"
+            bestLuckCount >= 2 -> "최상운수가 많은 뛰어난 획수입니다"
+            goodLuckCount >= 3 -> "대부분의 사격이 길한 운수입니다"
+            goodLuckCount >= 2 -> "길한 운수가 균형있게 분포되어 있습니다"
+            badLuckCount >= 2 -> "흉한 운수가 많아 주의가 필요합니다"
+            else -> "보통 수준의 획수입니다"
         }
 
         val analysis = buildString {
-            append("형격(${sagyeok.hyeong}), ")
-            append("원격(${sagyeok.won}), ")
-            append("이격(${sagyeok.i}), ")
-            append("정격(${sagyeok.jeong})\n")
-            append("길한 사격: ${auspiciousCount}개/4개\n\n")
+            append("【사격 상세 분석】\n\n")
 
-            // 각 사격의 상세 의미 추가
-            strokeMeanings.forEach { (name, meaning) ->
-                append("【$name - ${meaning.number}수】 ${meaning.title}\n")
-                append("📌 ${meaning.summary}\n")
-                append("✨ ${meaning.positiveAspects}\n")
+            // 각 격의 상세 정보
+            strokeDetails.forEach { (name, triple) ->
+                val (level, luckyScore, grade) = triple
+                val meaning = JsonLoader.getStrokeMeaning(
+                    when(name.substringBefore("(")) {
+                        "형격" -> sagyeok.hyeong
+                        "원격" -> sagyeok.won
+                        "이격" -> sagyeok.i
+                        else -> sagyeok.jeong
+                    }
+                )
 
-                if (meaning.cautionPoints.isNotEmpty()) {
+                append("$name - $level [${grade}등급, ${luckyScore}점]\n")
+                append("📌 ${meaning.title}\n")
+                append("✨ ${meaning.summary}\n")
+
+                // 특별한 특성 표시
+                if (JsonLoader.isBusinessLuckStroke(meaning.number)) {
+                    append("💼 사업운이 좋은 획수\n")
+                }
+                if (JsonLoader.isLeadershipStroke(meaning.number)) {
+                    append("👑 리더십이 뛰어난 획수\n")
+                }
+
+                if (meaning.cautionPoints.isNotEmpty() && level in listOf("흉운수", "최흉운수")) {
                     append("⚠️ ${meaning.cautionPoints}\n")
                 }
 
-                // 사업운/리더십 정보 추가
-                if (JsonLoader.isBusinessLuckStroke(meaning.number)) {
-                    append("💼 사업운이 좋은 획수입니다\n")
-                }
-                if (JsonLoader.isLeadershipStroke(meaning.number)) {
-                    append("👑 리더십이 뛰어난 획수입니다\n")
-                }
-
-                // 특별한 특성이 있으면 표시
-                meaning.specialCharacteristics?.let {
-                    append("🌟 특별한 특성: $it\n")
-                }
-
                 append("\n")
+            }
+
+            append("【종합 평가】\n")
+            append("• 평균 lucky_level 점수: ${luckyDetails.averageScore}점\n")
+            append("• 최상운수: ${bestLuckCount}개\n")
+            append("• 길한 운수(최상+상): ${goodLuckCount}개\n")
+            append("• 흉한 운수(흉+최흉): ${badLuckCount}개\n")
+
+            // 추가 조언
+            if (badLuckCount > 0) {
+                append("\n⚠️ 흉한 운수를 보완하기 위해 다음을 권합니다:\n")
+                append("• 긍정적인 마음가짐과 선행\n")
+                append("• 꾸준한 자기계발과 노력\n")
+                append("• 주변 사람들과의 화합\n")
             }
         }
 
