@@ -7,10 +7,14 @@ import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.NamingResultView
 import com.ssc.namespring.utils.UiHelper
 import com.ssc.namespring.utils.JsonLoader
+import java.time.LocalDateTime
 
 class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
 
     private val logger = AndroidLogger("NamingResultView")
+    private var bestScoreSoFar = 0
+    private var favoriteCount = 0
+    private var attemptCount = 0
 
     override fun showNameCards(names: List<GeneratedName>) {
         if (names.isEmpty()) {
@@ -18,7 +22,32 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
             return
         }
 
+        attemptCount++
+
+        // 최고 점수 확인 및 축하 메시지
+        val topScore = names.maxOfOrNull { UiHelper.getNamebomScore(it) } ?: 0
+        if (topScore > bestScoreSoFar) {
+            bestScoreSoFar = topScore
+            showCelebrationForHighScore(topScore)
+        }
+
+        logger.d("")
         logger.d("=== 작명 결과 ===")
+
+        // 격려 메시지 표시
+        if (attemptCount > 5 && bestScoreSoFar < 70) {
+            val encouragements = JsonLoader.getEncouragementMessage("no_good_names_yet")
+            if (encouragements.isNotEmpty()) {
+                logger.d("")
+                logger.d("💪 ${encouragements.random()}")
+            }
+        } else if (attemptCount > 10) {
+            val encouragements = JsonLoader.getEncouragementMessage("many_attempts")
+            if (encouragements.isNotEmpty()) {
+                logger.d("")
+                logger.d("👏 ${encouragements.random()}")
+            }
+        }
 
         names.forEachIndexed { index, name ->
             val score = UiHelper.getNamebomScore(name)
@@ -27,6 +56,12 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
             logger.d("")
             logger.d("[${index + 1}] ${name.surnameHangul}${name.combinedPronounciation} (${name.surnameHanja}${name.combinedHanja})")
             logger.d("   $sprout 점수: ${score}점")
+
+            // 점수별 짧은 평가
+            val rangeMessage = JsonLoader.getScoreRangeMessage(score)
+            if (rangeMessage != null) {
+                logger.d("   ${rangeMessage.emoji} ${rangeMessage.title}")
+            }
 
             // 이름의 주요 특징 표시
             val features = UiHelper.extractNameFeatures(name)
@@ -42,6 +77,15 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                 "${hanja.hanja}(${hanja.inmyongMeaning}${if (origin.isNotEmpty()) " - $origin" else ""})"
             }
             logger.d("   의미: ${meanings.joinToString(" + ")}")
+
+            // 한자 의미 조합 평가
+            if (name.hanjaDetails.size >= 2) {
+                val meaning1 = name.hanjaDetails[0].inmyongMeaning
+                val meaning2 = name.hanjaDetails[1].inmyongMeaning
+                if (JsonLoader.isMeaningHarmony(meaning1, meaning2)) {
+                    logger.d("   💫 의미가 조화롭게 어우러집니다")
+                }
+            }
 
             // 사격의 주요 특성 표시 (stroke_meanings.json 활용)
             name.sagyeok?.let { sagyeok ->
@@ -72,6 +116,46 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
                     }
                 }
             }
+
+            // 부족한 오행 보완 팁
+            name.analysisInfo?.sajuInfo?.missingElements?.forEach { missingElement ->
+                JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
+                    logger.d("   💡 ${tips.tips.firstOrNull()}")
+                }
+            }
+        }
+
+        // 계절별 특별 메시지
+        showSeasonalBonus()
+    }
+
+    private fun showCelebrationForHighScore(score: Int) {
+        val celebration = JsonLoader.getCelebrationMessage(score)
+        if (celebration != null && celebration.messages.isNotEmpty()) {
+            logger.d("")
+            logger.d("=" * 50)
+            logger.d(celebration.messages.random())
+            logger.d("=" * 50)
+        }
+
+        // 90점 이상 첫 달성
+        if (score >= 90 && bestScoreSoFar < 90) {
+            JsonLoader.getMilestoneMessage("first_90_score")?.let { message ->
+                logger.d("")
+                logger.d("🏆 $message")
+            }
+        }
+    }
+
+    private fun showSeasonalBonus() {
+        val month = LocalDateTime.now().monthValue
+        JsonLoader.getSeasonalMessage(month)?.let { seasonal ->
+            logger.d("")
+            logger.d("【계절 보너스】")
+            logger.d("${seasonal.message}")
+            if (seasonal.luckyElements.isNotEmpty()) {
+                logger.d("이 계절의 행운 오행: ${seasonal.luckyElements.joinToString(", ")}")
+            }
         }
     }
 
@@ -99,6 +183,15 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
     override fun showResultSummary(totalCount: Int, displayedCount: Int) {
         logger.d("")
         logger.d("총 ${totalCount}개 중 ${displayedCount}개 표시")
+
+        // 점수 향상 메시지
+        if (attemptCount > 1 && bestScoreSoFar > 70) {
+            val improvements = JsonLoader.getEncouragementMessage("improving_scores")
+            if (improvements.isNotEmpty()) {
+                logger.d("")
+                logger.d("📈 ${improvements.random()}")
+            }
+        }
     }
 
     override fun showLoading(isLoading: Boolean) {
@@ -115,10 +208,45 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
         logger.d("")
         logger.d("😢 조건에 맞는 이름이 없습니다")
         logger.d("💡 조건을 완화하거나 간편 모드를 시도해보세요")
+
+        // 도움말 표시
+        logger.d("")
+        logger.d("【작명 팁】")
+        JsonLoader.namingTips.generalTips.tips.take(3).forEach { tip ->
+            logger.d("• $tip")
+        }
     }
 
     override fun updateFavoriteStatus(name: GeneratedName, isFavorite: Boolean) {
         val status = if (isFavorite) "추가됨 ⭐" else "제거됨 ☆"
         logger.d("즐겨찾기 $status: ${name.surnameHangul}${name.combinedPronounciation}")
+
+        if (isFavorite) {
+            favoriteCount++
+
+            // 첫 즐겨찾기 축하
+            if (favoriteCount == 1) {
+                JsonLoader.getMilestoneMessage("first_favorite")?.let { message ->
+                    logger.d("")
+                    logger.d("🌱 $message")
+                }
+            } else if (favoriteCount == 5) {
+                JsonLoader.getMilestoneMessage("five_favorites")?.let { message ->
+                    logger.d("")
+                    logger.d("🌳 $message")
+                }
+            } else if (favoriteCount == 10) {
+                JsonLoader.getMilestoneMessage("ten_favorites")?.let { message ->
+                    logger.d("")
+                    logger.d("🌲 $message")
+                }
+            }
+        } else {
+            favoriteCount--
+        }
+    }
+
+    companion object {
+        private operator fun String.times(count: Int): String = repeat(count)
     }
 }

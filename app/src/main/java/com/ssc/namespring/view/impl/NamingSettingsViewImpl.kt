@@ -3,6 +3,7 @@ package com.ssc.namespring.view.impl
 
 import android.app.Activity
 import com.ssc.namespring.model.data.*
+import com.ssc.namespring.utils.JsonLoader
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.NamingSettingsView
 
@@ -19,9 +20,14 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
             FilterInput(0, false, filterType = FilterInputType.EMPTY)
         )
     )
+    private var currentProfile: Profile? = null
 
     override fun showDynamicFilterInput() {
         logger.d("=== 작명 조건 설정 ===")
+
+        // 작명 가이드 표시
+        showNamingGuide()
+
         logger.d("")
 
         // 성씨 필터 표시
@@ -77,8 +83,70 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
         logger.d("")
         logger.d("[+] 글자 추가, [-] 글자 제거")
 
+        // 도움말 툴팁
+        JsonLoader.getHelpTooltip("filter_mode")?.let { tooltip ->
+            logger.d("")
+            logger.d("💡 $tooltip")
+        }
+
         // 현재 필터 설명
         showFilterDescription(dynamicFilterInput.toNameFilter().getFilterDescription())
+
+        // 작명 팁 표시
+        showNamingTips()
+    }
+
+    private fun showNamingGuide() {
+        JsonLoader.getFeatureGuide("naming")?.let { guide ->
+            logger.d("")
+            logger.d("【${guide.title}】")
+            logger.d(guide.description)
+            logger.d("")
+            logger.d("도움말:")
+            guide.tips.forEach { tip ->
+                logger.d("• $tip")
+            }
+        }
+    }
+
+    private fun showNamingTips() {
+        logger.d("")
+        logger.d("=== 작명 팁 ===")
+
+        // 사주 기반 팁 표시
+        currentProfile?.sajuInfo?.missingElements?.forEach { missingElement ->
+            JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
+                logger.d("")
+                logger.d("【${tips.description}】")
+                tips.tips.take(2).forEach { tip ->
+                    logger.d("• $tip")
+                }
+                if (tips.recommendedHanja.isNotEmpty()) {
+                    logger.d("추천 한자: ${tips.recommendedHanja.take(5).joinToString(", ")}")
+                }
+            }
+        }
+
+        // 일반 작명 팁
+        logger.d("")
+        logger.d("【${JsonLoader.namingTips.generalTips.title}】")
+        JsonLoader.namingTips.generalTips.tips.take(3).forEach { tip ->
+            logger.d("• $tip")
+        }
+
+        // 발음 팁
+        logger.d("")
+        logger.d("【${JsonLoader.namingTips.pronunciationTips.title}】")
+        JsonLoader.namingTips.pronunciationTips.tips.take(2).forEach { tip ->
+            logger.d("• $tip")
+        }
+
+        // 길한 획수 정보
+        val goodNumbers = JsonLoader.namingTips.strokeNumberTips.goodNumbers
+        logger.d("")
+        logger.d("【${goodNumbers.description}】")
+        logger.d("${goodNumbers.numbers.take(10).joinToString(", ")} 등")
+        logger.d("💡 ${goodNumbers.tip}")
     }
 
     override fun showFilterModeToggle() {
@@ -94,12 +162,26 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
         filterMode = FilterMode.SIMPLE
         dynamicFilterInput = dynamicFilterInput.copy(filterMode = FilterMode.SIMPLE)
         logger.d("✨ 간편 모드 활성화 - 모든 좋은 이름을 자동으로 생성합니다")
+
+        // 간편 모드 팁
+        logger.d("")
+        logger.d("【간편 모드 안내】")
+        logger.d("• 사주에 맞는 이름을 자동으로 찾아드립니다")
+        logger.d("• 음양오행이 조화로운 이름만 생성됩니다")
+        logger.d("• 길한 획수의 이름을 우선 추천합니다")
     }
 
     override fun showDetailMode() {
         filterMode = FilterMode.DETAIL
         dynamicFilterInput = dynamicFilterInput.copy(filterMode = FilterMode.DETAIL)
         logger.d("🔍 상세 모드 활성화 - 세부 조건을 설정할 수 있습니다")
+
+        // 상세 모드 팁
+        logger.d("")
+        logger.d("【상세 모드 안내】")
+        logger.d("• 원하는 글자나 초성을 지정할 수 있습니다")
+        logger.d("• 특정 한자를 포함시킬 수 있습니다")
+        logger.d("• 더 세밀한 조건 설정이 가능합니다")
     }
 
     override fun validateFilters(): Boolean {
@@ -164,6 +246,19 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
 
     override fun showError(message: String) {
         logger.e("❌ 설정 오류: $message")
+
+        // 에러별 도움말
+        when {
+            message.contains("초성") -> {
+                logger.d("💡 초성은 ㄱ, ㄴ, ㄷ... 형태로 입력하세요")
+            }
+            message.contains("한글") -> {
+                logger.d("💡 완성된 한글 글자를 입력하세요 (예: 가, 나, 다)")
+            }
+            message.contains("한자") -> {
+                logger.d("💡 한자를 정확히 입력하세요")
+            }
+        }
     }
 
     override fun showFilterDescription(description: String) {
@@ -185,7 +280,8 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
     }
 
     // 테스트용 필터 설정
-    fun setTestFilter(surname: String = "김", surnameHanja: String = "金") {
+    fun setTestFilter(surname: String = "김", surnameHanja: String = "金", profile: Profile? = null) {
+        currentProfile = profile
         dynamicFilterInput = DynamicFilterInput(
             surnameFilters = listOf(
                 FilterInput(0, true, surname, surnameHanja, FilterInputType.FIXED)

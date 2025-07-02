@@ -7,6 +7,7 @@ import com.ssc.namespring.model.NameGeneratorModel
 import com.ssc.namespring.model.data.FilterMode
 import com.ssc.namespring.model.data.Profile
 import com.ssc.namespring.model.data.DynamicFilterInput
+import com.ssc.namespring.utils.JsonLoader
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.NamingResultView
 import com.ssc.namespring.view.NamingSettingsView
@@ -53,10 +54,11 @@ class NamingController(
         namingSettingsView.showFilterModeToggle()
         namingSettingsView.enableGenerateButton(true)
 
-        // 테스트용 필터 설정
+        // 테스트용 필터 설정 (프로필 정보 포함)
         (namingSettingsView as? NamingSettingsViewImpl)?.setTestFilter(
             surname = profile.surname,
-            surnameHanja = profile.surnameHanja
+            surnameHanja = profile.surnameHanja,
+            profile = profile  // 프로필 전달
         )
 
         // 자동으로 생성 시작 (테스트)
@@ -131,6 +133,9 @@ class NamingController(
                 // 즐겨찾기 상태 표시
                 updateFavoriteStates(firstPageNames, profile.id)
 
+                // 첫 평가 마일스톤 체크
+                checkFirstEvaluationMilestone()
+
                 // 테스트: 첫 번째 이름을 즐겨찾기에 추가
                 simulateFavoriteSelection(sortedNames.first())
             }
@@ -142,6 +147,18 @@ class NamingController(
             namingSettingsView.showLoading(false)
             namingSettingsView.enableGenerateButton(true)
             namingResultView.showLoading(false)
+        }
+    }
+
+    /**
+     * 첫 평가 마일스톤 체크
+     */
+    private fun checkFirstEvaluationMilestone() {
+        // SharedPreferences나 다른 저장소를 통해 첫 생성인지 확인
+        // 여기서는 간단히 로그만 출력
+        JsonLoader.getMilestoneMessage("first_evaluation")?.let { message ->
+            logger.d("")
+            logger.d("📊 $message")
         }
     }
 

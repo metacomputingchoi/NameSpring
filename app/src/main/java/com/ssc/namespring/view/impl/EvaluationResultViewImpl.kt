@@ -7,26 +7,56 @@ import com.ssc.namespring.model.data.ScoreLevel
 import com.ssc.namespring.utils.JsonLoader
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.EvaluationResultView
+import java.time.LocalDateTime
 
 class EvaluationResultViewImpl(private val activity: Activity) : EvaluationResultView {
 
     private val logger = AndroidLogger("EvaluationResultView")
 
     override fun showOverallScore(score: Int) {
-        val sprout = when (score) {
-            in 80..100 -> "🌸"
-            in 60..79 -> "🌳"
-            in 40..59 -> "🌿"
-            in 20..39 -> "🌱"
-            else -> "🌰"
+        // 점수 범위별 메시지 가져오기
+        val rangeMessage = JsonLoader.getScoreRangeMessage(score)
+
+        if (rangeMessage != null) {
+            logger.d("")
+            logger.d("=== 종합 평가 결과 ===")
+            logger.d("${rangeMessage.emoji} ${rangeMessage.title}")
+            logger.d("이름봄 점수: ${score}점")
+            logger.d("")
+            logger.d(rangeMessage.description)
+            logger.d("")
+
+            // 추천사항 표시
+            if (rangeMessage.recommendations.isNotEmpty()) {
+                logger.d("【추천사항】")
+                rangeMessage.recommendations.forEach { rec ->
+                    logger.d("• $rec")
+                }
+            }
         }
 
+        // 기존 등급 표시도 유지
         val grade = JsonLoader.getGrade(score)
         val gradeAssessment = JsonLoader.scoreEvaluations.gradeAssessments[grade]
+        logger.d("")
+        logger.d("등급: ${grade}등급 - $gradeAssessment")
 
-        logger.d("=== 종합 평가 결과 ===")
-        logger.d("$sprout 이름봄 점수: ${score}점 (${grade}등급)")
-        logger.d(gradeAssessment ?: "")
+        // 시간대별 메시지 추가
+        val hour = LocalDateTime.now().hour
+        JsonLoader.getTimeBasedMessage(hour)?.let { timeMessage ->
+            logger.d("")
+            logger.d("💫 $timeMessage")
+        }
+
+        // 계절별 메시지 추가
+        val month = LocalDateTime.now().monthValue
+        JsonLoader.getSeasonalMessage(month)?.let { seasonalMessage ->
+            logger.d("")
+            logger.d("🌿 ${seasonalMessage.message}")
+            if (seasonalMessage.specialBonus.isNotEmpty()) {
+                logger.d("✨ ${seasonalMessage.specialBonus}")
+            }
+        }
     }
 
     override fun showRadarChart(scores: Map<String, Int>) {
@@ -37,8 +67,15 @@ class EvaluationResultViewImpl(private val activity: Activity) : EvaluationResul
         // 텍스트 기반 막대 그래프로 시각화
         scores.forEach { (category, score) ->
             val bar = createVisualBar(score)
+            val categoryMessage = JsonLoader.getCategoryExcellenceMessage(category, score)
             logger.d("$category: $bar ${score}점")
+            if (categoryMessage.isNotEmpty()) {
+                logger.d("  → $categoryMessage")
+            }
         }
+
+        // 특별한 조합 메시지 확인
+        checkSpecialCombinations(scores)
 
         logger.d("")
         logger.d("=== 레이더 차트 (텍스트 표현) ===")
@@ -50,6 +87,38 @@ class EvaluationResultViewImpl(private val activity: Activity) : EvaluationResul
         logger.d("   \\    |    /")
         logger.d("  획수길흉  발음자연")
         logger.d("    ${scores["획수길흉"] ?: 0}    ${scores["발음자연"] ?: 0}")
+    }
+
+    private fun checkSpecialCombinations(scores: Map<String, Int>) {
+        val specialMessages = JsonLoader.nameEvaluationMessages.specialCombinationMessages
+
+        // 사주와 오행이 모두 높은 경우
+        val sajuScore = scores["사주보완"] ?: 0
+        val ohaengScore = scores["오행조화"] ?: 0
+        if (sajuScore >= 90 && ohaengScore >= 90) {
+            specialMessages["perfect_saju_ohaeng"]?.let { message ->
+                logger.d("")
+                logger.d("🌟 특별 분석: $message")
+            }
+        }
+
+        // 음양이 완벽한 경우
+        val yinyangScore = scores["음양균형"] ?: 0
+        if (yinyangScore >= 95) {
+            specialMessages["perfect_yin_yang"]?.let { message ->
+                logger.d("")
+                logger.d("☯️ 특별 분석: $message")
+            }
+        }
+
+        // 모든 획수가 길한 경우
+        val strokeScore = scores["획수길흉"] ?: 0
+        if (strokeScore >= 90) {
+            specialMessages["all_good_strokes"]?.let { message ->
+                logger.d("")
+                logger.d("🎯 특별 분석: $message")
+            }
+        }
     }
 
     override fun showDetailedAnalysis(report: EvaluationReport) {

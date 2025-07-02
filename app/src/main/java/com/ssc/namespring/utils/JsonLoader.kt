@@ -30,6 +30,12 @@ object JsonLoader {
     lateinit var basicReportSections: BasicReportSections
     lateinit var formatSettings: FormatSettings
 
+    // 새로운 JSON 데이터
+    lateinit var nameEvaluationMessages: NameEvaluationMessages
+    lateinit var celebrationMessages: CelebrationMessages
+    lateinit var namingTips: NamingTips
+    lateinit var userGuideStrings: UserGuideStrings
+
     // Optional JSON files - 없어도 앱이 동작하도록
     var personalityEvaluatorStrings: PersonalityEvaluatorStrings? = null
     var careerEvaluatorStrings: CareerEvaluatorStrings? = null
@@ -70,6 +76,12 @@ object JsonLoader {
             reportTemplates = loadJsonRequired(context, "report/report_templates.json")
             basicReportSections = loadJsonRequired(context, "report/basic_report_sections.json")
             formatSettings = loadJsonRequired(context, "report/format_settings.json")
+
+            // 새로운 필수 파일들
+            nameEvaluationMessages = loadJsonRequired(context, "evaluations/name_evaluation_messages.json")
+            celebrationMessages = loadJsonRequired(context, "evaluations/celebration_messages.json")
+            namingTips = loadJsonRequired(context, "meanings/naming_tips.json")
+            userGuideStrings = loadJsonRequired(context, "guides/user_guide_strings.json")
 
             // 선택적 파일들 - 없어도 앱이 동작하도록
             personalityEvaluatorStrings = loadJsonOptional(context, "evaluations/personality_evaluator_strings.json")
@@ -209,5 +221,166 @@ object JsonLoader {
      */
     fun getReportSubsectionLabel(subsection: String): String {
         return reportTemplates.subsectionLabels[subsection] ?: subsection
+    }
+
+    /**
+     * 점수 범위별 평가 메시지 가져오기
+     */
+    fun getScoreRangeMessage(score: Int): ScoreRangeMessage? {
+        return nameEvaluationMessages.scoreRangeMessages.values.find { message ->
+            score in when (message.title) {
+                "천부적인 명품 이름" -> 95..100
+                "최상급 명품 이름" -> 90..94
+                "우수한 이름" -> 85..89
+                "양호한 이름" -> 80..84
+                "무난한 이름" -> 75..79
+                "보통 이름" -> 70..74
+                "주의가 필요한 이름" -> 65..69
+                "재고가 필요한 이름" -> 60..64
+                else -> 0..59
+            }
+        }
+    }
+
+    /**
+     * 카테고리별 평가 메시지 가져오기
+     */
+    fun getCategoryExcellenceMessage(category: String, score: Int): String {
+        val messages = nameEvaluationMessages.categoryExcellenceMessages[category] ?: return ""
+        return when {
+            score >= 90 -> messages.excellent
+            score >= 70 -> messages.good
+            score >= 50 -> messages.average
+            else -> messages.poor
+        }
+    }
+
+    /**
+     * 축하 메시지 가져오기
+     */
+    fun getCelebrationMessage(score: Int): CelebrationMessage? {
+        return when {
+            score >= 90 -> celebrationMessages.nameFoundCelebrations["perfect_name"]
+            score >= 80 -> celebrationMessages.nameFoundCelebrations["excellent_name"]
+            score >= 70 -> celebrationMessages.nameFoundCelebrations["good_name"]
+            else -> null
+        }
+    }
+
+    /**
+     * 마일스톤 메시지 가져오기
+     */
+    fun getMilestoneMessage(milestone: String): String? {
+        return celebrationMessages.milestoneMessages[milestone]
+    }
+
+    /**
+     * 격려 메시지 가져오기
+     */
+    fun getEncouragementMessage(situation: String): List<String> {
+        return celebrationMessages.encouragementMessages[situation] ?: emptyList()
+    }
+
+    /**
+     * 사주 기반 작명 팁 가져오기
+     */
+    fun getSajuBasedTips(missingElement: String): SajuTips? {
+        return namingTips.sajuBasedTips["missing_$missingElement"]
+    }
+
+    /**
+     * 가이드 메시지 가져오기
+     */
+    fun getFeatureGuide(feature: String): FeatureGuide? {
+        return userGuideStrings.featureGuides[feature]
+    }
+
+    /**
+     * 도움말 툴팁 가져오기
+     */
+    fun getHelpTooltip(key: String): String? {
+        return userGuideStrings.helpTooltips[key]
+    }
+
+    /**
+     * 계절별 메시지 가져오기
+     */
+    fun getSeasonalMessage(month: Int): SeasonalMessage? {
+        val season = when (month) {
+            3, 4, 5 -> "spring"
+            6, 7, 8 -> "summer"
+            9, 10, 11 -> "autumn"
+            12, 1, 2 -> "winter"
+            else -> null
+        }
+        return season?.let { celebrationMessages.seasonalMessages[it] }
+    }
+
+    /**
+     * 시간대별 메시지 가져오기
+     */
+    fun getTimeBasedMessage(hour: Int): String? {
+        return when (hour) {
+            in 6..11 -> celebrationMessages.timeBasedMessages["morning"]
+            in 12..17 -> celebrationMessages.timeBasedMessages["afternoon"]
+            in 18..22 -> celebrationMessages.timeBasedMessages["evening"]
+            else -> celebrationMessages.timeBasedMessages["night"]
+        }
+    }
+
+    /**
+     * 에러 메시지 가져오기
+     */
+    fun getErrorMessage(category: String, type: String): String? {
+        return userGuideStrings.errorMessages[category]?.get(type)
+    }
+
+    /**
+     * 온보딩 가이드 가져오기
+     */
+    fun getOnboardingGuide(section: String): GuideSection? {
+        return userGuideStrings.onboardingGuide[section]
+    }
+
+    /**
+     * 특별한 조합 메시지 가져오기
+     */
+    fun getSpecialCombinationMessage(combination: String): String? {
+        return nameEvaluationMessages.specialCombinationMessages[combination]
+    }
+
+    /**
+     * 좋은 획수 리스트 가져오기
+     */
+    fun getGoodStrokeNumbers(): List<Int> {
+        return namingTips.strokeNumberTips.goodNumbers.numbers
+    }
+
+    /**
+     * 피해야 할 획수 리스트 가져오기
+     */
+    fun getAvoidStrokeNumbers(): List<Int> {
+        return namingTips.strokeNumberTips.avoidNumbers.numbers
+    }
+
+    /**
+     * 의미 조합 팁 가져오기
+     */
+    fun getMeaningCombinationTips(): MeaningTips {
+        return namingTips.meaningCombinationTips
+    }
+
+    /**
+     * 현대 작명 트렌드 가져오기
+     */
+    fun getModernNamingTrends(): Tips {
+        return namingTips.modernNamingTrends
+    }
+
+    /**
+     * 특별 상황 작명 팁 가져오기 (쌍둥이, 입양 등)
+     */
+    fun getSpecialConsiderationTips(situation: String): Tips? {
+        return namingTips.specialConsiderations[situation]
     }
 }

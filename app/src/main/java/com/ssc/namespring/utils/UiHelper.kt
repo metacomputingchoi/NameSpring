@@ -3,6 +3,10 @@ package com.ssc.namespring.utils
 
 import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namespring.model.data.Theme
+import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.model.data.Favorite
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * UI 개발을 위한 헬퍼 클래스
@@ -66,6 +70,111 @@ object UiHelper {
         }
 
         return features.take(3)
+    }
+
+    /**
+     * 점수별 축하 메시지 생성
+     */
+    fun getCelebrationMessage(score: Int): String {
+        val celebration = JsonLoader.getCelebrationMessage(score)
+        return celebration?.messages?.randomOrNull() ?: ""
+    }
+
+    /**
+     * 프로필별 환영 메시지 생성
+     */
+    fun getWelcomeMessage(profile: Profile): String {
+        val hour = LocalDateTime.now().hour
+        val timeMessage = JsonLoader.getTimeBasedMessage(hour) ?: ""
+
+        return "${profile.profileName}님, $timeMessage"
+    }
+
+    /**
+     * 이름 생성 결과 요약 메시지
+     */
+    fun getGenerationSummaryMessage(count: Int, topScore: Int): String {
+        return when {
+            count == 0 -> "조건에 맞는 이름이 없습니다 😢"
+            topScore >= 90 -> "최고의 이름들을 찾았습니다! 🎉"
+            topScore >= 80 -> "좋은 이름들을 찾았습니다! ✨"
+            topScore >= 70 -> "괜찮은 이름들이 있네요 🌱"
+            else -> "더 나은 이름을 찾아볼까요? 💪"
+        }
+    }
+
+    /**
+     * 즐겨찾기 통계 메시지 생성
+     */
+    fun getFavoriteStatisticsMessage(favorites: List<Favorite>): String {
+        if (favorites.isEmpty()) return "아직 즐겨찾기가 없습니다"
+
+        val avgScore = favorites.map { it.getNamebomScore() }.average().toInt()
+        val topScore = favorites.maxOfOrNull { it.getNamebomScore() } ?: 0
+
+        return "즐겨찾기 ${favorites.size}개 (평균 ${avgScore}점, 최고 ${topScore}점)"
+    }
+
+    /**
+     * 날짜 포맷팅
+     */
+    fun formatDateTime(dateTime: LocalDateTime): String {
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분"))
+    }
+
+    /**
+     * 날짜 간단 포맷팅
+     */
+    fun formatDateSimple(dateTime: LocalDateTime): String {
+        return dateTime.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))
+    }
+
+    /**
+     * 프로그레스 바 생성
+     */
+    fun createProgressBar(value: Int, max: Int = 100, length: Int = 20): String {
+        val filled = (value * length / max).coerceIn(0, length)
+        val empty = length - filled
+
+        return buildString {
+            append("[")
+            repeat(filled) { append("█") }
+            repeat(empty) { append("░") }
+            append("] ${value}/${max}")
+        }
+    }
+
+    /**
+     * 미니 프로그레스 바 생성
+     */
+    fun createMiniProgressBar(value: Int, max: Int = 100): String {
+        val filled = (value * 10 / max).coerceIn(0, 10)
+        return "▓".repeat(filled) + "░".repeat(10 - filled)
+    }
+
+    /**
+     * 점수별 색상 코드 (추후 실제 색상 리소스로 대체)
+     */
+    fun getScoreColor(score: Int): String {
+        return when {
+            score >= 90 -> "#FF6B6B"  // 빨강 (최고)
+            score >= 80 -> "#4ECDC4"  // 청록 (우수)
+            score >= 70 -> "#45B7D1"  // 파랑 (양호)
+            score >= 60 -> "#96CEB4"  // 녹색 (보통)
+            else -> "#FECA57"         // 노랑 (주의)
+        }
+    }
+
+    /**
+     * 등급별 메달 아이콘
+     */
+    fun getRankMedal(rank: Int): String {
+        return when (rank) {
+            1 -> "🥇"
+            2 -> "🥈"
+            3 -> "🥉"
+            else -> "${rank}위"
+        }
     }
 
     /**

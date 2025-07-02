@@ -1,0 +1,81 @@
+{
+  "name_found_celebrations": {
+    "perfect_name": {
+      "messages": [
+        "축하합니다! 완벽한 이름을 찾으셨네요! 🎉",
+        "정말 멋진 이름입니다! 이 이름과 함께 행복한 미래를 만들어가세요! 🌟",
+        "운명적인 이름을 만났습니다! 평생의 보물이 될 것입니다! 👑"
+      ],
+      "animations": ["fireworks", "stars", "flowers"]
+    },
+    "excellent_name": {
+      "messages": [
+        "훌륭한 이름을 발견하셨습니다! ✨",
+        "정말 좋은 선택입니다! 멋진 인생이 펼쳐질 것입니다! 🌸",
+        "탁월한 이름입니다! 자신있게 사용하세요! 💫"
+      ],
+      "animations": ["sparkles", "hearts", "rainbow"]
+    },
+    "good_name": {
+      "messages": [
+        "좋은 이름을 찾으셨네요! 🌷",
+        "괜찮은 선택입니다! 행운이 함께하길 바랍니다! 🍀",
+        "무난하고 좋은 이름입니다! 🌿"
+      ],
+      "animations": ["leaves", "clouds", "butterflies"]
+    }
+  },
+  "milestone_messages": {
+    "first_favorite": "첫 번째 즐겨찾기! 좋은 시작입니다! 🌱",
+    "five_favorites": "5개의 후보를 모으셨네요! 신중한 선택을 하고 계십니다! 🌳",
+    "ten_favorites": "10개의 즐겨찾기! 충분한 선택지를 확보하셨습니다! 🌲",
+    "first_90_score": "90점 이상의 이름을 찾으셨습니다! 대단해요! 🏆",
+    "first_evaluation": "첫 평가를 완료하셨습니다! 이름의 가치를 확인하셨네요! 📊",
+    "first_comparison": "이름 비교를 시작하셨네요! 현명한 접근입니다! ⚖️"
+  },
+  "encouragement_messages": {
+    "no_good_names_yet": [
+      "아직 마음에 드는 이름을 못 찾으셨나요? 조건을 조금 바꿔보세요! 💪",
+      "좋은 이름은 기다리는 사람에게 옵니다. 계속 도전하세요! 🌈",
+      "포기하지 마세요! 운명의 이름이 곧 나타날 거예요! ⭐"
+    ],
+    "many_attempts": [
+      "열정적으로 찾고 계시네요! 노력은 배신하지 않습니다! 🔥",
+      "신중한 선택을 위한 노력, 정말 멋집니다! 👏",
+      "완벽을 추구하는 당신의 열정이 느껴집니다! 💖"
+    ],
+    "improving_scores": [
+      "점수가 점점 좋아지고 있어요! 올바른 방향입니다! 📈",
+      "더 좋은 이름들이 나오고 있네요! 계속하세요! 🚀",
+      "실력이 늘고 있습니다! 곧 최고의 이름을 찾을 거예요! 🎯"
+    ]
+  },
+  "seasonal_messages": {
+    "spring": {
+      "message": "봄처럼 새로운 시작을 알리는 이름입니다 🌸",
+      "lucky_elements": ["木", "火"],
+      "special_bonus": "봄에 지은 이름은 성장의 기운이 가득합니다"
+    },
+    "summer": {
+      "message": "여름의 열정이 담긴 이름입니다 ☀️",
+      "lucky_elements": ["火", "土"],
+      "special_bonus": "여름에 지은 이름은 활력이 넘칩니다"
+    },
+    "autumn": {
+      "message": "가을의 결실처럼 풍요로운 이름입니다 🍂",
+      "lucky_elements": ["金", "土"],
+      "special_bonus": "가을에 지은 이름은 수확의 기쁨이 있습니다"
+    },
+    "winter": {
+      "message": "겨울의 정기를 품은 이름입니다 ❄️",
+      "lucky_elements": ["水", "金"],
+      "special_bonus": "겨울에 지은 이름은 인내와 지혜를 줍니다"
+    }
+  },
+  "time_based_messages": {
+    "morning": "아침의 상쾌함처럼 깨끗한 이름입니다 🌅",
+    "afternoon": "오후의 따스함이 느껴지는 이름입니다 🌞",
+    "evening": "저녁의 평온함을 닮은 이름입니다 🌆",
+    "night": "밤의 신비로움을 간직한 이름입니다 🌙"
+  }
+}
