@@ -48,6 +48,11 @@
             android:name=".HistoryActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+        <activity
+            android:name=".ProfileFormActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>
