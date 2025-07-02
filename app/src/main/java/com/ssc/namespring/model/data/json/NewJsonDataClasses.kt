@@ -106,10 +106,9 @@ data class GeneralTips(
 
 data class SajuTips(
     val description: String,
-    val tips: List<String>,
-
+    val tips: List<String>?,  // nullable로 변경
     @SerializedName("recommended_hanja")
-    val recommendedHanja: List<String>
+    val recommendedHanja: List<String>?  // nullable로 변경
 )
 
 data class StrokeNumberTips(
@@ -128,7 +127,7 @@ data class NumberInfo(
 
 data class Tips(
     val title: String,
-    val tips: List<String>
+    val tips: List<String>?  // nullable로 변경
 )
 
 data class MeaningTips(

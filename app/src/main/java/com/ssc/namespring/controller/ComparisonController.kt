@@ -7,12 +7,13 @@ import com.ssc.namingengine.data.Sagyeok
 import com.ssc.namingengine.data.analysis.*
 import com.ssc.namespring.model.ReportModel
 import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.utils.JsonLoader
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.ComparisonView
+import com.ssc.namespring.view.utils.ViewLogger
 import com.ssc.namingengine.data.analysis.component.EumYangAnalysisInfo
 import com.ssc.namingengine.data.analysis.component.OhaengAnalysisInfo
 import com.ssc.namingengine.data.analysis.component.SajuAnalysisInfo
-import com.ssc.namespring.utils.JsonLoader
 import kotlinx.coroutines.*
 
 class ComparisonController(
@@ -27,6 +28,7 @@ class ComparisonController(
 
     private val selectedNames = mutableListOf<GeneratedName>()
     private var selectedProfile: Profile? = null
+    private var comparisonCount = 0
 
     // 비교 완료 콜백
     var onComparisonCompleted: (() -> Unit)? = null
@@ -34,6 +36,13 @@ class ComparisonController(
     suspend fun showComparison(profiles: List<Profile>) {
         comparisonView.showNameSelectors(2) // 기본 2개 비교
         comparisonView.showProfileSelector(profiles)
+
+        // 비교 기능 가이드
+        JsonLoader.getFeatureGuide("comparison")?.let { guide ->
+            ViewLogger.logSection(guide.title)
+            logger.d(guide.description)
+            ViewLogger.logTipBox(guide.tips)
+        }
 
         // 테스트용 자동 실행
         if (profiles.isNotEmpty()) {
@@ -59,6 +68,8 @@ class ComparisonController(
             return
         }
 
+        comparisonCount++
+
         comparisonView.showLoading(true)
 
         try {
@@ -70,10 +81,50 @@ class ComparisonController(
             // 비교 결과 표시
             handleRankingDisplay(report)
 
+            // 마일스톤 체크
+            checkComparisonMilestones()
+
         } catch (e: Exception) {
             comparisonView.showError("비교 실패: ${e.message}")
+            showComparisonErrorGuidance()
         } finally {
             comparisonView.showLoading(false)
+        }
+    }
+
+    /**
+     * 비교 마일스톤 체크
+     */
+    private fun checkComparisonMilestones() {
+        // 첫 비교
+        if (comparisonCount == 1) {
+            JsonLoader.getMilestoneMessage("first_comparison")?.let { message ->
+                logger.d("")
+                logger.d("🎯 $message")
+            }
+        }
+
+        // 많은 비교 수행
+        if (comparisonCount >= 10) {
+            val encouragements = JsonLoader.getEncouragementMessage("many_attempts")
+            if (encouragements.isNotEmpty()) {
+                logger.d("")
+                logger.d("👏 ${encouragements.random()}")
+            }
+        }
+    }
+
+    /**
+     * 비교 오류 안내
+     */
+    private fun showComparisonErrorGuidance() {
+        logger.d("")
+        logger.d("💡 비교 오류 해결 방법:")
+        logger.d("• 이름을 2개 이상 선택했는지 확인하세요")
+        logger.d("• 프로필이 올바르게 선택되었는지 확인하세요")
+
+        JsonLoader.getErrorMessage("system_errors", "comparison_failed")?.let {
+            logger.d("• $it")
         }
     }
 
@@ -84,13 +135,89 @@ class ComparisonController(
         // 순위 표시
         comparisonView.showRankings(report.rankings)
 
+        // 카테고리별 우수 이름 분석
+        showCategoryWinners(report)
+
         // 최종 추천
         comparisonView.showWinner(report.winnerName)
+
+        // 특별한 조합 체크
+        checkSpecialCombinations(report)
+
+        // 의미 조화 분석
+        analyzeMeaningHarmony(report)
 
         // 비교 완료 콜백 호출
         controllerScope.launch {
             delay(2000)
             onComparisonCompleted?.invoke()
+        }
+    }
+
+    /**
+     * 카테고리별 우수 이름 분석
+     */
+    private fun showCategoryWinners(report: com.ssc.namespring.model.data.ComparisonReport) {
+        ViewLogger.logSection("카테고리별 1위", ViewLogger.LineStyle.THIN)
+
+        report.comparisonResults.forEach { (category, scores) ->
+            val winner = scores.firstOrNull { it.rank == 1 }
+            if (winner != null) {
+                val excellence = JsonLoader.getCategoryExcellenceMessage(category, winner.score)
+                logger.d("${category}: ${winner.name.surnameHangul}${winner.name.combinedPronounciation}")
+                logger.d("   → $excellence")
+            }
+        }
+    }
+
+    /**
+     * 특별한 조합 체크
+     */
+    private fun checkSpecialCombinations(report: com.ssc.namespring.model.data.ComparisonReport) {
+        val specialCombinations = mutableListOf<String>()
+
+        report.rankings.forEach { ranking ->
+            val name = ranking.name
+            val analysisInfo = name.analysisInfo ?: return@forEach
+
+            // 완벽한 조합들 체크
+            if (analysisInfo.eumYangInfo.isBalanced &&
+                analysisInfo.ohaengInfo.overallHarmony.contains("조화") &&
+                (analysisInfo.scoreBreakdown["사격점수"] ?: 0) >= 75) {
+                specialCombinations.add("${ranking.getDisplayName()}: 음양오행이 완벽히 조화된 이름")
+            }
+        }
+
+        if (specialCombinations.isNotEmpty()) {
+            ViewLogger.logSection("특별 분석", ViewLogger.LineStyle.DOTTED)
+            specialCombinations.forEach { logger.d("✨ $it") }
+        }
+    }
+
+    /**
+     * 의미 조화 분석
+     */
+    private fun analyzeMeaningHarmony(report: com.ssc.namespring.model.data.ComparisonReport) {
+        val meaningTips = JsonLoader.getMeaningCombinationTips()
+
+        ViewLogger.logSection("한자 의미 분석", ViewLogger.LineStyle.THIN)
+
+        report.comparedNames.forEach { name ->
+            val meanings = name.hanjaDetails.map { it.inmyongMeaning }
+            logger.d("")
+            logger.d("${name.surnameHangul}${name.combinedPronounciation}: ${meanings.joinToString(" + ")}")
+
+            // 좋은 조합인지 체크
+            if (meanings.size >= 2) {
+                val isGoodCombination = meaningTips.goodCombinations.any { combination ->
+                    meanings.any { it.contains(combination.substringBefore(" + ")) } &&
+                            meanings.any { it.contains(combination.substringAfter(" + ")) }
+                }
+
+                if (isGoodCombination) {
+                    logger.d("   💫 의미가 조화롭게 어우러집니다")
+                }
+            }
         }
     }
 

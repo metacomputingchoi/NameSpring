@@ -120,7 +120,7 @@ class NamingResultViewImpl(private val activity: Activity) : NamingResultView {
             // 부족한 오행 보완 팁
             name.analysisInfo?.sajuInfo?.missingElements?.forEach { missingElement ->
                 JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
-                    logger.d("   💡 ${tips.tips.firstOrNull()}")
+                    logger.d("   💡 ${tips.tips?.firstOrNull()}")
                 }
             }
         }

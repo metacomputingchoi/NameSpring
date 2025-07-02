@@ -166,10 +166,11 @@ object LoggingHelper {
             JsonLoader.getSajuBasedTips(element)?.let { tips ->
                 logger.d("")
                 logger.d("【${tips.description}】")
-                tips.tips.take(2).forEach { tip ->
+                // null 체크 추가
+                tips.tips?.take(2)?.forEach { tip ->
                     logger.d("• $tip")
                 }
-                if (tips.recommendedHanja.isNotEmpty()) {
+                if (!tips.recommendedHanja.isNullOrEmpty()) {
                     logger.d("추천 한자: ${tips.recommendedHanja.take(5).joinToString(", ")}")
                 }
             }
@@ -179,7 +180,8 @@ object LoggingHelper {
         val modernTrends = JsonLoader.getModernNamingTrends()
         logger.d("")
         logger.d("【${modernTrends.title}】")
-        modernTrends.tips.take(3).forEach { tip ->
+        // null 체크 추가
+        modernTrends.tips?.take(3)?.forEach { tip ->
             logger.d("• $tip")
         }
     }

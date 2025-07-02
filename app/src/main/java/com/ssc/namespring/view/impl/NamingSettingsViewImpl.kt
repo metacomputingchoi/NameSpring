@@ -118,10 +118,10 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
             JsonLoader.getSajuBasedTips(missingElement)?.let { tips ->
                 logger.d("")
                 logger.d("【${tips.description}】")
-                tips.tips.take(2).forEach { tip ->
+                tips.tips?.take(2)?.forEach { tip ->
                     logger.d("• $tip")
                 }
-                if (tips.recommendedHanja.isNotEmpty()) {
+                if (tips.recommendedHanja!!.isNotEmpty()) {
                     logger.d("추천 한자: ${tips.recommendedHanja.take(5).joinToString(", ")}")
                 }
             }
@@ -137,7 +137,7 @@ class NamingSettingsViewImpl(private val activity: Activity) : NamingSettingsVie
         // 발음 팁
         logger.d("")
         logger.d("【${JsonLoader.namingTips.pronunciationTips.title}】")
-        JsonLoader.namingTips.pronunciationTips.tips.take(2).forEach { tip ->
+        JsonLoader.namingTips.pronunciationTips.tips!!.take(2).forEach { tip ->
             logger.d("• $tip")
         }
 

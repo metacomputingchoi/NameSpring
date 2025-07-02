@@ -3,6 +3,8 @@ package com.ssc.namespring.controller
 
 import com.ssc.namespring.model.ProfileModel
 import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.utils.JsonLoader
+import com.ssc.namespring.utils.LoggingHelper
 import com.ssc.namespring.utils.logger.AndroidLogger
 import com.ssc.namespring.view.ProfileInputView
 import com.ssc.namespring.view.ProfileManagementView
@@ -22,6 +24,10 @@ class ProfileController(
 
     // 프로필 관리 화면에서 나가기 콜백
     var onProfileManagementClosed: (() -> Unit)? = null
+
+    // 특별 상황 플래그
+    private var isCreatingTwinProfile = false
+    private var isCreatingAdoptionProfile = false
 
     suspend fun showProfileManagement(): Boolean {
         profileManagementView.showLoading(true)
@@ -44,6 +50,9 @@ class ProfileController(
                 return true
             }
 
+            // 쌍둥이나 형제자매가 있는지 체크
+            checkForSiblings(profiles)
+
             return false
 
         } catch (e: Exception) {
@@ -54,16 +63,49 @@ class ProfileController(
         }
     }
 
-    suspend fun createProfile() {
+    /**
+     * 형제자매 체크 및 안내
+     */
+    private fun checkForSiblings(profiles: List<Profile>) {
+        val surnames = profiles.map { it.surname }.distinct()
+        if (surnames.size == 1 && profiles.size > 1) {
+            // 같은 성씨의 프로필이 여러 개 -> 형제자매일 가능성
+            logger.d("")
+            logger.d("💡 형제자매를 위한 작명을 하시나요?")
+
+            // 쌍둥이 작명 팁 표시
+            JsonLoader.getSpecialConsiderationTips("twins")?.let { tips ->
+                logger.d("【${tips.title}】")
+                tips.tips?.forEach { tip ->
+                    logger.d("• $tip")
+                }
+            }
+        }
+    }
+
+    suspend fun createProfile(isTwin: Boolean = false, isAdoption: Boolean = false) {
+        isCreatingTwinProfile = isTwin
+        isCreatingAdoptionProfile = isAdoption
+
         logger.d("")
         logger.d("=== 새 프로필 만들기 ===")
+
+        // 특별 상황 안내
+        when {
+            isTwin -> showTwinProfileGuidance()
+            isAdoption -> showAdoptionProfileGuidance()
+        }
 
         profileInputView.showDynamicNameInput(maxSurname = 2, maxGivenName = 4)
         profileInputView.showYajasiOption()
 
         // 테스트: 자동 입력
         (profileInputView as? ProfileInputViewImpl)?.setTestInput(
-            profileName = "테스트",
+            profileName = when {
+                isTwin -> "첫째"
+                isAdoption -> "입양아"
+                else -> "테스트"
+            },
             surname = "김",
             surnameHanja = "金",
             givenName = "민수",
@@ -91,14 +133,50 @@ class ProfileController(
                 profileInputView.showSuccess("프로필 생성 완료: ${profile.profileName}")
                 profileInputView.clearInputs()
 
+                // 프로필 생성 축하 로깅
+                LoggingHelper.logProfileCreation(profile)
+
                 // 프로필 생성 완료 콜백 호출
                 onProfileCreated?.invoke(profile)
             }.onFailure { error ->
                 profileInputView.showError("프로필 생성 실패: ${error.message}")
+
+                // 에러 가이드
+                JsonLoader.getErrorMessage("input_errors", "profile_error")?.let {
+                    logger.d("💡 $it")
+                }
             }
 
         } catch (e: Exception) {
             profileInputView.showError("오류 발생: ${e.message}")
+        }
+    }
+
+    /**
+     * 쌍둥이 프로필 생성 안내
+     */
+    private fun showTwinProfileGuidance() {
+        logger.d("")
+        logger.d("👶👶 쌍둥이 프로필 생성")
+        JsonLoader.getSpecialConsiderationTips("twins")?.let { tips ->
+            logger.d("【${tips.title}】")
+            tips.tips?.forEach { tip ->
+                logger.d("• $tip")
+            }
+        }
+    }
+
+    /**
+     * 입양아 프로필 생성 안내
+     */
+    private fun showAdoptionProfileGuidance() {
+        logger.d("")
+        logger.d("💝 입양아 프로필 생성")
+        JsonLoader.getSpecialConsiderationTips("adoption")?.let { tips ->
+            logger.d("【${tips.title}】")
+            tips.tips?.forEach { tip ->
+                logger.d("• $tip")
+            }
         }
     }
 
