@@ -27,8 +27,8 @@
 
         <activity
             android:name=".ProfileListActivity"
-            android:exported="false"
-            android:theme="@style/Theme.NameSpring.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".MainActivity"
@@ -57,8 +57,8 @@
 
         <activity
             android:name=".ProfileFormActivity"
-            android:exported="true"
-            android:theme="@style/Theme.NameSpring.NoActionBar" />
+            android:theme="@style/Theme.NameSpring.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
     </application>
 
