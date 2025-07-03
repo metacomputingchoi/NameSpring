@@ -3,15 +3,11 @@ package com.ssc.namespring.model.utils
 
 import com.ssc.namingengine.NamingEngine
 import com.ssc.namingengine.data.GeneratedName
-import com.ssc.namespring.model.Profile
-import com.ssc.namespring.model.SurnameInfo
-import com.ssc.namespring.model.GivenNameInfo
+import com.ssc.namespring.model.data.Profile
+import com.ssc.namespring.model.data.SurnameInfo
+import com.ssc.namespring.model.data.GivenNameInfo
 import java.time.LocalDateTime
 
-/**
- * 프로필 평가를 담당하는 유틸리티 클래스
- * NamingEngine을 사용하여 이름을 평가하고 결과를 Profile에 저장
- */
 object ProfileEvaluator {
 
     suspend fun evaluateProfile(

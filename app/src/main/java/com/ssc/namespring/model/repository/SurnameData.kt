@@ -1,11 +1,12 @@
-// com/ssc/namespring/model/SurnameData.kt
-package com.ssc.namespring.model
+// model/repository/SurnameData.kt
+package com.ssc.namespring.model.repository
 
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import com.ssc.namespring.model.data.SurnameInfo
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -74,7 +75,6 @@ object SurnameData {
         val gson = Gson()
 
         try {
-            // surname_mapping.json
             context.assets.open("surname/surname_mapping.json").use { stream ->
                 BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
                     val type = object : TypeToken<Map<String, List<String>>>() {}.type
@@ -83,7 +83,6 @@ object SurnameData {
                 }
             }
 
-            // surname_hanja_pair_mapping_dict.json
             context.assets.open("surname/surname_hanja_pair_mapping_dict.json").use { stream ->
                 BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
                     val type = object : TypeToken<Map<String, List<String>>>() {}.type
@@ -92,7 +91,6 @@ object SurnameData {
                 }
             }
 
-            // surname_chosung_to_korean_mapping.json
             context.assets.open("surname/surname_chosung_to_korean_mapping.json").use { stream ->
                 BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
                     val type = object : TypeToken<Map<String, List<String>>>() {}.type
@@ -101,7 +99,6 @@ object SurnameData {
                 }
             }
 
-            // surname_char_triple_dict.json
             context.assets.open("surname/surname_char_triple_dict.json").use { stream ->
                 BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
                     val type = object : TypeToken<Map<String, CharTripleInfo>>() {}.type
@@ -118,14 +115,12 @@ object SurnameData {
         }
     }
 
-    // SurnameData.kt의 validateData 메서드만 수정
     fun validateData(): DataLoader.ValidationResult {
         val warnings = mutableListOf<String>()
         val criticalErrors = mutableListOf<String>()
 
         Log.d(TAG, "=== 성씨 데이터 검증 시작 ===")
 
-        // 치명적 오류 체크: 필수 데이터가 로드되었는지
         if (charTripleDict.isEmpty()) {
             criticalErrors.add("성씨 charTripleDict가 비어있음")
         }
@@ -133,8 +128,6 @@ object SurnameData {
             criticalErrors.add("surnameMapping이 비어있음")
         }
 
-        // 경고 레벨 체크: 데이터 일관성
-        // 1. surnameMapping의 모든 항목이 charTripleDict에 있는지 확인
         var missingCount = 0
         surnameMapping.forEach { (korean, hanjaList) ->
             hanjaList.forEach { hanja ->
@@ -150,7 +143,6 @@ object SurnameData {
             warnings.add("성씨 charTripleDict에서 $missingCount 개의 키 누락")
         }
 
-        // 2. 복성 매핑 검증
         var invalidCompoundCount = 0
         surnameHanjaMapping.forEach { (key, parts) ->
             if (key.contains("/") && key.count { it == '/' } == 1) {
@@ -176,6 +168,7 @@ object SurnameData {
             criticalErrors = criticalErrors
         )
     }
+
     fun searchSurnames(query: String): List<SurnameSearchResult> {
         if (!DataLoader.isReady()) {
             Log.e(TAG, "데이터가 아직 로드되지 않았습니다")
@@ -185,26 +178,21 @@ object SurnameData {
         val results = mutableListOf<SurnameSearchResult>()
 
         when {
-            // 초성 검색
             query.matches(Regex("[ㄱ-ㅎ]+")) -> {
                 if (query.length == 1) {
-                    // 단일 초성 검색
                     chosungMapping[query]?.forEach { korean ->
-                        // 일반 성씨 추가
                         addSurnameResults(korean, results)
 
-                        // 해당 초성으로 시작하는 복성도 추가
                         surnameHanjaMapping.keys
                             .filter { it.contains("/") && it.startsWith(korean) && it.count { c -> c == '/' } == 1 }
                             .forEach { compoundKey ->
                                 val parts = compoundKey.split("/")
-                                if (parts[0].length > 1) { // 복성인 경우
+                                if (parts[0].length > 1) {
                                     addCompoundSurnameResult(parts[0], parts[1], results)
                                 }
                             }
                     }
                 } else if (query.length == 2) {
-                    // 복성 초성 검색 (예: "ㅈㄱ" -> "제갈")
                     val firstChosung = query[0].toString()
                     val secondChosung = query[1].toString()
 
@@ -222,9 +210,7 @@ object SurnameData {
                         }
                 }
             }
-            // 한글 검색
             query.matches(Regex("[가-힣]+")) -> {
-                // 정확히 일치하는 복성 검색
                 surnameHanjaMapping.keys
                     .filter { it.startsWith("$query/") }
                     .forEach { key ->
@@ -234,7 +220,6 @@ object SurnameData {
                         }
                     }
 
-                // 부분 일치하는 복성 검색 (예: "제" -> "제갈")
                 if (query.length == 1) {
                     surnameHanjaMapping.keys
                         .filter { it.contains("/") && it.startsWith(query) && it.count { c -> c == '/' } == 1 }
@@ -246,12 +231,9 @@ object SurnameData {
                         }
                 }
 
-                // 일반 성씨 검색
                 addSurnameResults(query, results)
             }
-            // 한자 검색
             else -> {
-                // 일반 성씨 한자 검색
                 charTripleDict.entries.forEach { (key, value) ->
                     if (value.hanjaInfo.character.contains(query)) {
                         results.add(SurnameSearchResult(
@@ -263,7 +245,6 @@ object SurnameData {
                     }
                 }
 
-                // 복성 한자 검색
                 surnameHanjaMapping.keys
                     .filter { it.contains("/") && it.split("/")[1].contains(query) }
                     .forEach { key ->
@@ -275,10 +256,9 @@ object SurnameData {
             }
         }
 
-        // 중복 제거 및 정렬
         return results.distinctBy { "${it.korean}/${it.hanja}" }
             .sortedWith(compareBy(
-                { !it.isCompound }, // 복성을 먼저 표시
+                { !it.isCompound },
                 { it.korean }
             ))
     }
@@ -335,7 +315,6 @@ object SurnameData {
     fun getSurnameInfo(korean: String, hanja: String): SurnameInfo? {
         val key = "$korean/$hanja"
 
-        // 복성인 경우
         if (korean.length > 1) {
             surnameHanjaMapping[key]?.let { parts ->
                 val meanings = mutableListOf<String>()
@@ -365,7 +344,6 @@ object SurnameData {
             }
         }
 
-        // 일반 성씨인 경우
         return charTripleDict[key]?.let { info ->
             SurnameInfo(
                 korean = korean,

@@ -1,5 +1,5 @@
-// com/ssc/namespring/model/DataLoader.kt
-package com.ssc.namespring.model
+// model/repository/DataLoader.kt
+package com.ssc.namespring.model.repository
 
 import android.content.Context
 import android.util.Log
@@ -11,7 +11,6 @@ object DataLoader {
 
     private val isInitialized = AtomicBoolean(false)
     private val isInitializing = AtomicBoolean(false)
-
     private var initJob: Job? = null
 
     interface LoadingListener {
@@ -33,7 +32,6 @@ object DataLoader {
                         listener?.onProgress(0, "데이터 로딩 시작...")
                     }
 
-                    // 1. NameData 로드 (가장 중요!)
                     withContext(Dispatchers.Main) {
                         listener?.onProgress(25, "이름 데이터 로딩 중...")
                     }
@@ -46,7 +44,6 @@ object DataLoader {
                         throw Exception("이름 데이터 초기화 실패: ${e.message}")
                     }
 
-                    // 2. SurnameData 로드
                     withContext(Dispatchers.Main) {
                         listener?.onProgress(50, "성씨 데이터 로딩 중...")
                     }
@@ -56,11 +53,9 @@ object DataLoader {
                         Log.d(TAG, "SurnameData 초기화 성공")
                     } catch (e: Exception) {
                         Log.e(TAG, "SurnameData 초기화 실패", e)
-                        // SurnameData는 실패해도 계속 진행
                         Log.w(TAG, "성씨 데이터 로드 실패했지만 계속 진행")
                     }
 
-                    // 3. 데이터 검증
                     withContext(Dispatchers.Main) {
                         listener?.onProgress(75, "데이터 검증 중...")
                     }
@@ -91,7 +86,6 @@ object DataLoader {
                 }
             }
         } else {
-            // 이미 초기화 중이면 완료 대기
             initJob?.join()
             if (isInitialized.get()) {
                 listener?.onComplete()
@@ -105,15 +99,12 @@ object DataLoader {
         val warnings = mutableListOf<String>()
         val criticalErrors = mutableListOf<String>()
 
-        // NameData 검증
         val nameValidation = NameData.validateData()
         warnings.addAll(nameValidation.warnings)
         criticalErrors.addAll(nameValidation.criticalErrors)
 
-        // SurnameData 검증
         val surnameValidation = SurnameData.validateData()
         warnings.addAll(surnameValidation.warnings)
-        // SurnameData의 오류는 치명적이지 않음
 
         return ValidationResult(
             isValid = criticalErrors.isEmpty(),

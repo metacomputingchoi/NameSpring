@@ -6,20 +6,16 @@ import java.io.Serializable
 import java.time.LocalTime
 import java.time.LocalDateTime
 
-/**
- * 사주 정보를 담는 데이터 클래스
- * NamingEngine의 SajuAnalysisInfo에서 추출한 정보를 저장
- */
 data class SajuInfo(
-    val fourPillars: List<String>,           // 사주팔자 [연주, 월주, 일주, 시주]
-    val yearPillar: Pillar,                  // 연주
-    val monthPillar: Pillar,                 // 월주
-    val dayPillar: Pillar,                   // 일주
-    val hourPillar: Pillar,                  // 시주
-    val sajuOhaengCount: Map<String, Int>,   // 오행별 개수 {木=2, 火=3, 土=1, 金=1, 水=1}
-    val missingElements: List<String>,       // 부족한 오행
-    val dominantElements: List<String>,      // 과다한 오행
-    val elementBalance: Map<String, Float>   // 오행 균형 비율
+    val fourPillars: List<String>,
+    val yearPillar: Pillar,
+    val monthPillar: Pillar,
+    val dayPillar: Pillar,
+    val hourPillar: Pillar,
+    val sajuOhaengCount: Map<String, Int>,
+    val missingElements: List<String>,
+    val dominantElements: List<String>,
+    val elementBalance: Map<String, Float>
 ) : Serializable {
 
     fun getWeakestElement(): String? =
@@ -62,41 +58,27 @@ data class SajuInfo(
         }
     }
 
-    /**
-     * 사주에서 가장 필요한 오행 계산
-     */
     fun getMostNeededElements(): List<String> {
         return if (missingElements.isNotEmpty()) {
             missingElements
         } else {
-            // 부족한 오행이 없다면 가장 적은 오행들 반환
             val minCount = sajuOhaengCount.values.minOrNull() ?: 0
             sajuOhaengCount.filter { it.value == minCount }.keys.toList()
         }
     }
 
-    /**
-     * 야자시 처리가 필요한지 확인
-     */
     fun needsYajasiAdjustment(birthTime: LocalDateTime): Boolean {
         return birthTime.toLocalTime() >= YAJASI_START_TIME
     }
 
     companion object {
-        // 오행 순서 (엔진의 OHAENG_SUNSE와 동일)
         private val OHAENG_ORDER = listOf("木", "火", "土", "金", "水")
-
-        // 야자시 기준 시간 (엔진의 Yajasi.START_TIME과 동일)
         val YAJASI_START_TIME = LocalTime.of(23, 30)
 
-        /**
-         * GeneratedName의 analysisInfo에서 SajuInfo 추출
-         */
         fun fromAnalysisInfo(analysisInfo: NameAnalysisInfo): SajuInfo {
             val sajuAnalysisInfo = analysisInfo.sajuInfo
-            val fourPillarsList = sajuAnalysisInfo.fourPillars.toList() // Array를 List로 변환
+            val fourPillarsList = sajuAnalysisInfo.fourPillars.toList()
 
-            // 사주를 파싱하여 Pillar 객체 생성
             return SajuInfo(
                 fourPillars = fourPillarsList,
                 yearPillar = Pillar.fromPillarString(fourPillarsList[0]),
@@ -110,9 +92,6 @@ data class SajuInfo(
             )
         }
 
-        /**
-         * 시간대 이름 반환
-         */
         fun getTimeSlotName(hour: Int): String {
             return when (hour) {
                 23, 0 -> "자시(子時)"
@@ -134,13 +113,12 @@ data class SajuInfo(
 }
 
 data class Pillar(
-    val heavenlyStem: String,      // 천간
-    val earthlyBranch: String,     // 지지
-    val stemOhaeng: String,        // 천간 오행
-    val branchOhaeng: String       // 지지 오행
+    val heavenlyStem: String,
+    val earthlyBranch: String,
+    val stemOhaeng: String,
+    val branchOhaeng: String
 ) : Serializable {
     companion object {
-        // 천간 오행 매핑 (엔진의 CHEONGAN_OHAENG과 동일)
         private val HEAVENLY_STEM_OHAENG = mapOf(
             "甲" to "木", "乙" to "木",
             "丙" to "火", "丁" to "火",
@@ -149,23 +127,20 @@ data class Pillar(
             "壬" to "水", "癸" to "水"
         )
 
-        // 지지 오행 매핑 (엔진의 JIJI_OHAENG과 동일)
         private val EARTHLY_BRANCH_OHAENG = mapOf(
             "子" to "水", "丑" to "土", "寅" to "木", "卯" to "木",
             "辰" to "土", "巳" to "火", "午" to "火", "未" to "土",
             "申" to "金", "酉" to "金", "戌" to "土", "亥" to "水"
         )
 
-        // 천간 음양
         private val HEAVENLY_STEM_EUMYANG = mapOf(
-            "甲" to 1, "乙" to 0,  // 목: 갑(양), 을(음)
-            "丙" to 1, "丁" to 0,  // 화: 병(양), 정(음)
-            "戊" to 1, "己" to 0,  // 토: 무(양), 기(음)
-            "庚" to 1, "辛" to 0,  // 금: 경(양), 신(음)
-            "壬" to 1, "癸" to 0   // 수: 임(양), 계(음)
+            "甲" to 1, "乙" to 0,
+            "丙" to 1, "丁" to 0,
+            "戊" to 1, "己" to 0,
+            "庚" to 1, "辛" to 0,
+            "壬" to 1, "癸" to 0
         )
 
-        // 지지 음양
         private val EARTHLY_BRANCH_EUMYANG = mapOf(
             "子" to 1, "丑" to 0, "寅" to 1, "卯" to 0,
             "辰" to 1, "巳" to 0, "午" to 1, "未" to 0,
@@ -186,9 +161,6 @@ data class Pillar(
             return Pillar(heavenlyStem, earthlyBranch, stemOhaeng, branchOhaeng)
         }
 
-        /**
-         * 간지의 음양 판단
-         */
         fun getEumyang(pillar: String): Pair<Int, Int> {
             require(pillar.length == 2) { "간지는 2글자여야 합니다: $pillar" }
 
@@ -202,32 +174,17 @@ data class Pillar(
         }
     }
 
-    /**
-     * 간지 문자열로 변환
-     */
     fun toPillarString(): String = heavenlyStem + earthlyBranch
 
-    /**
-     * 간지의 주요 오행 (천간 기준)
-     */
     fun getPrimaryOhaeng(): String = stemOhaeng
 
-    /**
-     * 간지의 모든 오행
-     */
     fun getAllOhaeng(): List<String> = listOfNotNull(
         stemOhaeng.takeIf { it.isNotEmpty() },
         branchOhaeng.takeIf { it.isNotEmpty() && it != stemOhaeng }
     )
 
-    /**
-     * 간지의 음양 값
-     */
     fun getEumyang(): Pair<Int, Int> = Companion.getEumyang(toPillarString())
 
-    /**
-     * 간지 설명
-     */
     fun getDescription(): String {
         val (stemEumyang, branchEumyang) = getEumyang()
         val stemEumyangStr = if (stemEumyang == 1) "양" else "음"

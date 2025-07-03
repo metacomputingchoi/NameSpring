@@ -1,10 +1,9 @@
-// model/Profile.kt
-package com.ssc.namespring.model
+// model/data/Profile.kt
+package com.ssc.namespring.model.data
 
 import android.util.Log
 import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namingengine.data.analysis.NameAnalysisInfo
-import com.ssc.namespring.model.data.SajuInfo
 import java.io.Serializable
 import java.util.Calendar
 
@@ -15,35 +14,25 @@ data class Profile(
     var isYajaTime: Boolean = false,
     var surname: SurnameInfo? = null,
     var givenName: GivenNameInfo? = null,
-
-    // mutable 프로퍼티로 변경
     var nameBomScore: Int = 0,
     var sajuInfo: SajuInfo? = null,
     var ohaengInfo: OhaengInfo? = null,
     var evaluatedName: GeneratedName? = null,
-
     val nameCharCount: Int = 2,
     val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis()
 ) : Serializable {
 
-    // GeneratedName에서 정보 추출하는 메서드
     fun updateFromGeneratedName(generatedName: GeneratedName) {
         evaluatedName = generatedName
-
-        // 이름봄 점수 계산
         nameBomScore = calculateNamebomScore(generatedName)
 
-        // 사주 정보 추출
         generatedName.analysisInfo?.let { analysisInfo ->
             sajuInfo = SajuInfo.fromAnalysisInfo(analysisInfo)
-
-            // 오행 정보 추출
             ohaengInfo = extractOhaengInfo(analysisInfo)
         }
 
         updatedAt = System.currentTimeMillis()
-
         Log.d("Profile", "updateFromGeneratedName - 점수: $nameBomScore, 오행: $ohaengInfo")
     }
 
@@ -58,10 +47,8 @@ data class Profile(
             Log.d("Profile", "  $category: $score")
         }
 
-        // 자원오행 분석을 통한 보너스 점수 계산
         var ohaengBonus = 0
         try {
-            // analysisInfo에서 자원오행 정보 추출
             val jawonOhaeng = analysisInfo.ohaengInfo.jawonOhaeng
             val missingElements = analysisInfo.sajuInfo.missingElements
             val dominantElements = analysisInfo.sajuInfo.dominantElements
@@ -72,19 +59,17 @@ data class Profile(
             Log.d("Profile", "과다한 오행: $dominantElements")
             Log.d("Profile", "사주 오행 분포: $sajuOhaengCount")
 
-            // 자원오행이 부족한 오행을 보완하는지 확인
             jawonOhaeng.forEach { element ->
                 if (missingElements.contains(element)) {
-                    ohaengBonus += 10  // 부족한 오행 보완시 +10점
+                    ohaengBonus += 10
                     Log.d("Profile", "부족한 오행 $element 보완 -> +10점")
                 } else if (dominantElements.contains(element)) {
-                    ohaengBonus -= 5   // 과다한 오행 추가시 -5점
+                    ohaengBonus -= 5
                     Log.d("Profile", "과다한 오행 $element 추가 -> -5점")
                 } else {
-                    // 적절한 수준의 오행 추가
                     val count = sajuOhaengCount[element] ?: 0
                     if (count <= 1) {
-                        ohaengBonus += 5  // 부족하지는 않지만 적은 오행 보완시 +5점
+                        ohaengBonus += 5
                         Log.d("Profile", "적은 오행 $element 보완 -> +5점")
                     }
                 }
@@ -93,10 +78,7 @@ data class Profile(
             Log.e("Profile", "자원오행 분석 실패", e)
         }
 
-        // 기존 점수 계산
         val baseScore = (analysisInfo.totalScore * 100 / 160).coerceIn(0, 100)
-
-        // 오행조화 점수가 0인 경우 자원오행 보너스를 더 크게 반영
         val ohaengScore = scoreBreakdown["오행조화"] ?: 0
         if (ohaengScore == 0) {
             ohaengBonus = (ohaengBonus * 1.5).toInt()
@@ -165,15 +147,12 @@ data class Profile(
         return String.format("%02d시 %02d분", hour, minute)
     }
 
-    // 점수에 따른 테마 색상 반환
     fun getScoreThemeColor(): ScoreTheme {
-        // 완전한 이름 정보가 있는지 확인
         val hasCompleteName = givenName?.let { givenName ->
             givenName.charInfos.isNotEmpty() &&
                     givenName.charInfos.all { it.korean.isNotEmpty() && it.hanja.isNotEmpty() }
         } ?: false
 
-        // 성씨가 있고 완전한 이름이 있고 점수가 계산된 경우만
         if (surname != null && hasCompleteName && nameBomScore > 0) {
             return when (nameBomScore) {
                 in 80..100 -> ScoreTheme.SUNNY_SPRING
@@ -196,12 +175,10 @@ data class Profile(
         return surname != null && hasCompleteName && nameBomScore > 0
     }
 
-    // 중복 체크를 위한 equals 재정의
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Profile) return false
 
-        // 프로필 이름, 생년월일시분, 성씨가 모두 같으면 중복으로 판단
         return profileName == other.profileName &&
                 birthDate.timeInMillis == other.birthDate.timeInMillis &&
                 surname?.korean == other.surname?.korean &&
@@ -217,12 +194,12 @@ data class Profile(
     }
 
     enum class ScoreTheme {
-        SUNNY_SPRING,   // 80-100
-        WARM_SPRING,    // 60-79
-        CLOUDY_SPRING,  // 40-59
-        RAINY_SPRING,   // 20-39
-        COLD_SPRING,    // 0-19
-        NOT_EVALUATED   // 평가되지 않음
+        SUNNY_SPRING,
+        WARM_SPRING,
+        CLOUDY_SPRING,
+        RAINY_SPRING,
+        COLD_SPRING,
+        NOT_EVALUATED
     }
 }
 
@@ -232,7 +209,7 @@ data class SurnameInfo(
     val meaning: String? = null,
     val strokes: Int = 0,
     val ohaeng: String? = null,
-    val eumyang: Int = 0 // 0: 음, 1: 양
+    val eumyang: Int = 0
 ) : Serializable
 
 data class GivenNameInfo(
@@ -280,7 +257,6 @@ data class OhaengInfo(
         if (total == 0) return emptyList()
 
         val avg = total / 5.0
-        // 평균의 1.5배 이상인 경우를 과다로 판단
         return ohaengMap.filter { it.value > avg * 1.5 && it.value >= 3 }.keys.toList()
     }
 
