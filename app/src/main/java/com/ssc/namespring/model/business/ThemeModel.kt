@@ -1,5 +1,5 @@
-// model/ThemeModel.kt
-package com.ssc.namespring.model
+// model/business/ThemeModel.kt
+package com.ssc.namespring.model.business
 
 import android.content.Context
 import android.graphics.Color
@@ -9,32 +9,16 @@ import com.ssc.namespring.model.data.Theme
 import com.ssc.namespring.model.data.SproutState
 import com.ssc.namespring.model.data.WeatherType
 
-/**
- * 테마 관리 비즈니스 로직
- * 이름봄 점수에 따른 UI 테마 결정
- */
 class ThemeModel(private val context: Context) {
 
-    /**
-     * 점수에 따른 테마 반환
-     */
     fun getThemeByScore(score: Int): Theme {
         return Theme.getAll().find { score in it.scoreRange } ?: Theme.COLD_SPRING
     }
 
-    /**
-     * 테마 전환 애니메이션 시간
-     */
     fun getThemeTransitionDuration(): Long = 600L
 
-    /**
-     * 새싹 성장 애니메이션 시간
-     */
     fun getSproutAnimationDuration(): Long = 1000L
 
-    /**
-     * 테마별 색상 팔레트
-     */
     fun getThemeColors(theme: Theme): ThemeColors {
         val textColor = when (theme.weatherType) {
             WeatherType.SUNNY, WeatherType.WARM -> Color.BLACK
@@ -63,32 +47,22 @@ class ThemeModel(private val context: Context) {
         )
     }
 
-    /**
-     * 점수 변화에 따른 테마 변경 필요 여부
-     */
     fun shouldChangeTheme(oldScore: Int, newScore: Int): Boolean {
         val oldTheme = getThemeByScore(oldScore)
         val newTheme = getThemeByScore(newScore)
         return oldTheme != newTheme
     }
 
-    /**
-     * 새싹 아이콘 텍스트 (임시 - 추후 실제 아이콘으로 교체)
-     * 유니코드 이모지를 사용하여 표현
-     */
     fun getSproutIconText(state: SproutState): String {
         return when (state) {
-            SproutState.DORMANT -> "🌰"    // 도토리 (휴면)
-            SproutState.SEED -> "🌱"        // 새싹 (씨앗)
-            SproutState.SPROUTING -> "🌿"   // 허브 (발아)
-            SproutState.GROWING -> "🌳"     // 나무 (성장)
-            SproutState.BLOOMING -> "🌸"    // 벚꽃 (개화)
+            SproutState.DORMANT -> "🌰"
+            SproutState.SEED -> "🌱"
+            SproutState.SPROUTING -> "🌿"
+            SproutState.GROWING -> "🌳"
+            SproutState.BLOOMING -> "🌸"
         }
     }
 
-    /**
-     * 새싹 아이콘 리소스 ID
-     */
     fun getSproutIconResource(state: SproutState): Int {
         return when (state) {
             SproutState.DORMANT -> R.drawable.ic_dormant_seed
@@ -99,9 +73,6 @@ class ThemeModel(private val context: Context) {
         }
     }
 
-    /**
-     * 새싹 아이콘 색상 (아이콘 대신 색상으로 구분)
-     */
     fun getSproutIconColor(state: SproutState): Int {
         return when (state) {
             SproutState.DORMANT -> R.color.dormant_gray
@@ -112,22 +83,16 @@ class ThemeModel(private val context: Context) {
         }
     }
 
-    /**
-     * 날씨 효과 텍스트 (애니메이션 대신 텍스트로 표현)
-     */
     fun getWeatherEffectText(weatherType: WeatherType): String? {
         return when (weatherType) {
-            WeatherType.SUNNY -> null       // 특별한 효과 없음
-            WeatherType.WARM -> "✨"        // 반짝임
-            WeatherType.CLOUDY -> "☁️"      // 구름
-            WeatherType.RAINY -> "🌧️"       // 비
-            WeatherType.COLD -> "❄️"        // 눈
+            WeatherType.SUNNY -> null
+            WeatherType.WARM -> "✨"
+            WeatherType.CLOUDY -> "☁️"
+            WeatherType.RAINY -> "🌧️"
+            WeatherType.COLD -> "❄️"
         }
     }
 
-    /**
-     * 날씨 효과 설명 (시각적 효과 대신 텍스트 설명)
-     */
     fun getWeatherEffectDescription(weatherType: WeatherType): String {
         return when (weatherType) {
             WeatherType.SUNNY -> "맑은 하늘"
@@ -138,9 +103,6 @@ class ThemeModel(private val context: Context) {
         }
     }
 
-    /**
-     * 테마별 추천 메시지
-     */
     fun getThemeMessage(theme: Theme, score: Int): String {
         return when (theme) {
             Theme.SUNNY_SPRING -> "🌸 화창한 봄날처럼 완벽한 이름입니다! (${score}점)"
@@ -152,9 +114,6 @@ class ThemeModel(private val context: Context) {
         }
     }
 
-    /**
-     * 새싹 성장 단계 설명
-     */
     fun getSproutStateDescription(state: SproutState): String {
         return when (state) {
             SproutState.DORMANT -> "씨앗이 땅속에서 잠들어 있어요"
@@ -165,9 +124,6 @@ class ThemeModel(private val context: Context) {
         }
     }
 
-    /**
-     * 테마 배경 그라데이션 색상 (이미지 대신 그라데이션 사용)
-     */
     fun getThemeGradientColors(theme: Theme): Pair<Int, Int> {
         val startColor = ContextCompat.getColor(context, theme.backgroundColor)
         val endColor = theme.backgroundGradientEndColor?.let {

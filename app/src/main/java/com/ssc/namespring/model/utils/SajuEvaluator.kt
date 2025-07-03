@@ -3,26 +3,15 @@ package com.ssc.namespring.model.utils
 
 import android.util.Log
 import com.ssc.namingengine.NamingEngine
-import com.ssc.namingengine.data.analysis.component.SajuAnalysisInfo
-import com.ssc.namespring.model.OhaengInfo
-import com.ssc.namespring.model.Profile
+import com.ssc.namespring.model.data.OhaengInfo
+import com.ssc.namespring.model.data.Profile
 import com.ssc.namespring.model.data.SajuInfo
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Calendar
 
-/**
- * 사주 평가만을 담당하는 유틸리티 클래스
- * 이름 정보 없이 생년월일시만으로 사주 정보를 평가
- */
 object SajuEvaluator {
-
     private const val TAG = "SajuEvaluator"
 
-    /**
-     * 생년월일시 정보만으로 사주를 평가
-     * NamingEngine의 내부 SajuCalculator를 활용
-     */
     fun evaluateSajuOnly(
         birthDate: Calendar,
         isYajaTime: Boolean,
@@ -32,15 +21,13 @@ object SajuEvaluator {
         Log.d(TAG, "사주 평가 시작 - 날짜: ${birthDate.time}, 야자시: $isYajaTime")
 
         return try {
-            // Calendar를 LocalDateTime으로 변환
             val birthDateTime = birthDate.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
 
             Log.d(TAG, "LocalDateTime 변환: $birthDateTime")
 
-            // 더미 이름으로 generateNames 호출
-            val dummyNameInput = "[김/金][우/宇]"  // 실제 존재하는 한자 사용
+            val dummyNameInput = "[김/金][우/宇]"
 
             Log.d(TAG, "더미 이름으로 평가 시작: $dummyNameInput")
 
@@ -48,7 +35,7 @@ object SajuEvaluator {
                 userInput = dummyNameInput,
                 birthDateTime = birthDateTime,
                 useYajasi = isYajaTime,
-                verbose = true,  // 디버깅을 위해 true로 변경
+                verbose = true,
                 withoutFilter = true
             )
 
@@ -81,9 +68,6 @@ object SajuEvaluator {
         }
     }
 
-    /**
-     * 프로필의 사주만 평가하여 업데이트
-     */
     fun evaluateProfileSaju(profile: Profile, namingEngine: NamingEngine): Profile {
         val (sajuInfo, ohaengInfo) = evaluateSajuOnly(
             profile.birthDate,

@@ -8,11 +8,6 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_view_type"
-        android:title="보기 전환"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_load_all"
         android:title="전체 로드"
         app:showAsAction="never" />

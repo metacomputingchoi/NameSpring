@@ -3,9 +3,6 @@ package com.ssc.namespring.model.data
 
 import com.ssc.namespring.R
 
-/**
- * 이름봄 점수에 따른 테마 정보
- */
 data class Theme(
     val name: String,
     val description: String,
