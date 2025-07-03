@@ -27,7 +27,7 @@
 
         <activity
             android:name=".ProfileListActivity"
-            android:theme="@style/Theme.NameSpring.NoActionBar"
+            android:theme="@style/Theme.NameSpring.ProfileList"
             android:windowSoftInputMode="adjustResize" />
 
         <activity

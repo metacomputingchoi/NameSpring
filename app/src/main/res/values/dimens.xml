@@ -2,4 +2,6 @@
 <resources>
     <dimen name="status_bar_padding">24dp</dimen>
     <dimen name="navigation_bar_padding">24dp</dimen>
+    <dimen name="recycler_view_bottom_padding_normal">80dp</dimen>
+    <dimen name="recycler_view_bottom_padding_selection_mode">140dp</dimen>
 </resources>

@@ -555,6 +555,7 @@ class ProfileFormActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    // saveProfile() 메서드 수정 부분만
     private fun saveProfile() {
         val profileName = etProfileName.text?.toString() ?: ""
 
@@ -582,22 +583,58 @@ class ProfileFormActivity : AppCompatActivity() {
             birthDate = selectedDate,
             isYajaTime = cbYajaTime.isChecked,
             surname = selectedSurname ?: profileToEdit?.surname ?: return,
-            givenName = givenName
+            givenName = givenName,
+            // 임시 사주/오행 정보 생성
+            sajuInfo = generateTempSajuInfo(),
+            ohaengInfo = generateTempOhaengInfo(),
+            nameBomScore = (20..95).random()
         ) ?: Profile(
             profileName = profileName,
             birthDate = selectedDate,
             isYajaTime = cbYajaTime.isChecked,
             surname = selectedSurname ?: return,
-            givenName = givenName
+            givenName = givenName,
+            sajuInfo = generateTempSajuInfo(),
+            ohaengInfo = generateTempOhaengInfo(),
+            nameBomScore = (20..95).random()
         )
 
-        if (profileToEdit != null) {
+        val success = if (profileToEdit != null) {
             ProfileManager.updateProfile(profile)
         } else {
             ProfileManager.addProfile(profile)
         }
 
-        finish()
+        if (success) {
+            finish()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("중복된 프로필")
+                .setMessage("동일한 프로필이 이미 존재합니다.\n(프로필명, 생년월일시분, 성씨가 모두 동일)")
+                .setPositiveButton("확인", null)
+                .show()
+        }
+    }
+
+    // 임시 데이터 생성 메서드 추가
+    private fun generateTempSajuInfo(): SajuInfo {
+        val pillars = listOf("甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥")
+        return SajuInfo(
+            yearPillar = pillars.random(),
+            monthPillar = pillars.random(),
+            dayPillar = pillars.random(),
+            hourPillar = pillars.random()
+        )
+    }
+
+    private fun generateTempOhaengInfo(): OhaengInfo {
+        return OhaengInfo(
+            wood = (0..5).random(),
+            fire = (0..5).random(),
+            earth = (0..5).random(),
+            metal = (0..5).random(),
+            water = (0..5).random()
+        )
     }
 
     private fun validateNameInputs(): Pair<Boolean, String> {
