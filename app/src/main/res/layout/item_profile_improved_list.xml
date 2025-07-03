@@ -4,7 +4,7 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="8dp"
     android:foreground="?attr/selectableItemBackground"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
@@ -29,6 +29,7 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- 첫 줄: 프로필 이름과 생년월일 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -41,24 +42,30 @@
                     android:layout_height="wrap_content"
                     android:text="프로필 이름"
                     android:textColor="@color/text_primary"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/tvBirthDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2024년 3월 15일생"
+                    android:layout_marginStart="8dp"
+                    android:text="2024.03.15"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvBirthTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="14:30"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
             </LinearLayout>
 
+            <!-- 둘째 줄: 이름 -->
             <TextView
                 android:id="@+id/tvFullName"
                 android:layout_width="wrap_content"
@@ -66,43 +73,97 @@
                 android:layout_marginTop="4dp"
                 android:text="김◯◯(金◯◯)"
                 android:textColor="@color/primary"
-                android:textSize="16sp" />
+                android:textSize="18sp"
+                android:fontFamily="@font/nanum_myeongjo_bold" />
 
-            <TextView
-                android:id="@+id/tvBirthTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="14시 30분"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
+            <!-- 셋째 줄: 사주 (컴팩트하게) -->
             <TextView
                 android:id="@+id/tvSaju"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="사주: 甲子 乙丑 丙寅 丁卯"
+                android:layout_marginTop="4dp"
+                android:text="甲子 乙丑 丙寅 丁卯"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/nanum_myeongjo" />
 
+            <!-- 넷째 줄: 오행 분포 -->
+            <LinearLayout
+                android:id="@+id/ohaengDistribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvWoodDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="木2"
+                    android:textColor="@color/ohaeng_wood"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvFireDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="火3"
+                    android:textColor="@color/ohaeng_fire"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvEarthDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="土1"
+                    android:textColor="@color/ohaeng_earth"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvMetalDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="金1"
+                    android:textColor="@color/ohaeng_metal"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvWaterDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="水1"
+                    android:textColor="@color/ohaeng_water"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- 다섯째 줄: 오행 정보 -->
             <TextView
                 android:id="@+id/tvOhaeng"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="부족한 오행: 수(水)"
+                android:layout_marginTop="2dp"
+                android:text="부족: 水"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
         </LinearLayout>
 
+        <!-- 점수 표시 -->
         <LinearLayout
             android:id="@+id/scoreContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/bg_score_badge"
             android:padding="8dp"
@@ -118,10 +179,10 @@
                 android:id="@+id/tvScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginTop="2dp"
                 android:text="77"
                 android:textColor="@color/sprout_green"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
         </LinearLayout>

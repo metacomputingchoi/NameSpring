@@ -5,8 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -44,9 +47,6 @@ class ProfileListActivity : AppCompatActivity() {
     private lateinit var btnDeleteSelected: Button
     private lateinit var btnCancelSelection: Button
     private lateinit var progressBar: ProgressBar
-    private lateinit var bottomContainer: LinearLayout
-    private lateinit var navigationBarBackground: View
-    private var navigationBarHeight = 0
 
     // Adapter and Data
     private lateinit var adapter: ProfileAdapter
@@ -63,6 +63,10 @@ class ProfileListActivity : AppCompatActivity() {
     private var isLoadingMore = false
     private var hasMoreData = true
 
+    // Activity Result Launchers
+    private lateinit var createProfileLauncher: ActivityResultLauncher<Intent>
+    private lateinit var editProfileLauncher: ActivityResultLauncher<Intent>
+
     enum class LayoutType {
         LIST, GRID
     }
@@ -71,6 +75,7 @@ class ProfileListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_list_improved)
 
+        setupActivityResultLaunchers()
         setupViews()
         setupRecyclerView()
         setupSearch()
@@ -78,55 +83,36 @@ class ProfileListActivity : AppCompatActivity() {
         loadProfiles()
     }
 
-    private fun adjustForSystemUI() {
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            navigationBarHeight = systemBars.bottom
-
-            // 네비게이션 바 배경 높이 설정
-            navigationBarBackground.layoutParams.height = navigationBarHeight
-
-            // 일반 모드에서의 RecyclerView 패딩
-            updateRecyclerViewPadding()
-
-            // FAB 위치 조정
-            (fabAdd.layoutParams as? CoordinatorLayout.LayoutParams)?.let { params ->
-                params.bottomMargin = navigationBarHeight + 24
-                fabAdd.layoutParams = params
+    private fun setupActivityResultLaunchers() {
+        createProfileLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                // 프로필이 추가되었으므로 리스트 새로고침
+                currentPage = 1
+                currentProfiles = emptyList()
+                loadProfiles()
             }
-
-            // bottomContainer 위치 조정
-            (bottomContainer.layoutParams as? CoordinatorLayout.LayoutParams)?.let { params ->
-                params.bottomMargin = navigationBarHeight
-                bottomContainer.layoutParams = params
-            }
-
-            insets
-        }
-    }
-
-    private fun updateRecyclerViewPadding() {
-        val bottomPadding = if (isSelectionMode) {
-            // 선택 모드: 전체선택 버튼 + 액션바 + 네비게이션바 높이
-            navigationBarHeight + 56 + 56 + 32 // FAB 높이 + 액션바 높이 + 여백
-        } else {
-            // 일반 모드: FAB + 네비게이션바 높이
-            navigationBarHeight + 80
         }
 
-        recyclerView.setPadding(
-            recyclerView.paddingLeft,
-            recyclerView.paddingTop,
-            recyclerView.paddingRight,
-            bottomPadding
-        )
+        editProfileLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                // 프로필이 수정되었으므로 리스트 새로고침
+                currentPage = 1
+                currentProfiles = emptyList()
+                loadProfiles()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!isSelectionMode) {
-            loadProfiles()
-        }
+        // 항상 프로필 리스트를 새로 로드
+        currentPage = 1
+        currentProfiles = emptyList()
+        loadProfiles()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -179,7 +165,8 @@ class ProfileListActivity : AppCompatActivity() {
 
         // FAB 클릭
         fabAdd.setOnClickListener {
-            startActivity(Intent(this, ProfileFormActivity::class.java))
+            val intent = Intent(this, ProfileFormActivity::class.java)
+            createProfileLauncher.launch(intent)
         }
 
         // 전체 선택 FAB
@@ -205,7 +192,8 @@ class ProfileListActivity : AppCompatActivity() {
 
         // 빈 화면 버튼
         findViewById<Button>(R.id.btnCreateProfile).setOnClickListener {
-            startActivity(Intent(this, ProfileFormActivity::class.java))
+            val intent = Intent(this, ProfileFormActivity::class.java)
+            createProfileLauncher.launch(intent)
         }
     }
 
@@ -216,7 +204,7 @@ class ProfileListActivity : AppCompatActivity() {
                 if (isSelectionMode) {
                     toggleSelection(profile.id)
                 } else {
-                    ProfileManager.setSelectedProfile(profile)
+                    ProfileManager.switchProfile(profile.id)
                     startActivity(Intent(this, MainActivity::class.java))
                 }
             },
@@ -230,7 +218,7 @@ class ProfileListActivity : AppCompatActivity() {
             onEditClick = { profile ->
                 val intent = Intent(this, ProfileFormActivity::class.java)
                 intent.putExtra("profileId", profile.id)
-                startActivity(intent)
+                editProfileLauncher.launch(intent)
             },
             onDeleteClick = { profile ->
                 showDeleteConfirmDialog(listOf(profile.id))
@@ -300,7 +288,6 @@ class ProfileListActivity : AppCompatActivity() {
     private fun loadProfiles() {
         progressBar.isVisible = true
 
-        // 검색 및 정렬
         val allProfiles = if (currentQuery.isEmpty()) {
             ProfileManager.getSortedProfiles(currentSortType)
         } else {
@@ -314,6 +301,14 @@ class ProfileListActivity : AppCompatActivity() {
                     ProfileManager.SortType.DATE_ASC -> searchResults.sortedBy { it.createdAt }
                 }
             }
+        }
+
+        // 디버깅: 프로필 정보 로그
+        Log.d("ProfileListActivity", "전체 프로필 수: ${allProfiles.size}")
+        allProfiles.forEach { profile ->
+            Log.d("ProfileListActivity", "프로필: ${profile.profileName}, " +
+                    "오행: 목=${profile.ohaengInfo?.wood}, 화=${profile.ohaengInfo?.fire}, " +
+                    "토=${profile.ohaengInfo?.earth}, 금=${profile.ohaengInfo?.metal}, 수=${profile.ohaengInfo?.water}")
         }
 
         // 페이지네이션
@@ -363,11 +358,9 @@ class ProfileListActivity : AppCompatActivity() {
                 Snackbar.make(recyclerView, "${currentProfiles.size}개의 프로필을 모두 로드했습니다", Snackbar.LENGTH_SHORT).show()
             }
             .setNegativeButton("취소") { _, _ ->
-                // 취소 시 progressBar 숨기기
                 progressBar.isVisible = false
             }
             .setOnCancelListener {
-                // 다이얼로그 외부 터치로 취소 시에도 progressBar 숨기기
                 progressBar.isVisible = false
             }
             .show()
@@ -381,7 +374,6 @@ class ProfileListActivity : AppCompatActivity() {
         }
     }
 
-    // enterSelectionMode() 메서드
     private fun enterSelectionMode() {
         isSelectionMode = true
         selectedIds.clear()
@@ -399,7 +391,6 @@ class ProfileListActivity : AppCompatActivity() {
         invalidateOptionsMenu()
     }
 
-    // exitSelectionMode() 메서드
     private fun exitSelectionMode() {
         isSelectionMode = false
         selectedIds.clear()
@@ -416,7 +407,6 @@ class ProfileListActivity : AppCompatActivity() {
         invalidateOptionsMenu()
     }
 
-    // updateSelectionUI() 메서드 수정
     private fun updateSelectionUI() {
         tvSelectedCount.text = "${selectedIds.size}개 선택됨"
         btnDeleteSelected.isEnabled = selectedIds.isNotEmpty()
@@ -582,33 +572,95 @@ class ProfileListActivity : AppCompatActivity() {
                 // 기본 정보
                 tvProfileName.text = profile.profileName
                 tvFullName.text = formatFullName(profile)
-                tvBirthDate.text = profile.getSimpleBirthDate()
-                tvBirthTime.text = profile.getBirthTimeString()
 
-                // 사주 정보
+                // 날짜 포맷 간소화
+                val cal = profile.birthDate
+                tvBirthDate.text = String.format("%d.%02d.%02d",
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH) + 1,
+                    cal.get(Calendar.DAY_OF_MONTH))
+
+                // 시간 포맷
+                tvBirthTime.text = String.format("%02d:%02d",
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE))
+
+                // 사주 정보 표시 (있을 경우만)
                 profile.sajuInfo?.let { saju ->
-                    tvSaju.text = "사주: ${saju.yearPillar} ${saju.monthPillar} ${saju.dayPillar} ${saju.hourPillar}"
+                    tvSaju.text = saju.fourPillars.joinToString(" ")
+                    tvSaju.visibility = View.VISIBLE
+                } ?: run {
+                    tvSaju.visibility = View.GONE
                 }
 
-                // 오행 정보
+                // 오행 분포 표시 (추가된 부분)
+                val tvWoodDist: TextView? = itemView.findViewById(R.id.tvWoodDist)
+                val tvFireDist: TextView? = itemView.findViewById(R.id.tvFireDist)
+                val tvEarthDist: TextView? = itemView.findViewById(R.id.tvEarthDist)
+                val tvMetalDist: TextView? = itemView.findViewById(R.id.tvMetalDist)
+                val tvWaterDist: TextView? = itemView.findViewById(R.id.tvWaterDist)
+                val ohaengDistribution: LinearLayout? = itemView.findViewById(R.id.ohaengDistribution)
+
                 profile.ohaengInfo?.let { ohaeng ->
+                    // 오행 분포 표시
+                    tvWoodDist?.text = "木${ohaeng.wood}"
+                    tvFireDist?.text = "火${ohaeng.fire}"
+                    tvEarthDist?.text = "土${ohaeng.earth}"
+                    tvMetalDist?.text = "金${ohaeng.metal}"
+                    tvWaterDist?.text = "水${ohaeng.water}"
+                    ohaengDistribution?.visibility = View.VISIBLE
+
+                    // 부족/과다 오행 표시
                     val lacking = ohaeng.getLackingOhaeng()
                     val excessive = ohaeng.getExcessOhaeng()
 
-                    tvOhaeng.text = when {
+                    val ohaengText = when {
                         lacking.isNotEmpty() && excessive.isNotEmpty() ->
-                            "부족: ${lacking.joinToString()}, 과다: ${excessive.joinToString()}"
+                            "부족: ${lacking.joinToString(",")} | 과다: ${excessive.joinToString(",")}"
                         lacking.isNotEmpty() ->
-                            "부족한 오행: ${lacking.joinToString()}"
+                            "부족한 오행: ${lacking.joinToString(", ")}"
                         excessive.isNotEmpty() ->
-                            "과다한 오행: ${excessive.joinToString()}"
+                            "과다한 오행: ${excessive.joinToString(", ")}"
                         else -> "오행 균형"
                     }
+
+                    tvOhaeng.text = ohaengText
+                    tvOhaeng.visibility = View.VISIBLE
+
+                    // 부족한 오행의 색상 적용
+                    if (lacking.isNotEmpty()) {
+                        val color = when(lacking.first()) {
+                            "목" -> R.color.ohaeng_wood
+                            "화" -> R.color.ohaeng_fire
+                            "토" -> R.color.ohaeng_earth
+                            "금" -> R.color.ohaeng_metal
+                            "수" -> R.color.ohaeng_water
+                            else -> R.color.text_secondary
+                        }
+                        tvOhaeng.setTextColor(itemView.context.getColor(color))
+                    }
+                } ?: run {
+                    ohaengDistribution?.visibility = View.GONE
+                    tvOhaeng.text = "오행 정보 없음"
+                    tvOhaeng.visibility = View.VISIBLE
+                    tvOhaeng.setTextColor(itemView.context.getColor(R.color.text_secondary))
                 }
 
-                // 점수 및 테마 색상
-                tvScore.text = profile.nameBomScore.toString()
-                applyScoreTheme(profile)
+                // 점수 및 테마 처리 - 항상 표시하되 평가 여부에 따라 다르게
+                scoreContainer.visibility = View.VISIBLE
+
+                if (profile.isEvaluated()) {
+                    tvScore.text = profile.nameBomScore.toString()
+                    applyScoreTheme(profile)
+                } else {
+                    tvScore.text = "-"
+                    // 평가되지 않은 상태의 스타일 적용
+                    cardView.setBackgroundColor(itemView.context.getColor(R.color.not_evaluated_bg))
+                    scoreContainer.backgroundTintList = itemView.context.getColorStateList(R.color.not_evaluated_accent)
+                    ivSprout.setImageResource(R.drawable.ic_seed)
+                    ivSprout.imageTintList = itemView.context.getColorStateList(R.color.not_evaluated_icon)
+                    tvScore.setTextColor(itemView.context.getColor(R.color.text_secondary))
+                }
 
                 // 선택 모드 처리
                 checkBox?.isVisible = isSelectionMode
@@ -621,12 +673,7 @@ class ProfileListActivity : AppCompatActivity() {
 
                 // 클릭 이벤트
                 cardView.setOnClickListener {
-                    // ProfileManager에 선택된 프로필 설정
-                    ProfileManager.switchProfile(profile.id)
-
-                    // MainActivity로 이동
-                    val intent = Intent(this@ProfileListActivity, MainActivity::class.java)
-                    startActivity(intent)
+                    onItemClick(profile)
                 }
 
                 cardView.setOnLongClickListener {
@@ -649,30 +696,25 @@ class ProfileListActivity : AppCompatActivity() {
                 val surname = profile.surname
                 val givenName = profile.givenName
 
-                val surnameText = if (surname != null) {
-                    "${surname.korean}(${surname.hanja})"
-                } else {
-                    "◯"
+                // 성씨만 있는 경우
+                if (surname != null && (givenName == null || givenName.charInfos.isEmpty())) {
+                    return "${surname.korean}(${surname.hanja}) ◯◯"
                 }
 
-                if (givenName == null || givenName.charInfos.isEmpty()) {
-                    return "$surnameText ◯◯"
+                // 성씨와 이름이 모두 있는 경우
+                if (surname != null && givenName != null && givenName.charInfos.isNotEmpty()) {
+                    // 이름이 불완전한 경우 처리
+                    val givenKorean = givenName.charInfos.joinToString("") {
+                        it.korean.ifEmpty { "◯" }
+                    }
+                    val givenHanja = givenName.charInfos.joinToString("") {
+                        it.hanja.ifEmpty { "◯" }
+                    }
+                    return "${surname.korean}${givenKorean}(${surname.hanja}${givenHanja})"
                 }
 
-                val koreanBuilder = StringBuilder()
-                val hanjaBuilder = StringBuilder()
-
-                givenName.charInfos.forEach { charInfo ->
-                    koreanBuilder.append(if (charInfo.korean.isNotEmpty()) charInfo.korean else "◯")
-                    hanjaBuilder.append(if (charInfo.hanja.isNotEmpty()) charInfo.hanja else "◯")
-                }
-
-                while (koreanBuilder.length < 2) {
-                    koreanBuilder.append("◯")
-                    hanjaBuilder.append("◯")
-                }
-
-                return "$surnameText $koreanBuilder($hanjaBuilder)"
+                // 성씨가 없는 경우
+                return "◯ ◯◯"
             }
 
             private fun applyScoreTheme(profile: Profile) {
@@ -686,6 +728,7 @@ class ProfileListActivity : AppCompatActivity() {
                     Profile.ScoreTheme.CLOUDY_SPRING -> R.color.cloudy_spring_bg
                     Profile.ScoreTheme.RAINY_SPRING -> R.color.rainy_spring_bg
                     Profile.ScoreTheme.COLD_SPRING -> R.color.cold_spring_bg
+                    Profile.ScoreTheme.NOT_EVALUATED -> R.color.not_evaluated_bg
                 }
 
                 cardView.setBackgroundColor(context.getColor(backgroundColor))
@@ -697,6 +740,7 @@ class ProfileListActivity : AppCompatActivity() {
                     Profile.ScoreTheme.CLOUDY_SPRING -> R.color.cloudy_spring_accent
                     Profile.ScoreTheme.RAINY_SPRING -> R.color.rainy_spring_accent
                     Profile.ScoreTheme.COLD_SPRING -> R.color.cold_spring_accent
+                    Profile.ScoreTheme.NOT_EVALUATED -> R.color.not_evaluated_accent
                 }
 
                 scoreContainer.backgroundTintList = context.getColorStateList(accentColor)
@@ -708,6 +752,7 @@ class ProfileListActivity : AppCompatActivity() {
                     Profile.ScoreTheme.CLOUDY_SPRING -> R.drawable.ic_sprout
                     Profile.ScoreTheme.RAINY_SPRING -> R.drawable.ic_seed
                     Profile.ScoreTheme.COLD_SPRING -> R.drawable.ic_dormant_seed
+                    Profile.ScoreTheme.NOT_EVALUATED -> R.drawable.ic_seed
                 }
 
                 ivSprout.setImageResource(iconResource)
@@ -719,6 +764,7 @@ class ProfileListActivity : AppCompatActivity() {
                     Profile.ScoreTheme.CLOUDY_SPRING -> R.color.sprout_green
                     Profile.ScoreTheme.RAINY_SPRING -> R.color.seed_brown
                     Profile.ScoreTheme.COLD_SPRING -> R.color.dormant_gray
+                    Profile.ScoreTheme.NOT_EVALUATED -> R.color.not_evaluated_icon
                 }
 
                 ivSprout.imageTintList = context.getColorStateList(sproutColor)

@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.ssc.namespring.model.*
+import com.ssc.namespring.model.data.Pillar
+import com.ssc.namespring.model.data.SajuInfo
 import java.text.Normalizer
 import java.util.Calendar
 
@@ -558,7 +560,6 @@ class ProfileFormActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // saveProfile() 메서드 수정 부분만
     private fun saveProfile() {
         val profileName = etProfileName.text?.toString() ?: ""
 
@@ -567,38 +568,22 @@ class ProfileFormActivity : AppCompatActivity() {
             return
         }
 
-        if (selectedSurname == null && profileToEdit?.surname == null) {
-            Toast.makeText(this, "성씨를 선택해주세요", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // 이름 유효성 검사
-        val validationResult = validateNameInputs()
-        if (!validationResult.first) {
-            Toast.makeText(this, validationResult.second, Toast.LENGTH_LONG).show()
-            return
-        }
-
+        // 성씨는 선택사항으로 변경 (사주만 계산할 수 있도록)
         val givenName = getGivenNameInfo()
 
         val profile = profileToEdit?.copy(
             profileName = profileName,
             birthDate = selectedDate,
             isYajaTime = cbYajaTime.isChecked,
-            surname = selectedSurname ?: profileToEdit?.surname ?: return,
+            surname = selectedSurname ?: profileToEdit?.surname,
             givenName = givenName,
-            sajuInfo = generateTempSajuInfo(),
-            ohaengInfo = generateTempOhaengInfo(),
-            nameBomScore = (20..95).random()
+            updatedAt = System.currentTimeMillis()
         ) ?: Profile(
             profileName = profileName,
             birthDate = selectedDate,
             isYajaTime = cbYajaTime.isChecked,
-            surname = selectedSurname ?: return,
-            givenName = givenName,
-            sajuInfo = generateTempSajuInfo(),
-            ohaengInfo = generateTempOhaengInfo(),
-            nameBomScore = (20..95).random()
+            surname = selectedSurname,
+            givenName = givenName
         )
 
         val success = if (profileToEdit != null) {
@@ -608,6 +593,8 @@ class ProfileFormActivity : AppCompatActivity() {
         }
 
         if (success) {
+            // 프로필 추가/수정 성공 시 결과 전달
+            setResult(RESULT_OK)
             finish()
         } else {
             AlertDialog.Builder(this)
@@ -616,27 +603,6 @@ class ProfileFormActivity : AppCompatActivity() {
                 .setPositiveButton("확인", null)
                 .show()
         }
-    }
-
-    // 임시 데이터 생성 메서드 추가
-    private fun generateTempSajuInfo(): SajuInfo {
-        val pillars = listOf("甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉", "甲戌", "乙亥")
-        return SajuInfo(
-            yearPillar = pillars.random(),
-            monthPillar = pillars.random(),
-            dayPillar = pillars.random(),
-            hourPillar = pillars.random()
-        )
-    }
-
-    private fun generateTempOhaengInfo(): OhaengInfo {
-        return OhaengInfo(
-            wood = (0..5).random(),
-            fire = (0..5).random(),
-            earth = (0..5).random(),
-            metal = (0..5).random(),
-            water = (0..5).random()
-        )
     }
 
     private fun validateNameInputs(): Pair<Boolean, String> {

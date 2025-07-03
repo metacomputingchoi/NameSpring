@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.ssc.namespring.model.Profile
 import com.ssc.namespring.model.ProfileManager
 import com.ssc.namespring.model.OhaengInfo
+import com.ssc.namingengine.NamingEngine
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,7 +62,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 현재 프로필이 없으면 프로필 리스트로 이동
         if (ProfileManager.getCurrentProfile() == null) {
             startActivity(Intent(this, ProfileListActivity::class.java))
             finish()
@@ -137,44 +137,58 @@ class MainActivity : AppCompatActivity() {
 
         // 프로필 정보 표시
         tvProfileLabel.text = profile.profileName
-        tvScore.text = profile.nameBomScore.toString()
+
+        // 점수 표시 - 평가 여부에 따라 다르게 표시
+        if (profile.isEvaluated()) {
+            tvScore.text = profile.nameBomScore.toString()
+        } else {
+            tvScore.text = "-"
+        }
+
+        // 테마 적용
+        applyTheme(profile)
+
         tvName.text = profile.getFullName()
         tvBirthInfo.text = profile.getBirthDateString()
 
-        // 점수에 따른 테마 적용
-        applyTheme(profile)
-
-        // 오행 정보 표시 및 스타일 적용
+        // 오행 정보 표시
         updateOhaengDisplay(profile)
     }
 
     private fun updateOhaengDisplay(profile: Profile) {
-        profile.ohaengInfo?.let { ohaeng ->
-            tvWoodCount.text = ohaeng.wood.toString()
-            tvFireCount.text = ohaeng.fire.toString()
-            tvEarthCount.text = ohaeng.earth.toString()
-            tvMetalCount.text = ohaeng.metal.toString()
-            tvWaterCount.text = ohaeng.water.toString()
+        // 오행 정보가 있으면 표시, 없으면 0으로 표시
+        val ohaeng = profile.ohaengInfo ?: OhaengInfo(0, 0, 0, 0, 0)
 
-            // 테마에 따른 오행 스타일 적용
-            val theme = profile.getScoreThemeColor()
-            applyOhaengTheme(theme, ohaeng)
+        tvWoodCount.text = ohaeng.wood.toString()
+        tvFireCount.text = ohaeng.fire.toString()
+        tvEarthCount.text = ohaeng.earth.toString()
+        tvMetalCount.text = ohaeng.metal.toString()
+        tvWaterCount.text = ohaeng.water.toString()
 
-            // 오행 상태 텍스트
-            val lacking = ohaeng.getLackingOhaeng()
-            val excess = ohaeng.getExcessOhaeng()
-
-            val infoText = when {
-                lacking.isNotEmpty() && excess.isNotEmpty() ->
-                    "부족한 오행: ${lacking.joinToString(", ")} · 많은 오행: ${excess.joinToString(", ")}"
-                lacking.isNotEmpty() ->
-                    "부족한 오행: ${lacking.joinToString(", ")}"
-                excess.isNotEmpty() ->
-                    "많은 오행: ${excess.joinToString(", ")}"
-                else -> "오행이 균형 잡혀 있습니다"
-            }
-            tvOhaengInfo.text = infoText
+        // 테마에 따른 오행 스타일 적용
+        val theme = if (profile.nameBomScore > 0) {
+            profile.getScoreThemeColor()
+        } else {
+            Profile.ScoreTheme.CLOUDY_SPRING
         }
+        applyOhaengTheme(theme, ohaeng)
+
+        // 오행 상태 텍스트
+        val lacking = ohaeng.getLackingOhaeng()
+        val excess = ohaeng.getExcessOhaeng()
+
+        val infoText = when {
+            ohaeng.wood == 0 && ohaeng.fire == 0 && ohaeng.earth == 0 &&
+                    ohaeng.metal == 0 && ohaeng.water == 0 -> "오행 정보를 계산 중입니다..."
+            lacking.isNotEmpty() && excess.isNotEmpty() ->
+                "부족한 오행: ${lacking.joinToString(", ")} · 많은 오행: ${excess.joinToString(", ")}"
+            lacking.isNotEmpty() ->
+                "부족한 오행: ${lacking.joinToString(", ")}"
+            excess.isNotEmpty() ->
+                "많은 오행: ${excess.joinToString(", ")}"
+            else -> "오행이 균형 잡혀 있습니다"
+        }
+        tvOhaengInfo.text = infoText
     }
 
     private fun applyTheme(profile: Profile) {
@@ -200,6 +214,12 @@ class MainActivity : AppCompatActivity() {
             Profile.ScoreTheme.COLD_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_cold_spring)
                 ivScoreIcon.setImageResource(R.drawable.ic_dormant_seed)
+            }
+            Profile.ScoreTheme.NOT_EVALUATED -> {
+                rootLayout.setBackgroundResource(R.drawable.bg_not_evaluated)
+                ivScoreIcon.setImageResource(R.drawable.ic_seed)
+                // 아이콘과 점수 텍스트 색상도 변경
+                tvScore.setTextColor(getColor(R.color.text_secondary))
             }
         }
     }
@@ -284,6 +304,19 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
+            Profile.ScoreTheme.NOT_EVALUATED -> {
+                // 평가되지 않은 상태 - 중립적인 회색 톤
+                containers.forEachIndexed { index, (container, label, hanja) ->
+                    if (values[index] == 0) {
+                        container.setBackgroundResource(R.drawable.bg_ohaeng_lacking_neutral)
+                        setOhaengTextColor(index, label, hanja, true, theme)
+                    } else {
+                        container.setBackgroundResource(R.drawable.bg_ohaeng_normal_neutral)
+                        setOhaengTextColor(index, label, hanja, false, theme)
+                    }
+                }
+            }
         }
     }
 
@@ -358,6 +391,26 @@ class MainActivity : AppCompatActivity() {
                     R.color.ohaeng_metal_cold,
                     R.color.ohaeng_water_cold
                 )
+            }
+            Profile.ScoreTheme.NOT_EVALUATED -> {
+                // 평가되지 않은 상태 - 중립적인 회색 톤
+                if (isLacking) {
+                    listOf(
+                        R.color.text_secondary,
+                        R.color.text_secondary,
+                        R.color.text_secondary,
+                        R.color.text_secondary,
+                        R.color.text_secondary
+                    )
+                } else {
+                    listOf(
+                        R.color.ohaeng_wood_medium,
+                        R.color.ohaeng_fire_medium,
+                        R.color.ohaeng_earth_medium,
+                        R.color.ohaeng_metal_medium,
+                        R.color.ohaeng_water_medium
+                    )
+                }
             }
         }
 

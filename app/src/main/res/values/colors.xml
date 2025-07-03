@@ -172,4 +172,9 @@
     <color name="ohaeng_earth_cold">#E65100</color>
     <color name="ohaeng_metal_cold">#263238</color>
     <color name="ohaeng_water_cold">#0D47A1</color>
+
+    <!-- 평가되지 않은 상태 색상 -->
+    <color name="not_evaluated_bg">#FAFAFA</color>
+    <color name="not_evaluated_accent">#E0E0E0</color>
+    <color name="not_evaluated_icon">#BDBDBD</color>
 </resources>
