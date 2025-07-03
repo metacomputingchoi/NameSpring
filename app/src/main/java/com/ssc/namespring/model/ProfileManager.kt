@@ -99,7 +99,6 @@ object ProfileManager {
         }
     }
 
-    // evaluateFullProfile 메서드 수정
     private fun evaluateFullProfile(profile: Profile) {
         profile.givenName?.let { givenName ->
             profile.surname?.let { surname ->
@@ -115,18 +114,66 @@ object ProfileManager {
                         userInput = nameInput,
                         birthDateTime = birthDateTime,
                         useYajasi = profile.isYajaTime,
-                        verbose = false,
+                        verbose = true,  // 디버깅을 위해 true로 변경
                         withoutFilter = true
                     )
 
                     evaluatedNames.firstOrNull()?.let { generatedName ->
-                        // updateFromGeneratedName을 호출한 후 반환된 값으로 profiles 업데이트
+                        // 디버깅: 점수 분석 정보 로깅
+                        Log.d(TAG, "=== 점수 분석 ===")
+
+                        // analysisInfo가 있는지 확인
+                        val analysisInfo = generatedName.analysisInfo
+                        if (analysisInfo != null) {
+                            Log.d(TAG, "총점: ${analysisInfo.totalScore}")
+
+                            // scoreBreakdown 로깅
+                            Log.d(TAG, "점수 상세:")
+                            analysisInfo.scoreBreakdown.forEach { (category, score) ->
+                                Log.d(TAG, "  $category: $score")
+                            }
+
+                            // 사주 정보 (sajuInfo는 존재함)
+                            try {
+                                Log.d(TAG, "사주 정보:")
+                                Log.d(TAG, "  사주: ${analysisInfo.sajuInfo.fourPillars.joinToString(" ")}")
+                                Log.d(TAG, "  오행 분포: ${analysisInfo.sajuInfo.sajuOhaengCount}")
+                                Log.d(TAG, "  부족한 오행: ${analysisInfo.sajuInfo.missingElements}")
+                                Log.d(TAG, "  과다한 오행: ${analysisInfo.sajuInfo.dominantElements}")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "사주 정보 로깅 실패", e)
+                            }
+
+                            // analysisInfo의 실제 속성들을 리플렉션으로 확인
+                            try {
+                                Log.d(TAG, "=== analysisInfo 구조 확인 ===")
+                                val clazz = analysisInfo.javaClass
+                                Log.d(TAG, "클래스명: ${clazz.simpleName}")
+
+                                // 모든 필드 출력
+                                clazz.declaredFields.forEach { field ->
+                                    try {
+                                        field.isAccessible = true
+                                        val value = field.get(analysisInfo)
+                                        Log.d(TAG, "필드: ${field.name} = ${value?.toString()?.take(100)}")
+                                    } catch (e: Exception) {
+                                        Log.d(TAG, "필드: ${field.name} (접근 불가)")
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "리플렉션 실패", e)
+                            }
+                        } else {
+                            Log.w(TAG, "analysisInfo가 null입니다")
+                        }
+
+                        // 프로필 업데이트
                         profile.updateFromGeneratedName(generatedName)
 
                         val index = profiles.indexOfFirst { it.id == profile.id }
                         if (index != -1) {
                             profiles[index] = profile
-                            Log.d(TAG, "전체 평가 완료 - 점수: ${profile.nameBomScore}, 오행: ${profile.ohaengInfo}")
+                            Log.d(TAG, "전체 평가 완료 - 최종 점수: ${profile.nameBomScore}")
                         }
                     }
                 } catch (e: Exception) {

@@ -51,34 +51,66 @@ data class Profile(
         val analysisInfo = generatedName.analysisInfo ?: return 0
         val scoreBreakdown = analysisInfo.scoreBreakdown
 
-        val weights = mapOf(
-            "사격점수" to 0.3,
-            "음양균형" to 0.2,
-            "오행조화" to 0.2,
-            "획수길흉" to 0.2,
-            "발음자연스러움" to 0.1
-        )
-
-        var weightedScore = 0.0
-        var totalWeight = 0.0
-
+        Log.d("Profile", "=== 점수 계산 시작 ===")
+        Log.d("Profile", "총점(totalScore): ${analysisInfo.totalScore}")
+        Log.d("Profile", "받은 점수들:")
         scoreBreakdown.forEach { (category, score) ->
-            val weight = weights[category] ?: 0.1
-            val maxScore = when (category) {
-                "사격점수" -> 100
-                else -> 20
+            Log.d("Profile", "  $category: $score")
+        }
+
+        // 자원오행 분석을 통한 보너스 점수 계산
+        var ohaengBonus = 0
+        try {
+            // analysisInfo에서 자원오행 정보 추출
+            val jawonOhaeng = analysisInfo.ohaengInfo.jawonOhaeng
+            val missingElements = analysisInfo.sajuInfo.missingElements
+            val dominantElements = analysisInfo.sajuInfo.dominantElements
+            val sajuOhaengCount = analysisInfo.sajuInfo.sajuOhaengCount
+
+            Log.d("Profile", "자원오행: $jawonOhaeng")
+            Log.d("Profile", "부족한 오행: $missingElements")
+            Log.d("Profile", "과다한 오행: $dominantElements")
+            Log.d("Profile", "사주 오행 분포: $sajuOhaengCount")
+
+            // 자원오행이 부족한 오행을 보완하는지 확인
+            jawonOhaeng.forEach { element ->
+                if (missingElements.contains(element)) {
+                    ohaengBonus += 10  // 부족한 오행 보완시 +10점
+                    Log.d("Profile", "부족한 오행 $element 보완 -> +10점")
+                } else if (dominantElements.contains(element)) {
+                    ohaengBonus -= 5   // 과다한 오행 추가시 -5점
+                    Log.d("Profile", "과다한 오행 $element 추가 -> -5점")
+                } else {
+                    // 적절한 수준의 오행 추가
+                    val count = sajuOhaengCount[element] ?: 0
+                    if (count <= 1) {
+                        ohaengBonus += 5  // 부족하지는 않지만 적은 오행 보완시 +5점
+                        Log.d("Profile", "적은 오행 $element 보완 -> +5점")
+                    }
+                }
             }
-
-            val normalizedScore = (score.toDouble() / maxScore * 100)
-            weightedScore += normalizedScore * weight
-            totalWeight += weight
+        } catch (e: Exception) {
+            Log.e("Profile", "자원오행 분석 실패", e)
         }
 
-        return if (totalWeight > 0) {
-            (weightedScore / totalWeight).toInt().coerceIn(0, 100)
-        } else {
-            (analysisInfo.totalScore * 100 / 160).coerceIn(0, 100)
+        // 기존 점수 계산
+        val baseScore = (analysisInfo.totalScore * 100 / 160).coerceIn(0, 100)
+
+        // 오행조화 점수가 0인 경우 자원오행 보너스를 더 크게 반영
+        val ohaengScore = scoreBreakdown["오행조화"] ?: 0
+        if (ohaengScore == 0) {
+            ohaengBonus = (ohaengBonus * 1.5).toInt()
+            Log.d("Profile", "오행조화 점수가 0이므로 자원오행 보너스 1.5배 적용")
         }
+
+        val finalScore = (baseScore + ohaengBonus).coerceIn(0, 100)
+
+        Log.d("Profile", "기본 점수: $baseScore")
+        Log.d("Profile", "자원오행 보너스: $ohaengBonus")
+        Log.d("Profile", "최종 점수: $finalScore")
+        Log.d("Profile", "=== 점수 계산 끝 ===")
+
+        return finalScore
     }
 
     private fun extractOhaengInfo(analysisInfo: NameAnalysisInfo): OhaengInfo {
