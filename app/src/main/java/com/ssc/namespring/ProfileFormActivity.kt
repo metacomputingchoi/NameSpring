@@ -175,9 +175,12 @@ class ProfileFormActivity : AppCompatActivity() {
         nameCharDataList.clear()
         nameCharDataList.add(NameCharData())
         nameCharCount = 1
+
+        // 야자시 체크박스 기본값 설정
+        cbYajaTime.isChecked = true
+
         refreshNameInputViews()
     }
-
     private fun refreshNameInputViews() {
         Log.d(TAG, "refreshNameInputViews - nameCharCount: $nameCharCount")
 
@@ -584,7 +587,6 @@ class ProfileFormActivity : AppCompatActivity() {
             isYajaTime = cbYajaTime.isChecked,
             surname = selectedSurname ?: profileToEdit?.surname ?: return,
             givenName = givenName,
-            // 임시 사주/오행 정보 생성
             sajuInfo = generateTempSajuInfo(),
             ohaengInfo = generateTempOhaengInfo(),
             nameBomScore = (20..95).random()

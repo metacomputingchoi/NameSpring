@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_sunny_spring"
+    android:fitsSystemWindows="true">
+
+    <!-- 상단 헤더 -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="20dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_menu"
+            android:tint="@color/text_primary" />
+
+        <TextView
+            android:id="@+id/tvProfileLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="이름봄"
+            android:textSize="18sp"
+            android:textColor="@color/text_primary"
+            android:gravity="center"
+            android:fontFamily="@font/nanum_square_round_eb" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_score_bubble"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/ivScoreIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_flower_full" />
+
+            <TextView
+                android:id="@+id/tvScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="95"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 중앙 정보 카드 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/infoCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white_alpha_90"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- 이름 정보 -->
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="김우현"
+                android:textSize="28sp"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:fontFamily="@font/nanum_myeongjo_bold" />
+
+            <TextView
+                android:id="@+id/tvBirthInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2024년 3월 15일 오후 2시 30분생"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp" />
+
+            <!-- 오행 정보 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:gravity="center">
+
+                <!-- 목(木) -->
+                <LinearLayout
+                    android:id="@+id/containerWood"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_ohaeng_normal_sunny"
+                    android:padding="12dp"
+                    android:layout_marginHorizontal="4dp">
+
+                    <TextView
+                        android:id="@+id/tvWoodLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="목"
+                        android:textSize="14sp"
+                        android:textColor="@color/ohaeng_wood_medium"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvWoodHanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="木"
+                        android:textSize="12sp"
+                        android:textColor="@color/ohaeng_wood_medium"
+                        android:fontFamily="@font/nanum_myeongjo" />
+
+                    <TextView
+                        android:id="@+id/tvWoodCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- 화(火) -->
+                <LinearLayout
+                    android:id="@+id/containerFire"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_ohaeng_normal_sunny"
+                    android:padding="12dp"
+                    android:layout_marginHorizontal="4dp">
+
+                    <TextView
+                        android:id="@+id/tvFireLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="화"
+                        android:textSize="14sp"
+                        android:textColor="@color/ohaeng_fire_medium"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvFireHanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="火"
+                        android:textSize="12sp"
+                        android:textColor="@color/ohaeng_fire_medium"
+                        android:fontFamily="@font/nanum_myeongjo" />
+
+                    <TextView
+                        android:id="@+id/tvFireCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- 토(土) -->
+                <LinearLayout
+                    android:id="@+id/containerEarth"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_ohaeng_normal_sunny"
+                    android:padding="12dp"
+                    android:layout_marginHorizontal="4dp">
+
+                    <TextView
+                        android:id="@+id/tvEarthLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="토"
+                        android:textSize="14sp"
+                        android:textColor="@color/ohaeng_earth_medium"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEarthHanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="土"
+                        android:textSize="12sp"
+                        android:textColor="@color/ohaeng_earth_medium"
+                        android:fontFamily="@font/nanum_myeongjo" />
+
+                    <TextView
+                        android:id="@+id/tvEarthCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- 금(金) -->
+                <LinearLayout
+                    android:id="@+id/containerMetal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_ohaeng_normal_sunny"
+                    android:padding="12dp"
+                    android:layout_marginHorizontal="4dp">
+
+                    <TextView
+                        android:id="@+id/tvMetalLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="금"
+                        android:textSize="14sp"
+                        android:textColor="@color/ohaeng_metal_medium"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvMetalHanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="金"
+                        android:textSize="12sp"
+                        android:textColor="@color/ohaeng_metal_medium"
+                        android:fontFamily="@font/nanum_myeongjo" />
+
+                    <TextView
+                        android:id="@+id/tvMetalCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- 수(水) -->
+                <LinearLayout
+                    android:id="@+id/containerWater"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_ohaeng_lacking_sunny"
+                    android:padding="12dp"
+                    android:layout_marginHorizontal="4dp">
+
+                    <TextView
+                        android:id="@+id/tvWaterLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="수"
+                        android:textSize="14sp"
+                        android:textColor="@color/ohaeng_water_dark"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvWaterHanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="水"
+                        android:textSize="12sp"
+                        android:textColor="@color/ohaeng_water_dark"
+                        android:fontFamily="@font/nanum_myeongjo" />
+
+                    <TextView
+                        android:id="@+id/tvWaterCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 오행 정보 텍스트 -->
+            <TextView
+                android:id="@+id/tvOhaengInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="부족한 오행: 수(水) · 많은 오행: 화(火)"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- 서비스 버튼들 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/infoCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 상단 2개 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- 작명 버튼 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnNaming"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_naming"
+                        android:tint="@color/service_naming" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="작명"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 평가 버튼 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnEvaluation"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_evaluation"
+                        android:tint="@color/service_evaluation" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="평가"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <!-- 하단 2개 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <!-- 비교 버튼 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnCompare"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_compare"
+                        android:tint="@color/service_compare" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="비교"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 기록 버튼 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnHistory"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_history"
+                        android:tint="@color/service_history" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="기록"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

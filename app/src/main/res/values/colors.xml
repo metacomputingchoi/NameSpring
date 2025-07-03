@@ -118,4 +118,58 @@
     <!-- 상태바/네비게이션바 색상 -->
     <color name="status_bar_color">@color/white</color>
     <color name="navigation_bar_color">@color/white</color>
+
+    <!-- 서비스 버튼 색상 -->
+    <color name="service_naming">#FF9800</color>
+    <color name="service_evaluation">#4CAF50</color>
+    <color name="service_compare">#2196F3</color>
+    <color name="service_history">#9C27B0</color>
+
+    <!-- 투명도가 있는 흰색 -->
+    <color name="white_alpha_90">#E6FFFFFF</color>
+
+    <!-- 투명도가 있는 primary 색상 -->
+    <color name="primary_alpha_50">#806B8E23</color>
+
+    <!-- 오행 텍스트 색상 (배경에 관계없이 잘 보이도록) -->
+    <color name="ohaeng_wood_text">#2E7D32</color>
+    <color name="ohaeng_fire_text">#D32F2F</color>
+    <color name="ohaeng_earth_text">#F57C00</color>
+    <color name="ohaeng_metal_text">#616161</color>
+    <color name="ohaeng_water_text">#1976D2</color>
+
+    <!-- 오행 색상 - 화창한 봄 (밝고 선명) -->
+    <color name="ohaeng_wood_sunny">#66BB6A</color>
+    <color name="ohaeng_fire_sunny">#FF7043</color>
+    <color name="ohaeng_earth_sunny">#FFA726</color>
+    <color name="ohaeng_metal_sunny">#78909C</color>
+    <color name="ohaeng_water_sunny">#42A5F5</color>
+
+    <!-- 오행 색상 - 따뜻한 봄 (따뜻하고 부드러운) -->
+    <color name="ohaeng_wood_warm">#81C784</color>
+    <color name="ohaeng_fire_warm">#FF8A65</color>
+    <color name="ohaeng_earth_warm">#FFB74D</color>
+    <color name="ohaeng_metal_warm">#90A4AE</color>
+    <color name="ohaeng_water_warm">#64B5F6</color>
+
+    <!-- 오행 색상 - 중간 채도 (일반 상태) -->
+    <color name="ohaeng_wood_medium">#4CAF50</color>
+    <color name="ohaeng_fire_medium">#FF5722</color>
+    <color name="ohaeng_earth_medium">#FF9800</color>
+    <color name="ohaeng_metal_medium">#607D8B</color>
+    <color name="ohaeng_water_medium">#2196F3</color>
+
+    <!-- 오행 색상 - 진한 (부족 상태) -->
+    <color name="ohaeng_wood_dark">#2E7D32</color>
+    <color name="ohaeng_fire_dark">#D32F2F</color>
+    <color name="ohaeng_earth_dark">#F57C00</color>
+    <color name="ohaeng_metal_dark">#455A64</color>
+    <color name="ohaeng_water_dark">#1976D2</color>
+
+    <!-- 오행 색상 - 차가운 테마용 (진하고 차분한) -->
+    <color name="ohaeng_wood_cold">#1B5E20</color>
+    <color name="ohaeng_fire_cold">#B71C1C</color>
+    <color name="ohaeng_earth_cold">#E65100</color>
+    <color name="ohaeng_metal_cold">#263238</color>
+    <color name="ohaeng_water_cold">#0D47A1</color>
 </resources>

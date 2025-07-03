@@ -1,4 +1,4 @@
-// model/ProfileManager.kt
+// com/ssc/namespring/model/ProfileManager.kt
 package com.ssc.namespring.model
 
 import android.content.Context

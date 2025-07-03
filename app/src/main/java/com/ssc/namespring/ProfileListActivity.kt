@@ -621,7 +621,12 @@ class ProfileListActivity : AppCompatActivity() {
 
                 // 클릭 이벤트
                 cardView.setOnClickListener {
-                    onItemClick(profile)
+                    // ProfileManager에 선택된 프로필 설정
+                    ProfileManager.switchProfile(profile.id)
+
+                    // MainActivity로 이동
+                    val intent = Intent(this@ProfileListActivity, MainActivity::class.java)
+                    startActivity(intent)
                 }
 
                 cardView.setOnLongClickListener {
@@ -696,7 +701,18 @@ class ProfileListActivity : AppCompatActivity() {
 
                 scoreContainer.backgroundTintList = context.getColorStateList(accentColor)
 
-                // 새싹 아이콘 색상
+                // 점수에 따른 아이콘 변경
+                val iconResource = when (theme) {
+                    Profile.ScoreTheme.SUNNY_SPRING -> R.drawable.ic_flower_full
+                    Profile.ScoreTheme.WARM_SPRING -> R.drawable.ic_sprout_bloom
+                    Profile.ScoreTheme.CLOUDY_SPRING -> R.drawable.ic_sprout
+                    Profile.ScoreTheme.RAINY_SPRING -> R.drawable.ic_seed
+                    Profile.ScoreTheme.COLD_SPRING -> R.drawable.ic_dormant_seed
+                }
+
+                ivSprout.setImageResource(iconResource)
+
+                // 아이콘 색상
                 val sproutColor = when (theme) {
                     Profile.ScoreTheme.SUNNY_SPRING -> R.color.flower_pink
                     Profile.ScoreTheme.WARM_SPRING -> R.color.leaf_green
