@@ -134,14 +134,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateServiceButtonsTheme(theme: Profile.ScoreTheme) {
-        val buttonAlpha = when (theme) {
-            Profile.ScoreTheme.SUNNY_SPRING,
-            Profile.ScoreTheme.WARM_SPRING -> 0.7f  // 밝은 테마는 70%
-            else -> 0.8f  // 어두운 테마는 80%
-        }
-
+        // 투명도를 적용하지 않거나 매우 약하게만 적용
         listOf<CardView>(btnNaming, btnEvaluation, btnCompare, btnHistory).forEach { button ->
-            button.alpha = buttonAlpha
+            button.alpha = 1.0f  // 100% 불투명
         }
     }
 
