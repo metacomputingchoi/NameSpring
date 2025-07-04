@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ssc.namespring.model.business.ProfileListViewModel
 import com.ssc.namespring.model.business.ProfileListUiState
 import com.ssc.namespring.model.adapter.ProfileAdapter
+import com.ssc.namespring.ProfileFormActivity
 import com.ssc.namespring.utils.ViewUtils
 
 class ProfileListActivity : AppCompatActivity() {
@@ -139,11 +140,11 @@ class ProfileListActivity : AppCompatActivity() {
             onItemClick = { profile -> viewModel.onProfileClick(this, profile) },
             onItemLongClick = { profile -> viewModel.onProfileLongClick(profile) },
             onEditClick = { profile -> navigateToProfileForm(profile.id) },
-            onDeleteClick = { profile -> viewModel.deleteProfile(this, profile) }
+            onDeleteClick = { profile -> viewModel.deleteProfile(this, profile) },
+            onDuplicateClick = { _ -> viewModel.refreshProfiles() }  // 복제 시 목록 새로고침
         )
 
         recyclerView.adapter = adapter
-        // LayoutManager 설정 추가
         recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         ViewUtils.setupInfiniteScroll(recyclerView) { viewModel.loadMoreProfiles() }
     }

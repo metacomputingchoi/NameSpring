@@ -20,7 +20,8 @@ class ProfileAdapter(
     private val onItemClick: (Profile) -> Unit,
     private val onItemLongClick: (Profile) -> Boolean,
     private val onEditClick: (Profile) -> Unit,
-    private val onDeleteClick: (Profile) -> Unit
+    private val onDeleteClick: (Profile) -> Unit,
+    private val onDuplicateClick: (Profile) -> Unit
 ) : RecyclerView.Adapter<ProfileAdapter.ViewHolder>() {
 
     private var profiles = listOf<Profile>()
@@ -296,6 +297,7 @@ class ProfileAdapter(
                     "프로필이 복제되었습니다",
                     Snackbar.LENGTH_SHORT
                 ).show()
+                onDuplicateClick(profile)  // 복제 성공 시 콜백 호출
             } else {
                 Snackbar.make(
                     itemView,

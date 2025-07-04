@@ -6,12 +6,15 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.ssc.namespring.model.business.ProfileFormViewModel
-import com.ssc.namespring.model.business.ProfileFormUiState
+import com.ssc.namespring.model.business.*
+import com.ssc.namespring.model.repository.NameData
 import com.ssc.namespring.utils.ViewUtils
 
 class ProfileFormActivity : AppCompatActivity() {
-    private lateinit var viewModel: ProfileFormViewModel
+    private lateinit var formManager: ProfileFormManager
+    private lateinit var searchDialogManager: SearchDialogManager
+    private lateinit var profileFormService: ProfileFormService
+    private var nameInputManager: NameInputManager? = null
 
     // UI Components
     private lateinit var etProfileName: TextInputEditText
@@ -35,11 +38,13 @@ class ProfileFormActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile_form)
 
         val profileId = intent.getStringExtra("profileId")
-        viewModel = ProfileFormViewModel(profileId)
+        formManager = ProfileFormManager(profileId)
+        searchDialogManager = SearchDialogManager()
+        profileFormService = ProfileFormService()
 
         initViews()
-        observeViewModel()
-        viewModel.initialize()
+        observeFormState()
+        formManager.initialize()
     }
 
     private fun initViews() {
@@ -65,37 +70,43 @@ class ProfileFormActivity : AppCompatActivity() {
     private fun setupListeners() {
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
 
-        btnSelectDate.setOnClickListener { 
-            ViewUtils.showDatePicker(this, viewModel.selectedDate) { date ->
-                viewModel.updateDate(date)
+        btnSelectDate.setOnClickListener {
+            ViewUtils.showDatePicker(this, formManager.getSelectedDate()) { date ->
+                formManager.updateDate(date)
             }
         }
 
         btnSelectTime.setOnClickListener {
-            ViewUtils.showTimePicker(this, viewModel.selectedDate) { time ->
-                viewModel.updateTime(time)
+            ViewUtils.showTimePicker(this, formManager.getSelectedDate()) { time ->
+                formManager.updateTime(time)
             }
         }
 
         btnSelectSurname.setOnClickListener {
-            viewModel.showSurnameDialog(this)
+            searchDialogManager.showSurnameDialog(this) { surname ->
+                formManager.setSurname(surname)
+            }
         }
 
-        btnAddChar.setOnClickListener { viewModel.addNameChar() }
-        btnRemoveChar.setOnClickListener { viewModel.removeNameChar() }
+        btnAddChar.setOnClickListener { formManager.addNameChar() }
+        btnRemoveChar.setOnClickListener { formManager.removeNameChar() }
 
         btnSave.setOnClickListener { saveProfile() }
-        btnReset.setOnClickListener { viewModel.showResetDialog(this) }
+        btnReset.setOnClickListener {
+            profileFormService.showResetDialog(this) {
+                formManager.resetAllFields()
+            }
+        }
 
         cbYajaTime.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.updateYajaTime(isChecked)
+            formManager.updateYajaTime(isChecked)
         }
 
         ViewUtils.setupProfileNameInput(etProfileName, profileNameLayout)
     }
 
-    private fun observeViewModel() {
-        viewModel.uiState.observe(this) { state ->
+    private fun observeFormState() {
+        formManager.uiState.observe(this) { state ->
             updateUI(state)
         }
     }
@@ -127,17 +138,43 @@ class ProfileFormActivity : AppCompatActivity() {
     private fun refreshNameInputViews(state: ProfileFormUiState) {
         nameInputContainer.removeAllViews()
 
-        state.nameCharDataList.forEachIndexed { index, data ->
-            val itemView = viewModel.createNameInputView(
-                this, 
-                layoutInflater, 
-                nameInputContainer,
-                index,
-                data
+        // NameInputManager를 여기서 초기화
+        if (nameInputManager == null) {
+            nameInputManager = NameInputManager(
+                formManager.getNameDataManager()
             ) { position ->
-                viewModel.showHanjaSearchDialog(this, position)
+                handleHanjaSearch(position)
             }
-            nameInputContainer.addView(itemView)
+        }
+
+        state.nameCharDataList.forEachIndexed { index, _ ->
+            nameInputManager?.let { manager ->
+                val itemView = manager.createNameInputView(
+                    this,
+                    layoutInflater,
+                    nameInputContainer,
+                    index
+                )
+                nameInputContainer.addView(itemView)
+            }
+        }
+    }
+
+    private fun handleHanjaSearch(position: Int) {
+        val currentData = formManager.getNameDataManager().getCharData(position)
+        val initialQuery = currentData?.korean ?: ""
+
+        searchDialogManager.showHanjaSearchDialog(
+            this,
+            position,
+            initialQuery
+        ) { pos, korean, hanja ->
+            formManager.setHanjaInfo(pos, korean, hanja)
+
+            // 한자 정보 저장
+            NameData.getCharInfo(korean, hanja)?.let { info ->
+                formManager.getNameDataManager().setHanjaInfo(pos, info)
+            }
         }
     }
 
@@ -149,11 +186,23 @@ class ProfileFormActivity : AppCompatActivity() {
             return
         }
 
-        viewModel.saveProfile(this, profileName) { success ->
+        val profileId = intent.getStringExtra("profileId")
+
+        profileFormService.saveProfile(
+            this,
+            formManager,
+            profileName,
+            profileId
+        ) { success ->
             if (success) {
                 setResult(RESULT_OK)
                 finish()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        nameInputManager = null
     }
 }
