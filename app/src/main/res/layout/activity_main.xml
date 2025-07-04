@@ -40,6 +40,7 @@
             android:fontFamily="@font/nanum_square_round_eb" />
 
         <LinearLayout
+            android:id="@+id/scoreContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -48,11 +49,15 @@
             android:paddingVertical="6dp"
             android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/ivScoreIcon"
+            <TextView
+                android:id="@+id/tvScoreIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_flower_full" />
+                android:text="🌸"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:alpha="1.0"
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/tvScore"
@@ -75,9 +80,10 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/white_alpha_90"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="1.5dp"
+        app:cardMaxElevation="2dp"
+        app:cardBackgroundColor="@color/card_bg_90"
         app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -86,7 +92,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:background="@color/card_bg_90">
 
             <!-- 이름 정보 -->
             <TextView
@@ -371,8 +378,8 @@
                 android:layout_marginEnd="8dp"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="1.5dp"
+                app:cardBackgroundColor="@color/transparent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -381,11 +388,16 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <ImageView
+                    <TextView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_naming"
-                        android:tint="@color/service_naming" />
+                        android:text="✍️"
+                        android:textSize="32sp"
+                        android:gravity="center"
+                        android:alpha="1.0"
+                        android:textColor="@color/black"
+                        android:includeFontPadding="false"
+                        android:elevation="2dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -409,8 +421,8 @@
                 android:layout_marginStart="8dp"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="1.5dp"
+                app:cardBackgroundColor="@color/transparent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -419,11 +431,16 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <ImageView
+                    <TextView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_evaluation"
-                        android:tint="@color/service_evaluation" />
+                        android:text="📊"
+                        android:textSize="32sp"
+                        android:gravity="center"
+                        android:alpha="1.0"
+                        android:textColor="@color/black"
+                        android:includeFontPadding="false"
+                        android:elevation="2dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -456,8 +473,8 @@
                 android:layout_marginEnd="8dp"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="1.5dp"
+                app:cardBackgroundColor="@color/transparent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -466,11 +483,16 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <ImageView
+                    <TextView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_compare"
-                        android:tint="@color/service_compare" />
+                        android:text="⚖️"
+                        android:textSize="32sp"
+                        android:gravity="center"
+                        android:alpha="1.0"
+                        android:textColor="@color/black"
+                        android:includeFontPadding="false"
+                        android:elevation="2dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -494,8 +516,8 @@
                 android:layout_marginStart="8dp"
                 android:foreground="?attr/selectableItemBackground"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="1.5dp"
+                app:cardBackgroundColor="@color/transparent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -504,11 +526,16 @@
                     android:gravity="center"
                     android:padding="16dp">
 
-                    <ImageView
+                    <TextView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_history"
-                        android:tint="@color/service_history" />
+                        android:text="💚"
+                        android:textSize="32sp"
+                        android:gravity="center"
+                        android:alpha="1.0"
+                        android:textColor="@color/black"
+                        android:includeFontPadding="false"
+                        android:elevation="2dp" />
 
                     <TextView
                         android:layout_width="wrap_content"

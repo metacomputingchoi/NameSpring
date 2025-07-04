@@ -63,7 +63,7 @@ class ProfileAdapter(
         private val tvBirthTime: TextView = itemView.findViewById(R.id.tvBirthTime)
         private val tvSaju: TextView = itemView.findViewById(R.id.tvSaju)
         private val tvOhaeng: TextView = itemView.findViewById(R.id.tvOhaeng)
-        private val ivSprout: ImageView = itemView.findViewById(R.id.ivSprout)
+        private val tvSproutIcon: TextView = itemView.findViewById(R.id.tvSproutIcon)
         private val tvScore: TextView = itemView.findViewById(R.id.tvScore)
         private val btnMenu: ImageButton? = itemView.findViewById(R.id.btnMenu)
         private val scoreContainer: View = itemView.findViewById(R.id.scoreContainer)
@@ -154,10 +154,9 @@ class ProfileAdapter(
                 applyScoreTheme(profile)
             } else {
                 tvScore.text = "-"
+                tvSproutIcon.text = itemView.context.getString(R.string.icon_dormant_seed)
                 cardView.setBackgroundColor(itemView.context.getColor(R.color.not_evaluated_bg))
                 scoreContainer.backgroundTintList = itemView.context.getColorStateList(R.color.not_evaluated_accent)
-                ivSprout.setImageResource(R.drawable.ic_seed)
-                ivSprout.imageTintList = itemView.context.getColorStateList(R.color.not_evaluated_icon)
                 tvScore.setTextColor(itemView.context.getColor(R.color.text_secondary))
             }
 
@@ -219,7 +218,7 @@ class ProfileAdapter(
                 return "${surname.korean}${givenKorean}(${surname.hanja}${givenHanja})"
             }
 
-            return "◯ ◯◯"
+            return "-"
         }
 
         private fun applyScoreTheme(profile: Profile) {
@@ -248,27 +247,15 @@ class ProfileAdapter(
 
             scoreContainer.backgroundTintList = context.getColorStateList(accentColor)
 
-            val iconResource = when (theme) {
-                Profile.ScoreTheme.SUNNY_SPRING -> R.drawable.ic_flower_full
-                Profile.ScoreTheme.WARM_SPRING -> R.drawable.ic_sprout_bloom
-                Profile.ScoreTheme.CLOUDY_SPRING -> R.drawable.ic_sprout
-                Profile.ScoreTheme.RAINY_SPRING -> R.drawable.ic_seed
-                Profile.ScoreTheme.COLD_SPRING -> R.drawable.ic_dormant_seed
-                Profile.ScoreTheme.NOT_EVALUATED -> R.drawable.ic_seed
+            val emojiResId = when (theme) {
+                Profile.ScoreTheme.SUNNY_SPRING -> R.string.icon_flower_full
+                Profile.ScoreTheme.WARM_SPRING -> R.string.icon_sprout_bloom
+                Profile.ScoreTheme.CLOUDY_SPRING -> R.string.icon_sprout
+                Profile.ScoreTheme.RAINY_SPRING -> R.string.icon_seed
+                Profile.ScoreTheme.COLD_SPRING -> R.string.icon_dormant_seed
+                Profile.ScoreTheme.NOT_EVALUATED -> R.string.icon_dormant_seed
             }
-
-            ivSprout.setImageResource(iconResource)
-
-            val sproutColor = when (theme) {
-                Profile.ScoreTheme.SUNNY_SPRING -> R.color.flower_pink
-                Profile.ScoreTheme.WARM_SPRING -> R.color.leaf_green
-                Profile.ScoreTheme.CLOUDY_SPRING -> R.color.sprout_green
-                Profile.ScoreTheme.RAINY_SPRING -> R.color.seed_brown
-                Profile.ScoreTheme.COLD_SPRING -> R.color.dormant_gray
-                Profile.ScoreTheme.NOT_EVALUATED -> R.color.not_evaluated_icon
-            }
-
-            ivSprout.imageTintList = context.getColorStateList(sproutColor)
+            tvSproutIcon.text = context.getString(emojiResId)
         }
 
         private fun showPopupMenu(view: View, profile: Profile) {

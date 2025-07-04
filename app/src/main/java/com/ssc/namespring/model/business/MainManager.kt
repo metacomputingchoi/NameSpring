@@ -29,10 +29,10 @@ class MainViewModel {
                     profile.ohaengInfo?.metal ?: 0,
                     profile.ohaengInfo?.water ?: 0
                 ),
-                theme = if (profile.nameBomScore > 0) {
+                theme = if (profile.isEvaluated()) {  // isEvaluated() 사용
                     profile.getScoreThemeColor()
                 } else {
-                    Profile.ScoreTheme.CLOUDY_SPRING
+                    Profile.ScoreTheme.NOT_EVALUATED  // NOT_EVALUATED로 변경
                 }
             )
         }

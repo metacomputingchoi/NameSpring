@@ -130,6 +130,13 @@
 
     <!-- 투명도가 있는 primary 색상 -->
     <color name="primary_alpha_50">#806B8E23</color>
+    <color name="white_alpha_70">#B3FFFFFF</color>
+    <color name="white_alpha_80">#CCFFFFFF</color>
+
+    <!-- 카드 배경용 반투명 색상들 -->
+    <color name="card_bg_90">#E6FFFFFF</color>  <!-- 90% 불투명도 -->
+    <color name="card_bg_85">#D9FFFFFF</color>  <!-- 85% 불투명도 -->
+    <color name="card_bg_80">#CCFFFFFF</color>  <!-- 80% 불투명도 -->
 
     <!-- 오행 텍스트 색상 (배경에 관계없이 잘 보이도록) -->
     <color name="ohaeng_wood_text">#2E7D32</color>

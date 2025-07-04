@@ -169,11 +169,14 @@
             android:padding="8dp"
             android:layout_marginStart="12dp">
 
-            <ImageView
-                android:id="@+id/ivSprout"
+            <!-- ImageView 대신 TextView 사용 -->
+            <TextView
+                android:id="@+id/tvSproutIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_sprout" />
+                android:text="🌿"
+                android:textSize="20sp"
+                android:gravity="center" />
 
             <TextView
                 android:id="@+id/tvScore"

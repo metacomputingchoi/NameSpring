@@ -28,33 +28,34 @@ object ViewUtils {
     fun applyTheme(
         context: Context,
         rootLayout: ConstraintLayout,
-        ivScoreIcon: ImageView,
+        tvScoreIcon: TextView,  // ImageView에서 TextView로 변경
         theme: Profile.ScoreTheme
     ) {
+        // 배경 설정은 기존대로
         when (theme) {
             Profile.ScoreTheme.SUNNY_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_sunny_spring)
-                ivScoreIcon.setImageResource(R.drawable.ic_flower_full)
+                tvScoreIcon.text = context.getString(R.string.icon_flower_full)
             }
             Profile.ScoreTheme.WARM_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_warm_spring)
-                ivScoreIcon.setImageResource(R.drawable.ic_sprout_bloom)
+                tvScoreIcon.text = context.getString(R.string.icon_sprout_bloom)
             }
             Profile.ScoreTheme.CLOUDY_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_cloudy_spring)
-                ivScoreIcon.setImageResource(R.drawable.ic_sprout)
+                tvScoreIcon.text = context.getString(R.string.icon_sprout)
             }
             Profile.ScoreTheme.RAINY_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_rainy_spring)
-                ivScoreIcon.setImageResource(R.drawable.ic_seed)
+                tvScoreIcon.text = context.getString(R.string.icon_seed)
             }
             Profile.ScoreTheme.COLD_SPRING -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_cold_spring)
-                ivScoreIcon.setImageResource(R.drawable.ic_dormant_seed)
+                tvScoreIcon.text = context.getString(R.string.icon_dormant_seed)
             }
             Profile.ScoreTheme.NOT_EVALUATED -> {
                 rootLayout.setBackgroundResource(R.drawable.bg_not_evaluated)
-                ivScoreIcon.setImageResource(R.drawable.ic_seed)
+                tvScoreIcon.text = context.getString(R.string.icon_dormant_seed)
             }
         }
     }

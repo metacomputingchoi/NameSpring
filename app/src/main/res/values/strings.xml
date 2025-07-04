@@ -4,5 +4,14 @@
     <string name="input_date">생년월일시분 정보 입력</string>
     <string name="get_names">작명받기</string>
     <string name="reset_inputs">초기화</string>
+    <string name="icon_naming">✍️</string>
+    <string name="icon_evaluation">📊</string>
+    <string name="icon_compare">⚖️</string>
+    <string name="icon_history">💚</string>
+    <string name="icon_flower_full">🌸</string>
+    <string name="icon_sprout_bloom">🌳</string>
+    <string name="icon_sprout">🌿</string>
+    <string name="icon_seed">🌱</string>
+    <string name="icon_dormant_seed">🌰</string>
 </resources>
 
