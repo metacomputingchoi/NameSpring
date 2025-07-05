@@ -4,11 +4,11 @@ package com.ssc.namespring.ui.profileform
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import com.ssc.namespring.model.business.NameInputManager
-import com.ssc.namespring.model.business.ProfileFormManager
-import com.ssc.namespring.model.business.ProfileFormUiState
-import com.ssc.namespring.model.business.SearchDialogManager
-import com.ssc.namespring.model.repository.NameData
+import com.ssc.namespring.model.domain.usecase.NameInputManager
+import com.ssc.namespring.model.domain.usecase.ProfileFormManager
+import com.ssc.namespring.model.presentation.components.ProfileFormUiState
+import com.ssc.namespring.model.presentation.components.SearchDialogManager
+import com.ssc.namespring.model.domain.entity.NameData
 
 class ProfileFormNameInputHandler(
     private val formManager: ProfileFormManager,

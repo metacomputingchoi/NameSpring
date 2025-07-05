@@ -4,7 +4,7 @@ package com.ssc.namespring.ui.profilelist
 import android.content.Context
 import android.view.MenuItem
 import com.ssc.namespring.R
-import com.ssc.namespring.model.business.ProfileListManager
+import com.ssc.namespring.model.domain.usecase.ProfileListManager
 
 class ProfileListMenuHandler(
     private val listManager: ProfileListManager

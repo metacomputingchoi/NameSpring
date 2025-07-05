@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.ssc.namespring.model.business.ProfileListManager
+import com.ssc.namespring.model.domain.usecase.ProfileListManager
 
 class ProfileListLauncherManager(
     activity: ComponentActivity,

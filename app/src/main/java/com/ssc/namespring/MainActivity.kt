@@ -4,15 +4,14 @@ package com.ssc.namespring
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.model.business.MainViewModel
-import com.ssc.namespring.model.business.MainUiState
+import com.ssc.namespring.model.domain.usecase.MainMagager
 import com.ssc.namespring.ui.main.MainNavigationHelper
 import com.ssc.namespring.ui.main.MainThemeManager
 import com.ssc.namespring.ui.main.MainUIComponents
 import com.ssc.namespring.ui.main.MainUIUpdater
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: MainMagager
     private lateinit var uiComponents: MainUIComponents
     private lateinit var uiUpdater: MainUIUpdater
     private lateinit var themeManager: MainThemeManager
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = MainViewModel()
+        viewModel = MainMagager()
         navigationHelper = MainNavigationHelper(this)
 
         if (!viewModel.hasCurrentProfile()) {

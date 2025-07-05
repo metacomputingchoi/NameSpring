@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.model.business.ProfileListManager
-import com.ssc.namespring.model.adapter.ProfileAdapter
-import com.ssc.namespring.profile.ProfileListComponents
-import com.ssc.namespring.profile.ProfileListNavigator
+import com.ssc.namespring.model.domain.usecase.ProfileListManager
+import com.ssc.namespring.model.presentation.adapter.ProfileAdapter
+import com.ssc.namespring.ui.profilelist.ProfileListComponents
+import com.ssc.namespring.ui.profilelist.ProfileListNavigator
 import com.ssc.namespring.ui.profilelist.ProfileListAdapterManager
 import com.ssc.namespring.ui.profilelist.ProfileListLauncherManager
 import com.ssc.namespring.ui.profilelist.ProfileListMenuHandler

@@ -1,7 +1,7 @@
 // ui/main/MainUIUpdater.kt
 package com.ssc.namespring.ui.main
 
-import com.ssc.namespring.model.business.MainUiState
+import com.ssc.namespring.model.domain.usecase.MainUiState
 
 class MainUIUpdater(
     private val components: MainUIComponents,

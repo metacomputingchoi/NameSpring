@@ -2,10 +2,8 @@
 package com.ssc.namespring.ui.profilelist
 
 import com.ssc.namespring.ProfileListActivity
-import com.ssc.namespring.model.adapter.ProfileAdapter
-import com.ssc.namespring.model.business.ProfileListManager
-import com.ssc.namespring.profile.ProfileListComponents
-import com.ssc.namespring.profile.ProfileListNavigator
+import com.ssc.namespring.model.presentation.adapter.ProfileAdapter
+import com.ssc.namespring.model.domain.usecase.ProfileListManager
 
 class ProfileListAdapterManager(
     private val activity: ProfileListActivity,
