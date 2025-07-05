@@ -18,7 +18,7 @@ class ProfileListEventHandler(
         val navigator = ProfileListNavigator(activity)
 
         viewHolder.fabAdd.setOnClickListener { navigator.navigateToProfileForm() }
-        viewHolder.fabSelectAll.setOnClickListener { activity.viewModel.toggleSelectAll() }
+        viewHolder.fabSelectAll.setOnClickListener { activity.listManager.toggleSelectAll() }
 
         setupDeleteButton()
         setupOtherButtons(navigator)
@@ -44,7 +44,7 @@ class ProfileListEventHandler(
                 Log.d("ProfileListActivity", "Delete button clicked!")
                 Log.d("ProfileListActivity", "Button is enabled: ${deleteButton.isEnabled}")
                 Log.d("ProfileListActivity", "Button is clickable: ${deleteButton.isClickable}")
-                activity.viewModel.deleteSelected(activity)
+                activity.listManager.deleteSelected(activity)
             }
 
             deleteButton.setOnTouchListener { v, event ->
@@ -58,7 +58,7 @@ class ProfileListEventHandler(
 
     private fun setupOtherButtons(navigator: ProfileListNavigator) {
         activity.findViewById<Button>(R.id.btnCancelSelection).setOnClickListener {
-            activity.viewModel.exitSelectionMode()
+            activity.listManager.exitSelectionMode()
         }
 
         activity.findViewById<Button>(R.id.btnCreateProfile).setOnClickListener {
@@ -70,7 +70,7 @@ class ProfileListEventHandler(
         viewHolder.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
-                activity.viewModel.setSearchQuery(newText ?: "")
+                activity.listManager.setSearchQuery(newText ?: "")
                 return true
             }
         })
@@ -78,13 +78,13 @@ class ProfileListEventHandler(
 
     private fun setupSortChips() {
         ViewUtils.setupSortChips(viewHolder.chipGroup, activity.layoutInflater) { sortType ->
-            activity.viewModel.setSortType(sortType)
+            activity.listManager.setSortType(sortType)
         }
     }
 
     private fun setupInfiniteScroll() {
         ViewUtils.setupInfiniteScroll(viewHolder.recyclerView) {
-            activity.viewModel.loadMoreProfiles()
+            activity.listManager.loadMoreProfiles()
         }
     }
 }

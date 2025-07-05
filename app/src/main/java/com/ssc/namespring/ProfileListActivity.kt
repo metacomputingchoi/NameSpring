@@ -5,76 +5,65 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.model.business.ProfileListManager
 import com.ssc.namespring.model.adapter.ProfileAdapter
 import com.ssc.namespring.profile.ProfileListComponents
 import com.ssc.namespring.profile.ProfileListNavigator
+import com.ssc.namespring.ui.profilelist.ProfileListAdapterManager
+import com.ssc.namespring.ui.profilelist.ProfileListLauncherManager
+import com.ssc.namespring.ui.profilelist.ProfileListMenuHandler
+import com.ssc.namespring.ui.profilelist.ProfileListObserver
 
 class ProfileListActivity : AppCompatActivity() {
-    lateinit var viewModel: ProfileListManager
+    lateinit var listManager: ProfileListManager
     lateinit var adapter: ProfileAdapter
     lateinit var components: ProfileListComponents
 
     private lateinit var navigator: ProfileListNavigator
-    private lateinit var createProfileLauncher: ActivityResultLauncher<Intent>
-    private lateinit var editProfileLauncher: ActivityResultLauncher<Intent>
+    private lateinit var launcherManager: ProfileListLauncherManager
+    private lateinit var adapterManager: ProfileListAdapterManager
+    private lateinit var menuHandler: ProfileListMenuHandler
+    private lateinit var observer: ProfileListObserver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_list_improved)
 
-        viewModel = ProfileListManager()
-        setupActivityResultLaunchers()
+        initializeCore()
+        setupUI()
+        startObserving()
+        listManager.loadProfiles()
+    }
 
+    private fun initializeCore() {
+        listManager = ProfileListManager()
         components = ProfileListComponents(this)
         navigator = ProfileListNavigator(this)
-
         components.initializeAll()
-        setupAdapter()
-        observeViewModel()
-        viewModel.loadProfiles()
     }
 
-    private fun setupActivityResultLaunchers() {
-        val resultCallback = { _: androidx.activity.result.ActivityResult ->
-            viewModel.refreshProfiles()
-        }
-
-        createProfileLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult(), resultCallback
+    private fun setupUI() {
+        launcherManager = ProfileListLauncherManager(this, listManager)
+        adapterManager = ProfileListAdapterManager(
+            this,
+            listManager,
+            navigator,
+            components
         )
-
-        editProfileLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult(), resultCallback
-        )
-    }
-
-    private fun setupAdapter() {
-        adapter = ProfileAdapter(
-            onItemClick = { profile -> viewModel.onProfileClick(this, profile) },
-            onItemLongClick = { profile -> viewModel.onProfileLongClick(profile) },
-            onEditClick = { profile -> navigator.navigateToProfileForm(profile.id) },
-            onDeleteClick = { profile -> viewModel.deleteProfile(this, profile) },
-            onDuplicateClick = { _ -> viewModel.refreshProfiles() }
-        )
+        adapter = adapterManager.createAdapter()
         components.viewHolder.recyclerView.adapter = adapter
+
+        menuHandler = ProfileListMenuHandler(listManager)
+        observer = ProfileListObserver(this, listManager, components, adapter)
+    }
+
+    private fun startObserving() {
+        observer.startObserving()
     }
 
     fun launchProfileForm(intent: Intent, isEdit: Boolean) {
-        if (isEdit) {
-            editProfileLauncher.launch(intent)
-        } else {
-            createProfileLauncher.launch(intent)
-        }
-    }
-
-    private fun observeViewModel() {
-        viewModel.uiState.observe(this) { state ->
-            components.uiUpdater.updateUI(state, adapter)
-        }
+        launcherManager.launchProfileForm(intent, isEdit)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -83,22 +72,13 @@ class ProfileListActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_select_mode -> {
-                viewModel.toggleSelectionMode()
-                true
-            }
-            R.id.action_load_all -> {
-                viewModel.loadAllProfiles(this)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+        return menuHandler.handleMenuItemSelected(this, item) ||
+                super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {
-        if (viewModel.isInSelectionMode()) {
-            viewModel.exitSelectionMode()
+        if (listManager.isInSelectionMode()) {
+            listManager.exitSelectionMode()
         } else {
             super.onBackPressed()
         }
@@ -106,6 +86,6 @@ class ProfileListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.refreshProfiles()
+        listManager.refreshProfiles()
     }
 }
