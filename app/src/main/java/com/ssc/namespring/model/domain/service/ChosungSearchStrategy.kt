@@ -22,6 +22,8 @@ class ChosungSearchStrategy(store: SurnameStore) : SearchStrategy(store) {
     }
 
     private fun searchDoubleChosung(query: String, results: MutableList<SurnameSearchResult>) {
+        if (query.length < 2) return
+
         val firstChosung = query[0].toString()
         val secondChosung = query[1].toString()
 

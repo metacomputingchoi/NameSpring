@@ -23,6 +23,12 @@ class SurnameSearcher(private val store: SurnameStore) {
             return emptyList()
         }
 
+        // store 상태 검증 추가
+        if (store.surnameMapping.isEmpty() || store.charTripleDict.isEmpty()) {
+            Log.e(TAG, "성씨 데이터가 비어있습니다")
+            return emptyList()
+        }
+
         val results = mutableListOf<SurnameSearchResult>()
 
         when {

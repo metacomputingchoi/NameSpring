@@ -1,6 +1,7 @@
 // model/domain/service/HanjaSearchStrategy.kt
 package com.ssc.namespring.model.domain.service
 
+import android.util.Log
 import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 import com.ssc.namespring.model.data.source.SurnameStore
 
@@ -13,23 +14,33 @@ class HanjaSearchStrategy(store: SurnameStore) : SearchStrategy(store) {
 
     private fun searchInCharTripleDict(query: String, results: MutableList<SurnameSearchResult>) {
         store.charTripleDict.entries.forEach { (key, value) ->
-            if (value.hanjaInfo.hanja.contains(query)) {
-                results.add(SurnameSearchResult(
-                    korean = value.koreanInfo.korean,
-                    hanja = value.hanjaInfo.hanja,
-                    meaning = value.integratedInfo.nameMeaning,
-                    isCompound = false
-                ))
+            try {
+                val hanja = value.hanjaInfo?.hanja?.takeIf { it.isNotEmpty() } ?: return@forEach
+                val korean = value.koreanInfo?.korean?.takeIf { it.isNotEmpty() } ?: return@forEach
+
+                if (hanja.contains(query)) {
+                    results.add(SurnameSearchResult(
+                        korean = korean,
+                        hanja = hanja,
+                        meaning = value.integratedInfo?.nameMeaning,
+                        isCompound = false
+                    ))
+                }
+            } catch (e: Exception) {
+                Log.w("HanjaSearchStrategy", "Skipping invalid entry: $key", e)
             }
         }
     }
 
     private fun searchInCompoundSurnames(query: String, results: MutableList<SurnameSearchResult>) {
         store.surnameHanjaMapping.keys
-            .filter { it.contains("/") && it.split("/")[1].contains(query) }
+            .filter { key ->
+                key.contains("/") &&
+                        key.split("/").getOrNull(1)?.contains(query) == true
+            }
             .forEach { key ->
                 val parts = key.split("/")
-                if (parts[0].length > 1) {
+                if (parts.size >= 2 && parts[0].length > 1) {
                     addCompoundSurnameResult(parts[0], parts[1], results)
                 }
             }

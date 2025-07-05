@@ -14,15 +14,15 @@ data class CharTripleInfo(
 
 data class CharacterInfo(
     @SerializedName("글자")
-    val character: String,
+    val character: String?,
     @SerializedName("뜻")
     val meaning: String?,
     @SerializedName("음")
-    val sound: String,
+    val sound: String?,
     @SerializedName("음양")
     val eumyang: Int,
     @SerializedName("오행")
-    val ohaeng: String,
+    val ohaeng: String?,
     @SerializedName("획수")
     val strokes: Int,
     @SerializedName("원획수")

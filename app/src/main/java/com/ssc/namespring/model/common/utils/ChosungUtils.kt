@@ -12,6 +12,12 @@ object ChosungUtils {
         val char = text[0]
         val code = char.code - 0xAC00
         if (code < 0 || code > 11171) return ""
-        return CHOSUNG_LIST[code / 588]
+
+        val index = code / 588
+        return if (index in CHOSUNG_LIST.indices) {
+            CHOSUNG_LIST[index]
+        } else {
+            ""
+        }
     }
 }
