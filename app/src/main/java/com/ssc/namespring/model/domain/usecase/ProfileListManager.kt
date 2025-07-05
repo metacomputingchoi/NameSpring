@@ -160,5 +160,5 @@ class ProfileListManager {
         _uiState.value = _uiState.value?.copy(isLoading = isLoading)
     }
 
-    fun isInSelectionMode(): Boolean = _uiState.value?.isSelectionMode ?: false
+    fun isInSelectionMode(): Boolean = _uiState.value?.isSelectionMode == true
 }

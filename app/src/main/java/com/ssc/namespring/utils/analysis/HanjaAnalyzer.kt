@@ -22,7 +22,7 @@ internal class HanjaAnalyzer(private val repository: JsonDataRepository) {
 
     fun isMeaningHarmony(meaning1: String, meaning2: String): Boolean {
         val pattern = "${meaning1}_${meaning2}"
-        return repository.hanjaMeanings.meaningHarmonyPatterns[pattern] ?: false
+        return repository.hanjaMeanings.meaningHarmonyPatterns[pattern] == true
     }
 
     fun getElementCharacteristic(element: String): String {

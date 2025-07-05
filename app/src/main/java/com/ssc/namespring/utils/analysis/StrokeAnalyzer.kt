@@ -16,12 +16,12 @@ internal class StrokeAnalyzer(private val repository: JsonDataRepository) {
 
     fun isBusinessLuckStroke(stroke: Int): Boolean {
         val normalizedStroke = normalizeStroke(stroke)
-        return repository.businessLuckStrokes?.businessLuckStrokes?.contains(normalizedStroke) ?: false
+        return repository.businessLuckStrokes?.businessLuckStrokes?.contains(normalizedStroke) == true
     }
 
     fun isLeadershipStroke(stroke: Int): Boolean {
         val normalizedStroke = normalizeStroke(stroke)
-        return repository.businessLuckStrokes?.leadershipStrokes?.contains(normalizedStroke) ?: false
+        return repository.businessLuckStrokes?.leadershipStrokes?.contains(normalizedStroke) == true
     }
 
     fun getGrade(score: Int): String {

@@ -99,7 +99,7 @@ class ProfileFormManager(private val profileId: String? = null) {
                 id = profileId,
                 profileName = profileName,
                 birthDate = dateTimeManager.getCalendar(),
-                isYajaTime = _uiState.value?.isYajaTime ?: false,
+                isYajaTime = _uiState.value?.isYajaTime == true,
                 surname = _uiState.value?.selectedSurname,
                 givenName = givenName,
                 createdAt = ProfileManager.getProfile(profileId)?.createdAt ?: System.currentTimeMillis(),
@@ -110,7 +110,7 @@ class ProfileFormManager(private val profileId: String? = null) {
             Profile(
                 profileName = profileName,
                 birthDate = dateTimeManager.getCalendar(),
-                isYajaTime = _uiState.value?.isYajaTime ?: false,
+                isYajaTime = _uiState.value?.isYajaTime == true,
                 surname = _uiState.value?.selectedSurname,
                 givenName = givenName
             )

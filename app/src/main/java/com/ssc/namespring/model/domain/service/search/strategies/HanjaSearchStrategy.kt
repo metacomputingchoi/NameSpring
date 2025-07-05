@@ -16,14 +16,14 @@ class HanjaSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
     private fun searchInCharTripleDict(query: String, results: MutableList<SurnameSearchResult>) {
         store.charTripleDict.entries.forEach { (key, value) ->
             try {
-                val hanja = value.hanjaInfo?.hanja?.takeIf { it.isNotEmpty() } ?: return@forEach
-                val korean = value.koreanInfo?.korean?.takeIf { it.isNotEmpty() } ?: return@forEach
+                val hanja = value.hanjaInfo.hanja.takeIf { it.isNotEmpty() } ?: return@forEach
+                val korean = value.koreanInfo.korean.takeIf { it.isNotEmpty() } ?: return@forEach
 
                 if (hanja.contains(query)) {
                     results.add(SurnameSearchResult(
                         korean = korean,
                         hanja = hanja,
-                        meaning = value.integratedInfo?.nameMeaning,
+                        meaning = value.integratedInfo.nameMeaning,
                         isCompound = false
                     ))
                 }
