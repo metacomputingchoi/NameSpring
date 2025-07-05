@@ -2,18 +2,40 @@
 package com.ssc.namespring.model.repository
 
 import android.content.Context
-import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
-object NameData {
-    private const val TAG = "NameData"
+class NameData {
+    companion object {
+        private val repository: NameDataRepository = NameDataRepositoryImpl()
 
-    private var charTripleDict: Map<String, CharTripleInfo> = emptyMap()
-    private var optimizedMapping: OptimizedMapping? = null
-    private var isInitialized = false
+        @JvmStatic
+        fun init(context: Context) = repository.init(context)
+
+        @JvmStatic
+        fun searchHanja(query: String): List<HanjaSearchResult> = repository.searchHanja(query)
+
+        @JvmStatic
+        fun getCharInfo(tripleKey: String): CharTripleInfo? = repository.getCharInfo(tripleKey)
+
+        @JvmStatic
+        fun getCharInfo(korean: String, hanja: String): CharTripleInfo? =
+            repository.getCharInfo(korean, hanja)
+
+        @JvmStatic
+        fun validateData(): DataLoader.ValidationResult {
+            val result = repository.validateData()
+            return DataLoader.ValidationResult(
+                isValid = result.isValid,
+                warnings = result.warnings,
+                criticalErrors = result.criticalErrors
+            )
+        }
+
+        @JvmStatic
+        fun isReady(): Boolean = repository.isReady()
+
+        @JvmStatic
+        fun getStats(): MappingStats? = repository.getStats()
+    }
 
     data class OptimizedMapping(
         val version: String,
@@ -81,117 +103,4 @@ object NameData {
         val cautionRed: String?,
         val cautionBlue: String?
     )
-
-    fun init(context: Context) {
-        try {
-            val gson = Gson()
-
-            context.assets.open("name/name_optimized_search_mapping.json").use { stream ->
-                BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
-                    optimizedMapping = gson.fromJson(reader, OptimizedMapping::class.java)
-                    Log.d(TAG, "최적화된 매핑 로드 완료")
-                    Log.d(TAG, "통계: ${optimizedMapping?.stats}")
-                }
-            }
-
-            context.assets.open("name/name_char_triple_dict_effective.json").use { stream ->
-                BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
-                    val type = object : TypeToken<Map<String, CharTripleInfo>>() {}.type
-                    charTripleDict = gson.fromJson(reader, type)
-                    Log.d(TAG, "트리플 딕셔너리 로드 완료: ${charTripleDict.size}개")
-                }
-            }
-
-            isInitialized = true
-            Log.d(TAG, "NameData 초기화 완료")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "초기화 실패", e)
-            isInitialized = false
-            throw e
-        }
-    }
-
-    fun searchHanja(query: String): List<HanjaSearchResult> {
-        if (!isInitialized || optimizedMapping == null) {
-            Log.e(TAG, "NameData가 초기화되지 않았습니다")
-            return emptyList()
-        }
-
-        val normalizedQuery = query.trim()
-        Log.d(TAG, "검색 쿼리: '$normalizedQuery'")
-
-        val results = when {
-            normalizedQuery.matches(Regex("^[ㄱ-ㅎ]$")) -> {
-                Log.d(TAG, "초성 검색 모드")
-                optimizedMapping?.chosungToHanjaInfo?.get(normalizedQuery) ?: emptyList()
-            }
-            normalizedQuery.matches(Regex("^[가-힣]$")) -> {
-                Log.d(TAG, "한글 검색 모드")
-                optimizedMapping?.koreanToHanjaInfo?.get(normalizedQuery) ?: emptyList()
-            }
-            normalizedQuery.length == 1 -> {
-                Log.d(TAG, "한자 검색 모드")
-                optimizedMapping?.hanjaToHanjaInfo?.get(normalizedQuery) ?: emptyList()
-            }
-            normalizedQuery.length >= 2 -> {
-                Log.d(TAG, "뜻 검색 모드")
-                val results = mutableListOf<HanjaInfo>()
-                optimizedMapping?.meaningSearchIndex?.forEach { (word, hanjaList) ->
-                    if (word.contains(normalizedQuery)) {
-                        results.addAll(hanjaList)
-                    }
-                }
-                results.distinctBy { it.tripleKey }
-            }
-            else -> emptyList()
-        }
-
-        return results.map { info ->
-            HanjaSearchResult(
-                korean = info.korean,
-                hanja = info.hanja,
-                meaning = info.meaning,
-                ohaeng = info.ohaeng,
-                strokes = info.strokes,
-                soundCount = 1,
-                tripleKey = info.tripleKey
-            )
-        }
-    }
-
-    fun getCharInfo(tripleKey: String): CharTripleInfo? = charTripleDict[tripleKey]
-    fun getCharInfo(korean: String, hanja: String): CharTripleInfo? = charTripleDict["$korean/$hanja"]
-
-    fun validateData(): DataLoader.ValidationResult {
-        val warnings = mutableListOf<String>()
-        val criticalErrors = mutableListOf<String>()
-
-        if (!isInitialized) {
-            criticalErrors.add("NameData가 초기화되지 않음")
-        }
-
-        if (optimizedMapping == null) {
-            criticalErrors.add("최적화된 매핑이 로드되지 않음")
-        }
-
-        return DataLoader.ValidationResult(
-            isValid = criticalErrors.isEmpty(),
-            warnings = warnings,
-            criticalErrors = criticalErrors
-        )
-    }
-
-    fun isReady(): Boolean = isInitialized
-    fun getStats(): MappingStats? = optimizedMapping?.stats
 }
-
-data class HanjaSearchResult(
-    val korean: String,
-    val hanja: String,
-    val meaning: String?,
-    val ohaeng: String,
-    val strokes: Int,
-    val soundCount: Int,
-    val tripleKey: String
-)
