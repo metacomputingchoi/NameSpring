@@ -1,0 +1,50 @@
+// ui/profileform/ProfileFormUIUpdater.kt
+package com.ssc.namespring.ui.profileform
+
+import android.view.View
+import com.ssc.namespring.model.business.ProfileFormUiState
+
+class ProfileFormUIUpdater(
+    private val uiComponents: ProfileFormUIComponents,
+    private val nameInputHandler: ProfileFormNameInputHandler
+) {
+    fun updateUI(state: ProfileFormUiState) {
+        updateProfileName(state)
+        updateBirthInfo(state)
+        updateSurnameInfo(state)
+        updateNameCharCount(state)
+        nameInputHandler.refreshNameInputViews(
+            uiComponents.nameInputContainer,
+            state
+        )
+    }
+
+    private fun updateProfileName(state: ProfileFormUiState) {
+        if (uiComponents.etProfileName.text.toString() != state.profileName &&
+            state.profileName.isNotEmpty()) {
+            uiComponents.etProfileName.setText(state.profileName)
+        }
+    }
+
+    private fun updateBirthInfo(state: ProfileFormUiState) {
+        uiComponents.tvBirthDate.text = state.birthDateText
+        uiComponents.tvBirthTime.text = state.birthTimeText
+        uiComponents.cbYajaTime.isChecked = state.isYajaTime
+    }
+
+    private fun updateSurnameInfo(state: ProfileFormUiState) {
+        if (state.selectedSurname != null) {
+            uiComponents.tvSelectedSurname.text =
+                "${state.selectedSurname.korean}(${state.selectedSurname.hanja})"
+            uiComponents.tvSelectedSurname.visibility = View.VISIBLE
+        } else {
+            uiComponents.tvSelectedSurname.visibility = View.GONE
+        }
+    }
+
+    private fun updateNameCharCount(state: ProfileFormUiState) {
+        uiComponents.tvCharCount.text = "${state.nameCharCount}글자"
+        uiComponents.btnAddChar.isEnabled = state.nameCharCount < 4
+        uiComponents.btnRemoveChar.isEnabled = state.nameCharCount > 1
+    }
+}
