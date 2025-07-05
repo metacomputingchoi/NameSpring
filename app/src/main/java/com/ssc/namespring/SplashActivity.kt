@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.model.business.SplashManager
-import com.ssc.namespring.model.business.SplashManager.LoadingState
+import com.ssc.namespring.model.domain.usecase.SplashManager
+import com.ssc.namespring.model.domain.usecase.SplashManager.LoadingState
 import kotlinx.coroutines.*
 
 @SuppressLint("CustomSplashScreen")

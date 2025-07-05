@@ -2,10 +2,10 @@
 package com.ssc.namespring.ui.profileform
 
 import com.ssc.namespring.ProfileFormActivity
-import com.ssc.namespring.model.business.ProfileFormManager
-import com.ssc.namespring.model.business.ProfileFormService
-import com.ssc.namespring.model.business.SearchDialogManager
-import com.ssc.namespring.utils.ViewUtils
+import com.ssc.namespring.model.domain.usecase.ProfileFormManager
+import com.ssc.namespring.model.domain.service.ProfileFormService
+import com.ssc.namespring.model.presentation.components.SearchDialogManager
+import com.ssc.namespring.utils.ui.ViewUtils
 
 class ProfileFormEventHandler(
     private val activity: ProfileFormActivity,

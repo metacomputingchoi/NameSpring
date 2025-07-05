@@ -2,7 +2,7 @@
 package com.ssc.namespring.ui.profileform
 
 import android.view.View
-import com.ssc.namespring.model.business.ProfileFormUiState
+import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 
 class ProfileFormUIUpdater(
     private val uiComponents: ProfileFormUIComponents,

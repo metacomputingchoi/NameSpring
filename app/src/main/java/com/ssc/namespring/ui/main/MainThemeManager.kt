@@ -2,11 +2,10 @@
 package com.ssc.namespring.ui.main
 
 import android.content.Context
-import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
 import com.ssc.namespring.R
-import com.ssc.namespring.model.data.Profile
-import com.ssc.namespring.utils.ViewUtils
+import com.ssc.namespring.model.domain.entity.Profile
+import com.ssc.namespring.utils.ui.ViewUtils
 
 class MainThemeManager(private val context: Context) {
 
