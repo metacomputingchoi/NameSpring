@@ -1,6 +1,7 @@
 // model/presentation/adapter/ProfileAdapter.kt
 package com.ssc.namespring.model.presentation.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +19,7 @@ class ProfileAdapter(
     private val selectionManager = SelectionModeManager()
     private var profiles = listOf<Profile>()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(list: List<Profile>, selectionMode: Boolean = false, selected: Set<String> = setOf()) {
         profiles = list
         selectionManager.setSelectionMode(selectionMode)
@@ -25,6 +27,7 @@ class ProfileAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setSelectionMode(enabled: Boolean) {
         selectionManager.setSelectionMode(enabled)
         notifyDataSetChanged()

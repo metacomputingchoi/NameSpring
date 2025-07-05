@@ -2,6 +2,7 @@
 package com.ssc.namespring.model.domain.service
 
 import android.util.Log
+import com.ssc.namespring.model.common.utils.fromAnalysisInfo
 import com.ssc.namespring.model.domain.entity.OhaengInfo
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SajuInfo

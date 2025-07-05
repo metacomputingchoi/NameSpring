@@ -1,6 +1,7 @@
 // model/presentation/formatter/ProfileStringFormatter.kt
 package com.ssc.namespring.model.presentation.formatter
 
+import android.annotation.SuppressLint
 import com.ssc.namespring.model.domain.entity.Profile
 import java.util.Calendar
 
@@ -40,6 +41,7 @@ object ProfileStringFormatter {
         return "${year}년 ${month}월 ${day}일생"
     }
 
+    @SuppressLint("DefaultLocale")
     fun getBirthTimeString(profile: Profile): String {
         val hour = profile.birthDate.get(Calendar.HOUR_OF_DAY)
         val minute = profile.birthDate.get(Calendar.MINUTE)

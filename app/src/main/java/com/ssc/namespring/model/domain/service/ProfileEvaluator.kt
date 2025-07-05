@@ -18,7 +18,7 @@ internal class ProfileEvaluator(private val namingEngine: NamingEngine) {
         val hasCompleteName = profile.givenName?.let { givenName ->
             givenName.charInfos.isNotEmpty() &&
                     givenName.charInfos.all { it.korean.isNotEmpty() && it.hanja.isNotEmpty() }
-        } ?: false
+        } == true
 
         return if (hasCompleteName && profile.surname != null) {
             evaluateFullProfile(profile)
@@ -28,8 +28,6 @@ internal class ProfileEvaluator(private val namingEngine: NamingEngine) {
     }
 
     fun updateProfilesIfNeeded(profiles: List<Profile>): List<Profile> {
-        if (namingEngine == null) return profiles
-
         val profilesToUpdate = profiles.filter { it.ohaengInfo == null }
         Log.d(TAG, "재평가 필요한 프로필: ${profilesToUpdate.size}개")
 

@@ -1,6 +1,7 @@
 // model/presentation/formatter/ProfileFormatter.kt
 package com.ssc.namespring.model.presentation.formatter
 
+import android.annotation.SuppressLint
 import com.ssc.namespring.model.domain.entity.Profile
 import java.util.Calendar
 
@@ -14,7 +15,7 @@ class ProfileFormatter {
             return "${surname.korean}(${surname.hanja}) ◯◯"
         }
 
-        if (surname != null && givenName != null && givenName.charInfos.isNotEmpty()) {
+        if (surname != null && givenName != null) {
             val givenKorean = givenName.charInfos.joinToString("") {
                 it.korean.ifEmpty { "◯" }
             }
@@ -27,6 +28,7 @@ class ProfileFormatter {
         return "-"
     }
 
+    @SuppressLint("DefaultLocale")
     fun formatBirthDate(calendar: Calendar): String {
         return String.format("%d.%02d.%02d",
             calendar.get(Calendar.YEAR),
@@ -34,6 +36,7 @@ class ProfileFormatter {
             calendar.get(Calendar.DAY_OF_MONTH))
     }
 
+    @SuppressLint("DefaultLocale")
     fun formatBirthTime(calendar: Calendar): String {
         return String.format("%02d:%02d",
             calendar.get(Calendar.HOUR_OF_DAY),

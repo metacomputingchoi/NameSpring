@@ -1,6 +1,7 @@
 // ui/profilelist/ProfileListUiUpdater.kt
 package com.ssc.namespring.ui.profilelist
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.View
 import com.ssc.namespring.ProfileListActivity
@@ -13,6 +14,7 @@ class ProfileListUiUpdater(
     private val viewHolder: ProfileListViewHolder
 ) {
 
+    @SuppressLint("SetTextI18n")
     fun updateUI(state: ProfileListUiState, adapter: ProfileAdapter) {
         Log.d("ProfileListActivity", "updateUI: isSelectionMode=${state.isSelectionMode}, selectedCount=${state.selectedIds.size}")
 

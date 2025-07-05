@@ -1,12 +1,10 @@
 // model/common/utils/SajuInfoExtensions.kt
 package com.ssc.namespring.model.common.utils
 
-import com.ssc.namespring.model.domain.entity.Pillar
 import com.ssc.namespring.model.domain.entity.SajuInfo
 import com.ssc.namingengine.data.analysis.NameAnalysisInfo
 import java.time.LocalDateTime
 
-// Extension functions for backward compatibility
 fun SajuInfo.Companion.fromAnalysisInfo(analysisInfo: NameAnalysisInfo): SajuInfo =
     SajuUtils.fromAnalysisInfo(analysisInfo)
 
@@ -15,9 +13,3 @@ fun SajuInfo.Companion.getTimeSlotName(hour: Int): String =
 
 fun SajuInfo.needsYajasiAdjustment(birthTime: LocalDateTime): Boolean =
     SajuUtils.needsYajasiAdjustment(birthTime)
-
-fun Pillar.Companion.fromPillarString(pillar: String): Pillar =
-    PillarUtils.fromPillarString(pillar)
-
-fun Pillar.Companion.getEumyang(pillar: String): Pair<Int, Int> =
-    PillarUtils.getEumyang(pillar)

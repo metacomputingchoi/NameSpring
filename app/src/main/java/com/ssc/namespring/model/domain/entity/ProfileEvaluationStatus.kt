@@ -6,7 +6,7 @@ object ProfileEvaluationStatus {
         val hasCompleteName = profile.givenName?.let { givenName ->
             givenName.charInfos.isNotEmpty() &&
                     givenName.charInfos.all { it.korean.isNotEmpty() && it.hanja.isNotEmpty() }
-        } ?: false
+        } == true
 
         if (profile.surname != null && hasCompleteName && profile.nameBomScore > 0) {
             return when (profile.nameBomScore) {

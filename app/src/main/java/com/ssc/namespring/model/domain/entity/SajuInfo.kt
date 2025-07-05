@@ -1,9 +1,6 @@
 // model/domain/entity/SajuInfo.kt
 package com.ssc.namespring.model.domain.entity
 
-import com.ssc.namespring.model.domain.service.SajuFactory
-import com.ssc.namespring.model.data.mapper.TimeSlotMapper
-import com.ssc.namingengine.data.analysis.NameAnalysisInfo
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -69,20 +66,10 @@ data class SajuInfo(
         }
     }
 
-    fun needsYajasiAdjustment(birthTime: LocalDateTime): Boolean {
-        return birthTime.toLocalTime() >= YAJASI_START_TIME
-    }
-
     companion object {
         private val OHAENG_ORDER = listOf("木", "火", "土", "金", "水")
         val YAJASI_START_TIME = LocalTime.of(23, 30)
 
-        fun fromAnalysisInfo(analysisInfo: NameAnalysisInfo): SajuInfo {
-            return SajuFactory.createFromAnalysisInfo(analysisInfo)
-        }
-
-        fun getTimeSlotName(hour: Int): String {
-            return TimeSlotMapper.getTimeSlotName(hour)
-        }
+        // 중복 함수들을 제거하고 extension functions를 사용
     }
 }

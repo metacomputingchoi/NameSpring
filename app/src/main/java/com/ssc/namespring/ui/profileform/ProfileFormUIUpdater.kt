@@ -1,6 +1,7 @@
 // ui/profileform/ProfileFormUIUpdater.kt
 package com.ssc.namespring.ui.profileform
 
+import android.annotation.SuppressLint
 import android.view.View
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 
@@ -32,6 +33,7 @@ class ProfileFormUIUpdater(
         uiComponents.cbYajaTime.isChecked = state.isYajaTime
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateSurnameInfo(state: ProfileFormUiState) {
         if (state.selectedSurname != null) {
             uiComponents.tvSelectedSurname.text =
@@ -42,6 +44,7 @@ class ProfileFormUIUpdater(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateNameCharCount(state: ProfileFormUiState) {
         uiComponents.tvCharCount.text = "${state.nameCharCount}글자"
         uiComponents.btnAddChar.isEnabled = state.nameCharCount < 4

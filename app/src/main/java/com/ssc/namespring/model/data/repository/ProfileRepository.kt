@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ssc.namespring.model.domain.entity.Profile
+import androidx.core.content.edit
 
 internal class ProfileRepository(
     private val sharedPreferences: SharedPreferences,
@@ -17,10 +18,10 @@ internal class ProfileRepository(
 
     fun saveProfiles(profiles: List<Profile>, currentProfileId: String?) {
         val json = gson.toJson(profiles)
-        sharedPreferences.edit()
-            .putString(KEY_PROFILES, json)
-            .putString(KEY_CURRENT_PROFILE_ID, currentProfileId)
-            .apply()
+        sharedPreferences.edit() {
+            putString(KEY_PROFILES, json)
+                .putString(KEY_CURRENT_PROFILE_ID, currentProfileId)
+        }
     }
 
     fun loadProfiles(): List<Profile> {
@@ -42,6 +43,6 @@ internal class ProfileRepository(
     }
 
     fun clearProfiles() {
-        sharedPreferences.edit().remove(KEY_PROFILES).apply()
+        sharedPreferences.edit() { remove(KEY_PROFILES) }
     }
 }

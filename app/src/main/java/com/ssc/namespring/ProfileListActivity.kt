@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.model.domain.usecase.ProfileListManager
 import com.ssc.namespring.model.presentation.adapter.ProfileAdapter
@@ -32,6 +33,7 @@ class ProfileListActivity : AppCompatActivity() {
 
         initializeCore()
         setupUI()
+        setupBackPressedCallback()
         startObserving()
         listManager.loadProfiles()
     }
@@ -58,6 +60,18 @@ class ProfileListActivity : AppCompatActivity() {
         observer = ProfileListObserver(this, listManager, components, adapter)
     }
 
+    private fun setupBackPressedCallback() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (listManager.isInSelectionMode()) {
+                    listManager.exitSelectionMode()
+                } else {
+                    finish()
+                }
+            }
+        })
+    }
+
     private fun startObserving() {
         observer.startObserving()
     }
@@ -74,14 +88,6 @@ class ProfileListActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return menuHandler.handleMenuItemSelected(this, item) ||
                 super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        if (listManager.isInSelectionMode()) {
-            listManager.exitSelectionMode()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     override fun onResume() {

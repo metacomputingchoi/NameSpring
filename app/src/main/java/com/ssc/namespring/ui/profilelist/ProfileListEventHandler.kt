@@ -1,6 +1,7 @@
 // ui/profilelist/ProfileListEventHandler.kt
 package com.ssc.namespring.ui.profilelist
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -27,6 +28,7 @@ class ProfileListEventHandler(
         setupInfiniteScroll()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupDeleteButton() {
         Log.d("ProfileListActivity", "Looking for btnDeleteSelected")
         val deleteButton = activity.findViewById<Button>(R.id.btnDeleteSelected)

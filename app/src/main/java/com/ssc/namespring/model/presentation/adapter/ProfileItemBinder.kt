@@ -1,6 +1,7 @@
 // model/presentation/adapter/ProfileItemBinder.kt
 package com.ssc.namespring.model.presentation.adapter
 
+import android.annotation.SuppressLint
 import android.view.View
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.OhaengInfo
@@ -55,6 +56,7 @@ class ProfileItemBinder(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindOhaengDistribution(ohaeng: OhaengInfo) {
         views.tvWoodDist?.text = "木${ohaeng.wood}"
         views.tvFireDist?.text = "火${ohaeng.fire}"

@@ -1,6 +1,7 @@
 // model/presentation/adapter/HanjaSearchAdapter.kt
 package com.ssc.namespring.model.presentation.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ class HanjaSearchAdapter(
     private var results = listOf<HanjaSearchResult>()
     var onItemSelected: (() -> Unit)? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(list: List<HanjaSearchResult>) {
         results = list
         notifyDataSetChanged()
@@ -41,6 +43,7 @@ class HanjaSearchAdapter(
         private val tvStrokes: TextView = itemView.findViewById(R.id.tvStrokes)
         private val tvSoundCount: TextView = itemView.findViewById(R.id.tvSoundCount)
 
+        @SuppressLint("SetTextI18n")
         fun bind(result: HanjaSearchResult) {
             tvHanja.text = result.hanja
             tvKorean.text = result.korean

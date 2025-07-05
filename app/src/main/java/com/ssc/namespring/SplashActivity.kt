@@ -47,6 +47,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateProgress(progress: Int, message: String) {
         progressBar.progress = progress
         tvProgress.text = "$progress%"

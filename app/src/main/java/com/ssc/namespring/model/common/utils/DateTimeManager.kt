@@ -1,6 +1,7 @@
 // model/common/utils/DateTimeManager.kt
 package com.ssc.namespring.model.common.utils
 
+import android.annotation.SuppressLint
 import java.util.Calendar
 
 class DateTimeManager {
@@ -21,6 +22,7 @@ class DateTimeManager {
         calendar.set(Calendar.MINUTE, newTime.get(Calendar.MINUTE))
     }
 
+    @SuppressLint("DefaultLocale")
     fun getFormattedDate(): String {
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH) + 1
@@ -28,6 +30,7 @@ class DateTimeManager {
         return String.format("%d년 %d월 %d일", year, month, day)
     }
 
+    @SuppressLint("DefaultLocale")
     fun getFormattedTime(): String {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
