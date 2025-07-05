@@ -7,18 +7,18 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.model.domain.entity.Profile
-import com.ssc.namespring.model.domain.service.ProfileEvaluator
+import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
 import com.ssc.namespring.model.data.mapper.ProfileMigrator
 import com.ssc.namespring.model.data.repository.ProfileRepository
-import com.ssc.namespring.model.domain.service.ProfileService
+import com.ssc.namespring.model.domain.service.profile.ProfileServiceImpl
 
 object ProfileManager {
     private const val TAG = "ProfileManager"
     private const val PREF_NAME = "namespring_profiles"
 
     private lateinit var repository: ProfileRepository
-    private lateinit var service: ProfileService
-    private lateinit var evaluator: ProfileEvaluator
+    private lateinit var service: ProfileServiceImpl
+    private lateinit var evaluator: ProfileEvaluationService
     private lateinit var migrator: ProfileMigrator
     private lateinit var namingEngine: NamingEngine
     private val gson = Gson()
@@ -26,7 +26,7 @@ object ProfileManager {
     fun init(context: Context) {
         val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         repository = ProfileRepository(sharedPreferences, gson)
-        service = ProfileService()
+        service = ProfileServiceImpl()
         migrator = ProfileMigrator(gson)
 
         try {
@@ -36,20 +36,20 @@ object ProfileManager {
             Log.e(TAG, "NamingEngine 초기화 실패", e)
         }
 
-        evaluator = ProfileEvaluator(namingEngine)
+        evaluator = ProfileEvaluationService(namingEngine)
         loadProfiles()
         updateProfilesIfNeeded()
     }
 
     fun addProfile(profile: Profile): Boolean {
-        val evaluatedProfile = evaluator.evaluateProfile(profile)
+        val evaluatedProfile = evaluator.evaluate(profile)
         val success = service.addProfile(evaluatedProfile)
         if (success) saveProfiles()
         return success
     }
 
     fun updateProfile(profile: Profile): Boolean {
-        val evaluatedProfile = evaluator.evaluateProfile(profile)
+        val evaluatedProfile = evaluator.evaluate(profile)
         val success = service.updateProfile(evaluatedProfile)
         if (success) saveProfiles()
         return success

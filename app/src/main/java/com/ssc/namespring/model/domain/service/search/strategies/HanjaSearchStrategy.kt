@@ -1,13 +1,14 @@
-// model/domain/service/HanjaSearchStrategy.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/search/strategies/HanjaSearchStrategy.kt
+package com.ssc.namespring.model.domain.service.search.strategies
 
 import android.util.Log
 import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 import com.ssc.namespring.model.data.source.SurnameStore
+import com.ssc.namespring.model.domain.service.base.BaseSearchStrategy
 
-class HanjaSearchStrategy(store: SurnameStore) : SearchStrategy(store) {
+class HanjaSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
 
-    fun search(query: String, results: MutableList<SurnameSearchResult>) {
+    override fun search(query: String, results: MutableList<SurnameSearchResult>) {
         searchInCharTripleDict(query, results)
         searchInCompoundSurnames(query, results)
     }

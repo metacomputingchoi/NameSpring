@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.ssc.namespring.model.data.source.NameDataLoader
 import com.ssc.namespring.model.domain.entity.HanjaSearchResult
-import com.ssc.namespring.model.domain.service.NameDataSearcher
+import com.ssc.namespring.model.domain.service.search.NameDataSearchService
 import com.ssc.namespring.model.domain.entity.ValidationResult
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
 import com.ssc.namespring.model.data.mapper.OptimizedMapping
@@ -17,7 +17,7 @@ class NameDataRepositoryImpl : NameDataRepository {
     }
 
     private val loader = NameDataLoader()
-    private val searcher = NameDataSearcher()
+    private val searchService = NameDataSearchService()
 
     private var charTripleDict: Map<String, CharTripleInfo> = emptyMap()
     private var optimizedMapping: OptimizedMapping? = null
@@ -30,7 +30,8 @@ class NameDataRepositoryImpl : NameDataRepository {
 
             isInitialized = optimizedMapping != null && charTripleDict.isNotEmpty()
 
-            if (isInitialized) {
+            if (isInitialized && optimizedMapping != null) {
+                searchService.initialize(optimizedMapping!!)
                 Log.d(TAG, "NameData 초기화 완료")
             } else {
                 throw IllegalStateException("데이터 로드 실패")
@@ -48,9 +49,7 @@ class NameDataRepositoryImpl : NameDataRepository {
             return emptyList()
         }
 
-        return optimizedMapping?.let { mapping ->
-            searcher.searchHanja(query, mapping)
-        } ?: emptyList()
+        return searchService.search(query)
     }
 
     override fun getCharInfo(tripleKey: String): CharTripleInfo? = charTripleDict[tripleKey]

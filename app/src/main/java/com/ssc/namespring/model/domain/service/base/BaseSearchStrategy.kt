@@ -1,10 +1,11 @@
-// model/domain/service/SearchStrategy.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/base/BaseSearchStrategy.kt
+package com.ssc.namespring.model.domain.service.base
 
 import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 import com.ssc.namespring.model.data.source.SurnameStore
 
-abstract class SearchStrategy(protected val store: SurnameStore) {
+abstract class BaseSearchStrategy(protected val store: SurnameStore) {
+    abstract fun search(query: String, results: MutableList<SurnameSearchResult>)
 
     protected fun addSurnameResults(korean: String, results: MutableList<SurnameSearchResult>) {
         store.surnameMapping[korean]?.forEach { hanja ->

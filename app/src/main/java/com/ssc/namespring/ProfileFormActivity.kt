@@ -4,7 +4,7 @@ package com.ssc.namespring
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.model.domain.service.ProfileFormService
+import com.ssc.namespring.model.domain.service.profile.ProfileFormService
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.presentation.components.SearchDialogManager
 import com.ssc.namespring.ui.profileform.*

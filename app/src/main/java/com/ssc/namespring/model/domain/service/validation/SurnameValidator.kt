@@ -1,5 +1,5 @@
-// model/domain/service/SurnameValidator.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/validation/SurnameValidator.kt
+package com.ssc.namespring.model.domain.service.validation
 
 import android.util.Log
 import com.ssc.namespring.model.data.source.DataLoader

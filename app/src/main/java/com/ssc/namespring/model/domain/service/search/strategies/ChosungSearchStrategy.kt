@@ -1,13 +1,14 @@
-// model/domain/service/ChosungSearchStrategy.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/search/strategies/ChosungSearchStrategy.kt
+package com.ssc.namespring.model.domain.service.search.strategies
 
 import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 import com.ssc.namespring.model.common.utils.ChosungUtils
 import com.ssc.namespring.model.data.source.SurnameStore
+import com.ssc.namespring.model.domain.service.base.BaseSearchStrategy
 
-class ChosungSearchStrategy(store: SurnameStore) : SearchStrategy(store) {
+class ChosungSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
 
-    fun search(query: String, results: MutableList<SurnameSearchResult>) {
+    override fun search(query: String, results: MutableList<SurnameSearchResult>) {
         when (query.length) {
             1 -> searchSingleChosung(query, results)
             2 -> searchDoubleChosung(query, results)

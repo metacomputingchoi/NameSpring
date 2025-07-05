@@ -1,5 +1,5 @@
-// model/domain/service/SajuEvaluator.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/evaluation/SajuEvaluator.kt
+package com.ssc.namespring.model.domain.service.evaluation
 
 import android.util.Log
 import com.ssc.namespring.model.common.utils.fromAnalysisInfo

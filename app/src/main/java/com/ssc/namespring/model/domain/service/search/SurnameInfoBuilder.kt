@@ -1,5 +1,5 @@
-// model/domain/service/SurnameInfoBuilder.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/search/SurnameInfoBuilder.kt
+package com.ssc.namespring.model.domain.service.search
 
 import com.ssc.namespring.model.domain.entity.SurnameInfo
 import com.ssc.namespring.model.data.source.SurnameStore

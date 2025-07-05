@@ -1,11 +1,12 @@
-// model/domain/service/ProfileUpdater.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/utils/ProfileUpdater.kt
+package com.ssc.namespring.model.domain.service.utils
 
 import android.util.Log
 import com.ssc.namespring.model.common.utils.fromAnalysisInfo
 import com.ssc.namespring.model.domain.entity.OhaengInfo
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SajuInfo
+import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
 import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namingengine.data.analysis.NameAnalysisInfo
 

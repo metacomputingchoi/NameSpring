@@ -1,5 +1,5 @@
-// model/domain/service/PillarFactory.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/factory/PillarFactory.kt
+package com.ssc.namespring.model.domain.service.factory
 
 import com.ssc.namespring.model.common.utils.PillarConstants
 import com.ssc.namespring.model.domain.entity.Pillar

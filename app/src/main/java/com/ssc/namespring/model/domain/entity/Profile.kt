@@ -2,7 +2,7 @@
 package com.ssc.namespring.model.domain.entity
 
 import com.ssc.namespring.model.presentation.formatter.ProfileStringFormatter
-import com.ssc.namespring.model.domain.service.ProfileUpdater
+import com.ssc.namespring.model.domain.service.utils.ProfileUpdater
 import com.ssc.namingengine.data.GeneratedName
 import java.io.Serializable
 import java.util.Calendar

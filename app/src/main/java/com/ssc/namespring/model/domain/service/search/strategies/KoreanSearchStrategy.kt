@@ -1,12 +1,13 @@
-// model/domain/service/KoreanSearchStrategy.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/search/strategies/KoreanSearchStrategy.kt
+package com.ssc.namespring.model.domain.service.search.strategies
 
 import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 import com.ssc.namespring.model.data.source.SurnameStore
+import com.ssc.namespring.model.domain.service.base.BaseSearchStrategy
 
-class KoreanSearchStrategy(store: SurnameStore) : SearchStrategy(store) {
+class KoreanSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
 
-    fun search(query: String, results: MutableList<SurnameSearchResult>) {
+    override fun search(query: String, results: MutableList<SurnameSearchResult>) {
         searchCompoundSurnamesExact(query, results)
         if (query.length == 1) {
             addCompoundSurnamesStartingWith(query, results)

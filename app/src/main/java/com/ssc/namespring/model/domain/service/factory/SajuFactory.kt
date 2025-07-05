@@ -1,5 +1,5 @@
-// model/domain/service/SajuFactory.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/factory/SajuFactory.kt
+package com.ssc.namespring.model.domain.service.factory
 
 import com.ssc.namespring.model.domain.entity.Pillar
 import com.ssc.namespring.model.domain.entity.SajuInfo

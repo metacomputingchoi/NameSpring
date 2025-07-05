@@ -1,5 +1,5 @@
-// model/domain/service/PillarEumyangCalculator.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/utils/PillarEumyangCalculator.kt
+package com.ssc.namespring.model.domain.service.utils
 
 import com.ssc.namespring.model.common.utils.PillarConstants
 

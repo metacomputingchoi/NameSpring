@@ -1,13 +1,14 @@
-// model/domain/service/ProfileService.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/profile/ProfileServiceImpl.kt
+package com.ssc.namespring.model.domain.service.profile
 
 import android.util.Log
+import com.ssc.namespring.model.domain.service.interfaces.ProfileService
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.usecase.ProfileManager
 
-internal class ProfileService {
+class ProfileServiceImpl : ProfileService {
     companion object {
-        private const val TAG = "ProfileService"
+        private const val TAG = "ProfileServiceImpl"
     }
 
     private val profiles = mutableListOf<Profile>()
@@ -20,7 +21,7 @@ internal class ProfileService {
         currentProfileId = loadedCurrentId
     }
 
-    fun addProfile(profile: Profile): Boolean {
+    override fun addProfile(profile: Profile): Boolean {
         if (isDuplicate(profile)) {
             Log.w(TAG, "중복된 프로필 추가 시도")
             return false
@@ -34,7 +35,7 @@ internal class ProfileService {
         return true
     }
 
-    fun updateProfile(profile: Profile): Boolean {
+    override fun updateProfile(profile: Profile): Boolean {
         if (isDuplicate(profile)) return false
 
         val index = profiles.indexOfFirst { it.id == profile.id }
@@ -46,13 +47,32 @@ internal class ProfileService {
         return false
     }
 
-    fun deleteProfiles(profileIds: List<String>) {
+    override fun deleteProfiles(profileIds: List<String>) {
         profiles.removeIf { it.id in profileIds }
         if (profileIds.contains(currentProfileId)) {
             currentProfileId = profiles.firstOrNull()?.id
         }
         Log.d(TAG, "${profileIds.size}개 프로필 삭제 완료")
     }
+
+    override fun getProfile(id: String): Profile? = profiles.find { it.id == id }
+
+    override fun getAllProfiles(): List<Profile> = profiles.toList()
+
+    override fun getCurrentProfile(): Profile? = currentProfileId?.let { getProfile(it) }
+
+    override fun switchProfile(id: String): Boolean {
+        if (profiles.any { it.id == id }) {
+            currentProfileId = id
+            return true
+        }
+        return false
+    }
+
+    fun getCurrentProfileId(): String? = currentProfileId
+    fun hasProfiles(): Boolean = profiles.isNotEmpty()
+    fun setSelectedProfile(profile: Profile) { selectedProfile = profile }
+    fun getSelectedProfile(): Profile? = selectedProfile
 
     fun searchProfiles(query: String): List<Profile> {
         if (query.isEmpty()) return getAllProfiles()
@@ -75,22 +95,6 @@ internal class ProfileService {
             ProfileManager.SortType.DATE_DESC -> profiles.sortedByDescending { it.createdAt }
             ProfileManager.SortType.DATE_ASC -> profiles.sortedBy { it.createdAt }
         }
-    }
-
-    fun getAllProfiles(): List<Profile> = profiles.toList()
-    fun getProfile(id: String): Profile? = profiles.find { it.id == id }
-    fun getCurrentProfile(): Profile? = currentProfileId?.let { getProfile(it) }
-    fun getCurrentProfileId(): String? = currentProfileId
-    fun hasProfiles(): Boolean = profiles.isNotEmpty()
-    fun setSelectedProfile(profile: Profile) { selectedProfile = profile }
-    fun getSelectedProfile(): Profile? = selectedProfile
-
-    fun switchProfile(id: String): Boolean {
-        if (profiles.any { it.id == id }) {
-            currentProfileId = id
-            return true
-        }
-        return false
     }
 
     fun replaceProfile(oldProfile: Profile, newProfile: Profile) {

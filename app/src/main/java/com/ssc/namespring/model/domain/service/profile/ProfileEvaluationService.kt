@@ -1,20 +1,25 @@
-// model/domain/service/ProfileEvaluator.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/profile/ProfileEvaluationService.kt
+package com.ssc.namespring.model.domain.service.profile
 
 import android.util.Log
 import com.ssc.namingengine.NamingEngine
+import com.ssc.namespring.model.domain.service.interfaces.EvaluationService
 import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
+import com.ssc.namespring.model.domain.service.evaluation.SajuEvaluator
+import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
 import java.time.ZoneId
 
-internal class ProfileEvaluator(private val namingEngine: NamingEngine) {
+class ProfileEvaluationService(
+    private val namingEngine: NamingEngine
+) : EvaluationService {
+
     companion object {
-        private const val TAG = "ProfileEvaluator"
+        private const val TAG = "ProfileEvaluationService"
     }
 
-    fun evaluateProfile(profile: Profile): Profile {
-
+    override fun evaluate(profile: Profile): Profile {
         val hasCompleteName = profile.givenName?.let { givenName ->
             givenName.charInfos.isNotEmpty() &&
                     givenName.charInfos.all { it.korean.isNotEmpty() && it.hanja.isNotEmpty() }
@@ -55,7 +60,7 @@ internal class ProfileEvaluator(private val namingEngine: NamingEngine) {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
 
-            val evaluatedNames = namingEngine!!.generateNames(
+            val evaluatedNames = namingEngine.generateNames(
                 userInput = nameInput,
                 birthDateTime = birthDateTime,
                 useYajasi = profile.isYajaTime,
@@ -64,7 +69,11 @@ internal class ProfileEvaluator(private val namingEngine: NamingEngine) {
             )
 
             evaluatedNames.firstOrNull()?.let { generatedName ->
-                profile.apply { updateFromGeneratedName(generatedName) }
+                profile.apply { 
+                    evaluatedName = generatedName
+                    nameBomScore = ProfileScoreCalculator.calculateNamebomScore(generatedName)
+                    updateFromGeneratedName(generatedName)
+                }
             } ?: SajuEvaluator.evaluateProfileSaju(profile, namingEngine)
 
         } catch (e: Exception) {

@@ -1,5 +1,5 @@
-// model/domain/service/ThemeModel.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/theme/ThemeService.kt
+package com.ssc.namespring.model.domain.service.theme
 
 import android.content.Context
 import android.graphics.Color
@@ -9,7 +9,7 @@ import com.ssc.namespring.model.domain.entity.Theme
 import com.ssc.namespring.model.domain.entity.SproutState
 import com.ssc.namespring.model.domain.entity.WeatherType
 
-class ThemeModel(private val context: Context) {
+class ThemeService(private val context: Context) {
 
     fun getThemeByScore(score: Int): Theme {
         return Theme.getAll().find { score in it.scoreRange } ?: Theme.COLD_SPRING

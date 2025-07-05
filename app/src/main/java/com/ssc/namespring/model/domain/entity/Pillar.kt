@@ -1,8 +1,8 @@
 // model/domain/entity/Pillar.kt
 package com.ssc.namespring.model.domain.entity
 
-import com.ssc.namespring.model.domain.service.PillarEumyangCalculator
-import com.ssc.namespring.model.domain.service.PillarFactory
+import com.ssc.namespring.model.domain.service.utils.PillarEumyangCalculator
+import com.ssc.namespring.model.domain.service.factory.PillarFactory
 import java.io.Serializable
 
 data class Pillar(

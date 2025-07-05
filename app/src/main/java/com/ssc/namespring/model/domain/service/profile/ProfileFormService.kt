@@ -1,5 +1,5 @@
-// model/domain/service/ProfileFormService.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/profile/ProfileFormService.kt
+package com.ssc.namespring.model.domain.service.profile
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog

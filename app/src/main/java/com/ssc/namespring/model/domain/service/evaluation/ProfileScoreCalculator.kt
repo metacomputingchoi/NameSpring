@@ -1,5 +1,5 @@
-// model/domain/service/ProfileScoreCalculator.kt
-package com.ssc.namespring.model.domain.service
+// model/domain/service/evaluation/ProfileScoreCalculator.kt
+package com.ssc.namespring.model.domain.service.evaluation
 
 import android.util.Log
 import com.ssc.namingengine.data.GeneratedName
