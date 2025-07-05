@@ -16,14 +16,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.ssc.namespring.model.business.ProfileListViewModel
+import com.ssc.namespring.model.business.ProfileListManager
 import com.ssc.namespring.model.business.ProfileListUiState
 import com.ssc.namespring.model.adapter.ProfileAdapter
-import com.ssc.namespring.ProfileFormActivity
 import com.ssc.namespring.utils.ViewUtils
 
 class ProfileListActivity : AppCompatActivity() {
-    private lateinit var viewModel: ProfileListViewModel
+    private lateinit var viewModel: ProfileListManager
     private lateinit var adapter: ProfileAdapter
 
     // UI Components
@@ -47,7 +46,7 @@ class ProfileListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_list_improved)
 
-        viewModel = ProfileListViewModel()
+        viewModel = ProfileListManager()
         setupActivityResultLaunchers()
         initViews()
         setupRecyclerView()
