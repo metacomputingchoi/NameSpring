@@ -22,9 +22,8 @@ data class ProfileFormConfig(
 
     val profileLabelText: String
         get() = when (mode) {
-            ProfileFormMode.NAMING -> "제목(작명)"
-            ProfileFormMode.EVALUATION -> "제목(평가)"
-            else -> "" // "프로필 이름" 제거하여 중복 방지
+            ProfileFormMode.NAMING, ProfileFormMode.EVALUATION -> "작업명"
+            ProfileFormMode.CREATE, ProfileFormMode.EDIT -> "프로필 이름"
         }
 
     val showLoadButton: Boolean
@@ -32,9 +31,16 @@ data class ProfileFormConfig(
 
     val profileLabelHint: String
         get() = when (mode) {
-            ProfileFormMode.NAMING -> "예: 작명 - ${getCurrentDateTime()}"
-            ProfileFormMode.EVALUATION -> "예: 평가 - ${getCurrentDateTime()}"
-            else -> "예: 첫째, 우리 아이" // hint는 예시만 표시
+            ProfileFormMode.NAMING -> "예: 첫째 작명 ${getCurrentDateTime()}"
+            ProfileFormMode.EVALUATION -> "예: 우리 아이 이름 평가"
+            else -> "예: 첫째, 우리 아이"
+        }
+
+    val workDescription: String
+        get() = when (mode) {
+            ProfileFormMode.NAMING -> "작명 결과는 별도로 저장되지 않으며, 작업명은 구분용으로만 사용됩니다."
+            ProfileFormMode.EVALUATION -> "평가 결과는 별도로 저장되지 않으며, 작업명은 구분용으로만 사용됩니다."
+            else -> ""
         }
 
     val saveButtonText: String

@@ -79,6 +79,9 @@ class ProfileFormUIComponents(
 
         // 저장 버튼 텍스트 설정
         btnSave.text = config.saveButtonText
+
+        val profileLabel = activity.findViewById<TextView>(R.id.tvProfileLabel)
+        profileLabel?.text = config.profileLabelText
     }
 
     private fun initializeTextInputLayout() {
