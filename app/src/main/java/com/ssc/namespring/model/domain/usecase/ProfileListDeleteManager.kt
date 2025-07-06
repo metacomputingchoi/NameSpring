@@ -10,6 +10,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.ssc.namespring.model.domain.entity.Profile
 
 class ProfileListDeleteManager {
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
+
     fun showDeleteConfirmDialog(
         context: Context,
         profileIds: List<String>,
@@ -31,7 +33,7 @@ class ProfileListDeleteManager {
                 .setMessage(message)
                 .setPositiveButton("삭제") { _, _ ->
                     Log.d("ProfileListManager", "Delete confirmed")
-                    ProfileManager.deleteProfiles(profileIds)
+                    profileManager.deleteProfiles(profileIds)
                     Log.d("ProfileListManager", "ProfileManager.deleteProfiles called")
 
                     onDeleteConfirmed()

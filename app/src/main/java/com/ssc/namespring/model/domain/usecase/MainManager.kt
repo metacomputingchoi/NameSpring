@@ -9,12 +9,14 @@ class MainMagager {
     private val _uiState = MutableLiveData<MainUiState>()
     val uiState: LiveData<MainUiState> = _uiState
 
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
+
     init {
         refreshProfile()
     }
 
     fun refreshProfile() {
-        ProfileManager.getCurrentProfile()?.let { profile ->
+        profileManager.getCurrentProfile()?.let { profile ->
             _uiState.value = MainUiState(
                 profileName = profile.profileName,
                 scoreText = if (profile.isEvaluated()) profile.nameBomScore.toString() else "-",
@@ -28,10 +30,10 @@ class MainMagager {
                     profile.ohaengInfo?.metal ?: 0,
                     profile.ohaengInfo?.water ?: 0
                 ),
-                theme = if (profile.isEvaluated()) {  // isEvaluated() 사용
+                theme = if (profile.isEvaluated()) {
                     profile.getScoreThemeColor()
                 } else {
-                    Profile.ScoreTheme.NOT_EVALUATED  // NOT_EVALUATED로 변경
+                    Profile.ScoreTheme.NOT_EVALUATED
                 }
             )
         }
@@ -59,7 +61,7 @@ class MainMagager {
         }
     }
 
-    fun hasCurrentProfile(): Boolean = ProfileManager.getCurrentProfile() != null
+    fun hasCurrentProfile(): Boolean = profileManager.getCurrentProfile() != null
 }
 
 data class MainUiState(

@@ -24,7 +24,7 @@ class SplashManager {
             val startTime = System.currentTimeMillis()
 
             try {
-                ProfileManager.init(context)
+                ProfileManagerProvider.init(context)
 
                 DataLoader.ensureInitialized(context, object : DataLoader.LoadingListener {
                     override fun onProgress(progress: Int, message: String) {

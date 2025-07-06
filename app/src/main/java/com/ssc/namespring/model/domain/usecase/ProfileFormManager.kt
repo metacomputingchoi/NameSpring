@@ -15,6 +15,7 @@ class ProfileFormManager(private val profileId: String? = null) {
 
     private val dateTimeManager = DateTimeManager()
     private val nameDataManager = NameDataManager()
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
     init {
         _uiState.value = ProfileFormUiState()
@@ -24,7 +25,7 @@ class ProfileFormManager(private val profileId: String? = null) {
         nameDataManager.initialize()
 
         if (!profileId.isNullOrEmpty()) {
-            ProfileManager.getProfile(profileId)?.let { profile ->
+            profileManager.getProfile(profileId)?.let { profile ->
                 loadProfileData(profile)
             }
         } else {
@@ -102,7 +103,7 @@ class ProfileFormManager(private val profileId: String? = null) {
                 isYajaTime = _uiState.value?.isYajaTime == true,
                 surname = _uiState.value?.selectedSurname,
                 givenName = givenName,
-                createdAt = ProfileManager.getProfile(profileId)?.createdAt ?: System.currentTimeMillis(),
+                createdAt = profileManager.getProfile(profileId)?.createdAt ?: System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
             )
         } else {

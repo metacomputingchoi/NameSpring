@@ -5,8 +5,11 @@ import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.domain.usecase.ProfileManager
+import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 
 class ProfileFormService {
+
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
     fun saveProfile(
         context: Context,
@@ -19,9 +22,9 @@ class ProfileFormService {
             val profile = formManager.createProfile(profileName)
 
             val success = if (!profileId.isNullOrEmpty()) {
-                ProfileManager.updateProfile(profile)
+                profileManager.updateProfile(profile)
             } else {
-                ProfileManager.addProfile(profile)
+                profileManager.addProfile(profile)
             }
 
             if (!success) {

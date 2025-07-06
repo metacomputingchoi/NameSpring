@@ -18,6 +18,7 @@ class ProfileListManager {
     private val _uiState = MutableLiveData<ProfileListUiState>()
     val uiState: LiveData<ProfileListUiState> = _uiState
 
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
     private val loadingManager = ProfileListLoadingManager()
     private val selectionManager = ProfileListSelectionManager()
     private val deleteManager = ProfileListDeleteManager()
@@ -95,7 +96,7 @@ class ProfileListManager {
         if (_uiState.value?.isSelectionMode == true) {
             toggleSelection(profile.id)
         } else {
-            ProfileManager.switchProfile(profile.id)
+            profileManager.switchProfile(profile.id)
             context.startActivity(Intent(context, MainActivity::class.java))
         }
     }

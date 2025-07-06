@@ -7,12 +7,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.usecase.ProfileManager
+import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 
 class ProfileMenuHandler(
     private val onEditClick: (Profile) -> Unit,
     private val onDeleteClick: (Profile) -> Unit,
     private val onDuplicateClick: (Profile) -> Unit
 ) {
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
     fun showMenu(view: View, profile: Profile) {
         val popup = PopupMenu(view.context, view)
@@ -46,7 +48,7 @@ class ProfileMenuHandler(
             createdAt = System.currentTimeMillis()
         )
 
-        if (ProfileManager.addProfile(newProfile)) {
+        if (profileManager.addProfile(newProfile)) {
             Snackbar.make(
                 view,
                 "프로필이 복제되었습니다",

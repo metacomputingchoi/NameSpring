@@ -4,6 +4,8 @@ package com.ssc.namespring.model.domain.usecase
 import com.ssc.namespring.model.domain.entity.Profile
 
 class ProfileListLoadingManager {
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
+
     var currentPage = 1
         private set
     val pageSize = 20
@@ -30,9 +32,9 @@ class ProfileListLoadingManager {
         currentProfiles: List<Profile>
     ): Pair<List<Profile>, Boolean> {
         allProfiles = if (currentQuery.isEmpty()) {
-            ProfileManager.getSortedProfiles(currentSortType)
+            profileManager.getSortedProfiles(currentSortType)
         } else {
-            ProfileManager.searchProfiles(currentQuery).let { searchResults ->
+            profileManager.searchProfiles(currentQuery).let { searchResults ->
                 when (currentSortType) {
                     ProfileManager.SortType.NAME_ASC -> searchResults.sortedBy { it.profileName }
                     ProfileManager.SortType.NAME_DESC -> searchResults.sortedByDescending { it.profileName }
@@ -71,9 +73,9 @@ class ProfileListLoadingManager {
     ): List<Profile> {
         hasMoreData = false
         return if (currentQuery.isEmpty()) {
-            ProfileManager.getSortedProfiles(currentSortType)
+            profileManager.getSortedProfiles(currentSortType)
         } else {
-            ProfileManager.searchProfiles(currentQuery)
+            profileManager.searchProfiles(currentQuery)
         }
     }
 }
