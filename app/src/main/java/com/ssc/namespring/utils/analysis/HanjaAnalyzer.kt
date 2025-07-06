@@ -6,12 +6,28 @@ import com.ssc.namespring.utils.data.json.JsonDataRepository
 
 internal class HanjaAnalyzer(private val repository: JsonDataRepository) {
 
-    fun getHanjaMeaning(hanja: String): HanjaInfoMeaning? {
-        return HanjaInfoMeaning(
-            origin = repository.hanjaMeanings.hanjaOrigins[hanja],
-            components = repository.hanjaMeanings.hanjaComponents[hanja],
-            relatedCharacters = repository.hanjaMeanings.hanjaRelatedCharacters[hanja]
-        )
+    fun getHanjaMeaning(hanja: String): String {
+        // hanjaMeanings는 lateinit이므로 직접 접근
+        val originInfo = repository.hanjaMeanings.hanjaOrigins[hanja]
+        return originInfo?.meaning ?: "의미를 찾을 수 없습니다"
+    }
+
+    fun getHanjaInfo(hanja: String): HanjaInfoMeaning? {
+        val originInfo = repository.hanjaMeanings.hanjaOrigins[hanja]
+        val componentInfo = repository.hanjaMeanings.hanjaComponents[hanja]
+        val relatedChars = repository.hanjaMeanings.hanjaRelatedCharacters[hanja]
+
+        return if (originInfo != null) {
+            HanjaInfoMeaning(
+                meaning = originInfo.meaning,
+                origin = originInfo.origin,
+                usage = originInfo.usage,
+                components = componentInfo,
+                relatedCharacters = relatedChars
+            )
+        } else {
+            null
+        }
     }
 
     fun hasPositiveMeaning(meaning: String): Boolean {
@@ -22,10 +38,12 @@ internal class HanjaAnalyzer(private val repository: JsonDataRepository) {
 
     fun isMeaningHarmony(meaning1: String, meaning2: String): Boolean {
         val pattern = "${meaning1}_${meaning2}"
-        return repository.hanjaMeanings.meaningHarmonyPatterns[pattern] == true
+        // meaningHarmonyPatterns가 String 타입이므로 값이 존재하는지만 체크
+        return repository.hanjaMeanings.meaningHarmonyPatterns.containsKey(pattern)
     }
 
     fun getElementCharacteristic(element: String): String {
+        // elementCharacteristics는 lateinit이므로 직접 접근
         return repository.elementCharacteristics.elementCharacteristics[element]
             ?: "알 수 없는 오행"
     }

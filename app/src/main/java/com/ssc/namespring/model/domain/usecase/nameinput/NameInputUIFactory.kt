@@ -30,6 +30,7 @@ class NameInputUIFactory(
         return view
     }
 
+    // ui/profileform/NameInputUIFactory.kt
     private fun setupViews(view: View, index: Int, data: NameCharData, context: Context) {
         val tvPosition = view.findViewById<TextView>(R.id.tvPosition)
         val etKorean = view.findViewById<EditText>(R.id.etKorean)
@@ -47,7 +48,15 @@ class NameInputUIFactory(
         // Set initial values without text watchers
         etKorean.setText(data.korean)
         etHanja.setText(data.hanja)
-        NameInputButtonUpdater.updateButtonText(context, btnSearchHanja, data.korean, data.hanja)
+
+        // 초기 버튼 텍스트 설정
+        NameInputButtonUpdater.updateButtonText(
+            context,
+            btnSearchHanja,
+            data.korean,
+            data.hanja,
+            index
+        )
 
         // Create and add new text watchers
         val koreanWatcher = eventHandler.createKoreanTextWatcher(index, etHanja, btnSearchHanja, context)
@@ -58,11 +67,12 @@ class NameInputUIFactory(
 
         stateManager.addTextWatchers(index, koreanWatcher, hanjaWatcher)
 
-        // Set button listeners
+        // ⭐ 버튼 클릭 이벤트 추가 (누락된 부분)
         btnSearchHanja.setOnClickListener {
             eventHandler.handleHanjaSearchClick(index)
         }
 
+        // Clear button click listener
         btnClearChar.setOnClickListener {
             eventHandler.handleClearClick(index, etKorean, etHanja, btnSearchHanja)
         }

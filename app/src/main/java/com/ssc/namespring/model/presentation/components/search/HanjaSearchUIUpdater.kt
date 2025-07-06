@@ -22,22 +22,47 @@ internal class HanjaSearchUIUpdater(
 
     @SuppressLint("SetTextI18n")
     fun updateResults(results: List<HanjaSearchResult>) {
-        llResultInfo?.visibility = if (results.isNotEmpty()) View.VISIBLE else View.GONE
+        llResultInfo?.visibility = View.VISIBLE
 
-        if (hasKoreanConstraint) {
-            tvResultCount?.text = "검색 결과: ${results.size}개 / 전체: ${baseResults.size}개"
-        } else {
-            tvResultCount?.text = "검색 결과: ${results.size}개"
+        tvResultCount?.text = when {
+            // 검색어가 없어서 전체를 보여주는 경우
+            results.size == baseResults.size && baseResults.isNotEmpty() -> {
+                "전체 ${results.size}개의 한자"
+            }
+
+            // 검색 결과가 있는 경우
+            results.isNotEmpty() -> {
+                if (hasKoreanConstraint) {
+                    "${results.size}개 찾음"
+                } else {
+                    "${results.size}개의 검색 결과"
+                }
+            }
+
+            // 검색 결과가 없는 경우
+            else -> {
+                "검색 결과가 없습니다"
+            }
+        }
+
+        // 검색 결과가 없을 때 추가 안내
+        if (results.isEmpty()) {
+            tvResultCount?.append("\n다른 검색어를 시도해보세요")
         }
     }
 
     fun updateSearchHint(mode: SearchMode, hasKoreanConstraint: Boolean) {
-        if (!hasKoreanConstraint) {
-            tilSearch.hint = when (mode) {
-                SearchMode.ALL -> "초성, 한글, 한자, 뜻, 획수 검색"
-                SearchMode.SOUND -> "초성(ㅁ) 또는 한글(민) 검색"
-                SearchMode.MEANING -> "뜻 검색 (예: 밝을, 지혜, ㄷㅎ)"
-                SearchMode.HANJA -> "한자 또는 획수 검색 (예: 敏, 15)"
+        tilSearch.hint = when {
+            hasKoreanConstraint -> {
+                "추가 검색 (뜻, 한자 등)"
+            }
+            else -> {
+                when (mode) {
+                    SearchMode.ALL -> "검색어 입력 (초성, 한글, 한자, 뜻)"
+                    SearchMode.SOUND -> "음으로 검색 (ㅁ, 민 등)"
+                    SearchMode.MEANING -> "뜻으로 검색 (밝을, 지혜 등)"
+                    SearchMode.HANJA -> "한자로 검색"
+                }
             }
         }
     }

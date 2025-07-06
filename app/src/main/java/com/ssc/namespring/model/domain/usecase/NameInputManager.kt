@@ -9,6 +9,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.ssc.namespring.model.domain.usecase.nameinput.NameInputButtonUpdater
 
 class NameInputManager(
     private val nameDataManager: INameDataManager,
@@ -41,5 +42,7 @@ class NameInputManager(
 
     fun cleanup() {
         stateManager.cleanup()
+        eventHandler.cleanup()
+        NameInputButtonUpdater.cleanup()  // 추가
     }
 }

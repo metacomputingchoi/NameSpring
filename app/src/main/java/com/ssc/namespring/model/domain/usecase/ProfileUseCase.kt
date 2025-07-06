@@ -125,20 +125,38 @@ class ProfileUseCase(
 
     private fun updateProfilesIfNeeded() {
         val profiles = service.getAllProfiles()
-        val updatedProfiles = evaluator.updateProfilesIfNeeded(profiles)
+
+        // 완전한 정보를 가진 프로필만 평가
+        val profilesToEvaluate = profiles.filter { profile ->
+            // 평가되지 않았고 완전한 정보를 가진 경우만
+            profile.nameBomScore == 0 &&
+                    hasCompleteInfo(profile)
+        }
+
+        Log.d(TAG, "평가 필요한 프로필: ${profilesToEvaluate.size}개")
 
         var hasChanges = false
-        profiles.zip(updatedProfiles).forEach { (old, new) ->
-            if (old != new) {
-                service.replaceProfile(old, new)
-                hasChanges = true
-            }
+        profilesToEvaluate.forEach { profile ->
+            val evaluatedProfile = evaluator.evaluate(profile)
+            service.replaceProfile(profile, evaluatedProfile)
+            hasChanges = true
         }
 
         if (hasChanges) {
             saveProfiles()
-            Log.d(TAG, "Updated profiles with missing data")
+            Log.d(TAG, "프로필 평가 완료 및 저장")
         }
+    }
+
+    private fun hasCompleteInfo(profile: Profile): Boolean {
+        val hasCompleteName = profile.givenName?.let { givenName ->
+            givenName.charInfos.isNotEmpty() &&
+                    givenName.charInfos.all {
+                        it.korean.isNotEmpty() && it.hanja.isNotEmpty()
+                    }
+        } == true
+
+        return profile.surname != null && hasCompleteName
     }
 
     private fun saveProfiles() {

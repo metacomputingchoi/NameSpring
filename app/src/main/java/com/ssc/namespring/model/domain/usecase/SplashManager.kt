@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.ssc.namespring.model.data.source.DataLoader
+import com.ssc.namespring.utils.data.json.JsonLoader
 import kotlinx.coroutines.delay
 
 class SplashManager {
@@ -25,8 +26,11 @@ class SplashManager {
 
             try {
                 ProfileManagerProvider.init(context)
+                // JsonLoader 초기화 추가
+                JsonLoader.initialize(context)
 
                 DataLoader.ensureInitialized(context, object : DataLoader.LoadingListener {
+
                     override fun onProgress(progress: Int, message: String) {
                         _loadingState.value = LoadingState.Loading(progress, message)
                     }

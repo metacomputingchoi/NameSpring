@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.domain.service.profile.ProfileFormService
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.presentation.components.SearchDialogManager
@@ -30,9 +31,12 @@ class ProfileFormActivity : AppCompatActivity() {
 
         val profileId = intent.getStringExtra("profileId")
 
+        // 초기화 순서가 중요합니다
         initializeManagers(profileId)
         initializeComponents()
         observeFormState()
+
+        // formManager 초기화 후에 체크
         formManager.initialize()
     }
 
@@ -111,6 +115,7 @@ class ProfileFormActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        // Activity가 완전히 종료될 때만 cleanup
         nameInputHandler.cleanup()
     }
 }

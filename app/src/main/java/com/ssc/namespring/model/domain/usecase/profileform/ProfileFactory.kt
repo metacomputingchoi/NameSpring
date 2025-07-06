@@ -31,7 +31,7 @@ class ProfileFactory {
         }
 
         return if (!profileId.isNullOrEmpty() && existingProfile != null) {
-            // 기존 프로필 업데이트
+            // 기존 프로필 업데이트 - 평가 정보 유지
             Profile(
                 id = profileId,
                 profileName = profileName,
@@ -39,6 +39,10 @@ class ProfileFactory {
                 isYajaTime = isYajaTime,
                 surname = surname,
                 givenName = givenName,
+                nameBomScore = 0,  // 재평가를 위해 초기화
+                sajuInfo = null,   // 재평가를 위해 초기화
+                ohaengInfo = null, // 재평가를 위해 초기화
+                evaluatedNameJson = null, // 재평가를 위해 초기화
                 createdAt = existingProfile.createdAt,
                 updatedAt = System.currentTimeMillis()
             )

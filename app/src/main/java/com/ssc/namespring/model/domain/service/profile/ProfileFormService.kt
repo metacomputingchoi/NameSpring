@@ -4,6 +4,7 @@ package com.ssc.namespring.model.domain.service.profile
 import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.domain.usecase.ProfileManager
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
@@ -24,44 +25,25 @@ class ProfileFormService {
         callback: (Boolean) -> Unit
     ) {
         try {
-            Log.d(TAG, "saveProfile: profileName='$profileName', profileId=$profileId")
-
             val profile = formManager.createProfile(profileName)
 
-            // 프로필 데이터 검증 로그
-            Log.d(TAG, "Created profile:")
-            Log.d(TAG, "  - Name: ${profile.profileName}")
-            Log.d(TAG, "  - Surname: ${profile.surname?.korean}(${profile.surname?.hanja})")
-            Log.d(TAG, "  - GivenName: ${profile.givenName?.korean}(${profile.givenName?.hanja})")
-            profile.givenName?.charInfos?.forEachIndexed { index, charInfo ->
-                Log.d(TAG, "    CharInfo[$index]: ${charInfo.korean}/${charInfo.hanja}")
-            }
+            // 기존 프로필과 비교하여 변경사항 체크
+            val existingProfile = profileId?.let { profileManager.getProfile(it) }
+            val hasChanges = hasSignificantChanges(existingProfile, profile)
 
-            // 프로필 저장 전에 평가 수행
-            val evaluatedProfile = if (profile.surname != null && profile.givenName != null) {
-                // ProfileEvaluationService를 통해 평가
+            // 평가 수행 여부 결정
+            val evaluatedProfile = if (hasChanges && hasCompleteInfo(profile)) {
                 val evaluationService = ProfileEvaluationService(NamingEngine.create())
-                val evaluated = evaluationService.evaluate(profile)
-
-                // 평가 결과 로그
-                Log.d(TAG, "After evaluation:")
-                Log.d(TAG, "  - evaluatedName exists: ${evaluated.evaluatedName != null}")
-                Log.d(TAG, "  - evaluatedNameJson length: ${evaluated.evaluatedNameJson?.length}")
-                Log.d(TAG, "  - nameBomScore: ${evaluated.nameBomScore}")
-
-                // 디버깅을 위해 evaluatedName의 내용도 로그
-                evaluated.evaluatedName?.let { name ->
-                    Log.d(TAG, "  - GeneratedName details:")
-                    Log.d(TAG, "    - combinedHanja: ${name.combinedHanja}")
-                    Log.d(TAG, "    - combinedPronounciation: ${name.combinedPronounciation}")
-                    Log.d(TAG, "    - hanjaDetails count: ${name.hanjaDetails.size}")
-                    Log.d(TAG, "    - analysisInfo exists: ${name.analysisInfo != null}")
-                }
-
-                evaluated
+                evaluationService.evaluate(profile)
+            } else if (existingProfile != null && !hasChanges) {
+                // 변경사항이 없으면 기존 평가 정보 유지
+                profile.copy(
+                    nameBomScore = existingProfile.nameBomScore,
+                    evaluatedNameJson = existingProfile.evaluatedNameJson,
+                    sajuInfo = existingProfile.sajuInfo,
+                    ohaengInfo = existingProfile.ohaengInfo
+                )
             } else {
-                // 이름 정보가 불완전한 경우 evaluatedName = null로 유지
-                Log.d(TAG, "이름 정보가 불완전하여 평가하지 않음")
                 profile
             }
 
@@ -71,16 +53,49 @@ class ProfileFormService {
                 profileManager.addProfile(evaluatedProfile)
             }
 
-            if (!success) {
-                showDuplicateProfileDialog(context)
-            }
-
             callback(success)
         } catch (e: Exception) {
             Log.e(TAG, "Error saving profile", e)
-            e.printStackTrace()
             callback(false)
         }
+    }
+
+    // 유의미한 변경사항 체크 메서드 추가
+    private fun hasSignificantChanges(existing: Profile?, new: Profile): Boolean {
+        if (existing == null) return true
+
+        // 이름 변경 체크
+        if (existing.surname?.korean != new.surname?.korean ||
+            existing.surname?.hanja != new.surname?.hanja) return true
+
+        // 이름 글자 수 변경 체크
+        val existingCharCount = existing.givenName?.charInfos?.size ?: 0
+        val newCharCount = new.givenName?.charInfos?.size ?: 0
+        if (existingCharCount != newCharCount) return true
+
+        // 각 글자의 한글/한자 변경 체크
+        existing.givenName?.charInfos?.forEachIndexed { index, charInfo ->
+            val newCharInfo = new.givenName?.charInfos?.getOrNull(index)
+            if (charInfo.korean != newCharInfo?.korean ||
+                charInfo.hanja != newCharInfo?.hanja) return true
+        }
+
+        // 생년월일시 변경 체크
+        if (existing.birthDate.timeInMillis != new.birthDate.timeInMillis ||
+            existing.isYajaTime != new.isYajaTime) return true
+
+        return false
+    }
+
+    private fun hasCompleteInfo(profile: Profile): Boolean {
+        val hasCompleteName = profile.givenName?.let { givenName ->
+            givenName.charInfos.isNotEmpty() &&
+                    givenName.charInfos.all {
+                        it.korean.isNotEmpty() && it.hanja.isNotEmpty()
+                    }
+        } == true
+
+        return profile.surname != null && hasCompleteName
     }
 
     fun showResetDialog(context: Context, onConfirm: () -> Unit) {

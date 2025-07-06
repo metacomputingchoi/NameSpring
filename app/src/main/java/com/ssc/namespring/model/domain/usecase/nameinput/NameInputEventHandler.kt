@@ -7,7 +7,13 @@ import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class NameInputEventHandler(
     private val nameDataManager: INameDataManager,
@@ -22,6 +28,7 @@ class NameInputEventHandler(
     ): TextWatcher {
         return object : TextWatcher {
             private var previousText = ""
+            private var debounceJob: Job? = null
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 previousText = s?.toString() ?: ""
@@ -34,7 +41,10 @@ class NameInputEventHandler(
                 val currentData = nameDataManager.getCharData(index)
                 val currentHanja = currentData?.hanja ?: ""
 
-                // Korean changed and there was existing hanja - clear hanja
+                // 이전 디바운스 작업 취소
+                debounceJob?.cancel()
+
+                // 한글이 변경되고 기존 한자가 있었으면 초기화
                 if (korean != previousText && currentHanja.isNotEmpty()) {
                     nameDataManager.setCharData(index, korean, "")
                     nameDataManager.removeHanjaInfo(index)
@@ -44,7 +54,21 @@ class NameInputEventHandler(
                     nameDataManager.setCharData(index, korean, currentHanja)
                 }
 
-                NameInputButtonUpdater.updateButtonText(context, btnSearchHanja, korean, etHanja.text.toString())
+                // 디바운싱 없이 바로 업데이트 (또는 아주 짧은 딜레이)
+                if (korean.isNotEmpty()) {
+                    // 바로 업데이트
+                    NameInputButtonUpdater.updateButtonText(
+                        context,
+                        btnSearchHanja,
+                        korean,
+                        etHanja.text.toString(),
+                        index
+                    )
+                } else {
+                    // 빈 값일 때는 바로 처리
+                    btnSearchHanja.text = "한자 선택"
+                    btnSearchHanja.setTextColor(context.getColor(R.color.text_secondary))
+                }
             }
         }
     }
@@ -63,11 +87,20 @@ class NameInputEventHandler(
                 val hanja = s?.toString() ?: ""
                 val korean = etKorean.text.toString()
                 nameDataManager.setCharData(index, korean, hanja)
-                NameInputButtonUpdater.updateButtonText(context, btnSearchHanja, korean, hanja)
+
+                // 버튼 텍스트 업데이트 (position 전달)
+                NameInputButtonUpdater.updateButtonText(
+                    context,
+                    btnSearchHanja,
+                    korean,
+                    hanja,
+                    index
+                )
             }
         }
     }
 
+    // 누락된 메서드 추가
     fun handleHanjaSearchClick(index: Int) {
         onHanjaSearchClick(index)
     }
@@ -78,11 +111,29 @@ class NameInputEventHandler(
         etHanja: EditText,
         btnSearchHanja: Button
     ) {
+        // 업데이트 작업 취소
+        NameInputButtonUpdater.cancelUpdate(index)
+
         stateManager.removeTextWatchers(index, etKorean, etHanja)
         etKorean.setText("")
         etHanja.setText("")
         nameDataManager.removeHanjaInfo(index)
         nameDataManager.setCharData(index, "", "")
-        NameInputButtonUpdater.updateButtonText(etKorean.context, btnSearchHanja, "", "")
+
+        // 버튼 초기화
+        NameInputButtonUpdater.updateButtonText(
+            etKorean.context,
+            btnSearchHanja,
+            "",
+            "",
+            index
+        )
+    }
+
+    fun cleanup() {
+        // cleanup 시 모든 position의 job 취소
+        for (i in 0..3) {
+            NameInputButtonUpdater.cancelUpdate(i)
+        }
     }
 }

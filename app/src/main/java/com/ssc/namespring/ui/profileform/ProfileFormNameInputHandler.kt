@@ -10,6 +10,7 @@ import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 import com.ssc.namespring.model.presentation.components.SearchDialogManager
 import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.usecase.nameinput.NameInputButtonUpdater
 
 class ProfileFormNameInputHandler(
     private val formManager: ProfileFormManager,
@@ -21,12 +22,14 @@ class ProfileFormNameInputHandler(
 
     private var nameInputManager: NameInputManager? = null
 
+    // ui/profileform/ProfileFormNameInputHandler.kt
     fun refreshNameInputViews(
         container: LinearLayout,
         state: ProfileFormUiState
     ) {
         Log.d(TAG, "refreshNameInputViews: charCount=${state.nameCharCount}")
 
+        // 기존 뷰 제거만 하고 cleanup은 나중에
         container.removeAllViews()
 
         // NameInputManager 초기화 또는 재사용
@@ -89,5 +92,6 @@ class ProfileFormNameInputHandler(
         Log.d(TAG, "cleanup()")
         nameInputManager?.cleanup()
         nameInputManager = null
+        // cleanup은 Activity가 destroy될 때만 호출되도록
     }
 }

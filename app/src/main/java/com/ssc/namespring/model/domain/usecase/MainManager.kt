@@ -21,40 +21,8 @@ class MainMagager {
     fun refreshProfile() {
         val currentProfile = profileManager.getCurrentProfile()
         if (currentProfile != null) {
-            // evaluatedNameJson이 없는 평가된 프로필인 경우 재평가
-            if (currentProfile.isEvaluated() && currentProfile.evaluatedNameJson == null) {
-                Log.d("MainManager", "현재 프로필 재평가 필요: ${currentProfile.profileName}")
-
-                try {
-                    // NamingEngine 인스턴스 생성
-                    val namingEngine = NamingEngine.create()
-                    val evaluationService = ProfileEvaluationService(namingEngine)
-
-                    // 프로필 재평가
-                    val evaluatedProfile = evaluationService.evaluate(currentProfile)
-
-                    // 재평가된 프로필 저장
-                    val updateSuccess = profileManager.updateProfile(evaluatedProfile)
-
-                    if (updateSuccess) {
-                        Log.d("MainManager", "프로필 재평가 및 저장 성공")
-
-                        // 재평가된 프로필로 UI 업데이트
-                        updateUIWithProfile(evaluatedProfile)
-                    } else {
-                        Log.e("MainManager", "재평가된 프로필 저장 실패")
-                        // 저장 실패 시 기존 프로필로 UI 업데이트
-                        updateUIWithProfile(currentProfile)
-                    }
-                } catch (e: Exception) {
-                    Log.e("MainManager", "프로필 재평가 중 오류 발생", e)
-                    // 오류 발생 시 기존 프로필로 UI 업데이트
-                    updateUIWithProfile(currentProfile)
-                }
-            } else {
-                // 재평가가 필요 없는 경우 기존 프로필로 UI 업데이트
-                updateUIWithProfile(currentProfile)
-            }
+            // 재평가 없이 현재 프로필 정보만 표시
+            updateUIWithProfile(currentProfile)
         } else {
             Log.w("MainManager", "현재 프로필이 null입니다")
         }

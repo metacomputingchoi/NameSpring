@@ -17,10 +17,10 @@ data class Profile(
     var isYajaTime: Boolean = false,
     var surname: SurnameInfo? = null,
     var givenName: GivenNameInfo? = null,
-    var nameBomScore: Int = 0,
-    var sajuInfo: SajuInfo? = null,
-    var ohaengInfo: OhaengInfo? = null,
-    var evaluatedNameJson: String? = null,  // JSON만 저장
+    var nameBomScore: Int = 0,  // var여야 함
+    var sajuInfo: SajuInfo? = null,  // var여야 함
+    var ohaengInfo: OhaengInfo? = null,  // var여야 함
+    var evaluatedNameJson: String? = null,  // var여야 함
     val nameCharCount: Int = 2,
     val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis()

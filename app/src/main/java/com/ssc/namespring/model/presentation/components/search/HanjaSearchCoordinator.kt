@@ -56,15 +56,24 @@ internal class HanjaSearchCoordinator {
     fun loadBaseResults() {
         searchScope.launch {
             baseResults = withContext(Dispatchers.IO) {
-                if (hasKoreanConstraint) {
-                    if (isChosung) {
+                when {
+                    // 한글 제약이 없고 초기 검색어도 없으면 전체 한자
+                    !hasKoreanConstraint && initialKorean.isEmpty() -> {
+                        nameDataService.getAllHanja()
+                    }
+                    // 초성 검색
+                    isChosung -> {
                         nameDataService.searchHanja(initialKorean)
-                    } else {
+                    }
+                    // 특정 한글에 대한 한자만
+                    hasKoreanConstraint -> {
                         nameDataService.searchHanja(initialKorean)
                             .filter { it.korean == initialKorean }
                     }
-                } else {
-                    nameDataService.getAllHanja()
+                    // 그 외 전체 한자
+                    else -> {
+                        nameDataService.getAllHanja()
+                    }
                 }
             }
             Log.d("HanjaSearchCoordinator", "베이스 결과: ${baseResults.size}개")

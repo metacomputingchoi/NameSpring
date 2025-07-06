@@ -11,34 +11,29 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.domain.usecase.SplashManager
 import com.ssc.namespring.model.domain.usecase.SplashManager.LoadingState
+import com.ssc.namespring.model.data.source.DataLoader
+import com.ssc.namespring.utils.data.json.JsonLoader
 import kotlinx.coroutines.*
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "SplashActivity"
+        private const val MIN_SPLASH_TIME = 1500L
     }
 
     private lateinit var progressBar: ProgressBar
     private lateinit var tvProgress: TextView
     private lateinit var tvStatus: TextView
 
-    private val viewModel = SplashManager()
     private val scope = CoroutineScope(Dispatchers.Main + Job())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            ProfileManagerProvider.init(this)
-            Log.d(TAG, "ProfileManager initialized successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize ProfileManager", e)
-        }
         setContentView(R.layout.splash_layout)
 
         initViews()
-        observeViewModel()
-        viewModel.loadData(this)
+        loadAllData()
     }
 
     private fun initViews() {
@@ -47,23 +42,81 @@ class SplashActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvStatus)
     }
 
-    private fun observeViewModel() {
+    private fun loadAllData() {
         scope.launch {
-            viewModel.loadingState.collect { state ->
-                when (state) {
-                    is LoadingState.Loading -> updateProgress(state.progress, state.message)
-                    is LoadingState.Success -> navigateToMain()
-                    is LoadingState.Error -> showError(state.message)
+            val startTime = System.currentTimeMillis()
+
+            try {
+                // 1단계: ProfileManager 초기화 (10%)
+                updateProgress(10, "프로필 매니저 초기화 중...")
+                withContext(Dispatchers.IO) {
+                    ProfileManagerProvider.init(this@SplashActivity)
                 }
+                Log.d(TAG, "ProfileManager initialized successfully")
+
+                // 2단계: JsonLoader 초기화 (30%)
+                updateProgress(30, "JSON 데이터 로딩 중...")
+                withContext(Dispatchers.IO) {
+                    JsonLoader.initialize(this@SplashActivity)
+                }
+                Log.d(TAG, "JsonLoader initialized successfully")
+
+                // 3단계: 나머지 데이터 로드 (50-100%)
+                updateProgress(50, "이름 데이터 로딩 중...")
+
+                val loadingComplete = CompletableDeferred<Boolean>()
+
+                DataLoader.ensureInitialized(this@SplashActivity, object : DataLoader.LoadingListener {
+                    override fun onProgress(progress: Int, message: String) {
+                        // DataLoader의 progress를 50-90 범위로 매핑
+                        val mappedProgress = 50 + (progress * 40 / 100)
+                        updateProgress(mappedProgress, message)
+                    }
+
+                    override fun onComplete() {
+                        Log.d(TAG, "DataLoader initialization complete")
+                        loadingComplete.complete(true)
+                    }
+
+                    override fun onError(error: String) {
+                        Log.e(TAG, "DataLoader initialization failed: $error")
+                        loadingComplete.completeExceptionally(Exception(error))
+                    }
+                })
+
+                // DataLoader 완료 대기
+                loadingComplete.await()
+
+                // 4단계: 최종 검증 (90-100%)
+                updateProgress(95, "초기화 완료 중...")
+
+                // 최소 스플래시 시간 보장
+                val elapsedTime = System.currentTimeMillis() - startTime
+                val remainingTime = MIN_SPLASH_TIME - elapsedTime
+                if (remainingTime > 0) {
+                    delay(remainingTime)
+                }
+
+                updateProgress(100, "완료!")
+                delay(100) // 100% 표시를 잠깐 보여주기
+
+                // 메인 화면으로 이동
+                navigateToMain()
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Initialization failed", e)
+                showError("초기화 실패: ${e.message}\n\n앱을 다시 시작해주세요.")
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun updateProgress(progress: Int, message: String) {
-        progressBar.progress = progress
-        tvProgress.text = "$progress%"
-        tvStatus.text = message
+        runOnUiThread {
+            progressBar.progress = progress
+            tvProgress.text = "$progress%"
+            tvStatus.text = message
+        }
     }
 
     private fun navigateToMain() {
@@ -72,12 +125,16 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun showError(message: String) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("초기화 실패")
-            .setMessage(message)
-            .setPositiveButton("종료") { _, _ -> finish() }
-            .setCancelable(false)
-            .show()
+        runOnUiThread {
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("초기화 실패")
+                .setMessage(message)
+                .setPositiveButton("종료") { _, _ ->
+                    finishAffinity() // 앱 완전 종료
+                }
+                .setCancelable(false)
+                .show()
+        }
     }
 
     override fun onDestroy() {

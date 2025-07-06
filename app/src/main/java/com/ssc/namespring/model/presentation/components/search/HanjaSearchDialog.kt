@@ -98,9 +98,10 @@ internal class HanjaSearchDialog {
         hasKoreanConstraint: Boolean
     ): AlertDialog {
         val title = when {
-            isChosung -> "초성 '$initialKorean' 한자 검색"
-            hasKoreanConstraint -> "'$initialKorean' 한자 검색"
-            else -> "한자 검색"
+            initialKorean.isEmpty() -> "한자 선택"
+            isChosung -> "'$initialKorean' 초성 한자"
+            hasKoreanConstraint -> "'$initialKorean' 한자"
+            else -> "한자 선택"
         }
 
         return AlertDialog.Builder(context)

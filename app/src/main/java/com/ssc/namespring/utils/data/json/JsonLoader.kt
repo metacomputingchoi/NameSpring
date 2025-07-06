@@ -2,6 +2,9 @@
 package com.ssc.namespring.utils.data.json
 
 import android.content.Context
+import com.ssc.namespring.model.data.source.StrokeMeaningDetail
+import com.ssc.namespring.model.data.source.HanjaInfoMeaning
+import com.ssc.namespring.model.data.source.SimpleStrokeMeaning
 import com.ssc.namespring.utils.analysis.HanjaAnalyzer
 import com.ssc.namespring.utils.analysis.ReportHelper
 import com.ssc.namespring.utils.analysis.StrokeAnalyzer
@@ -15,6 +18,13 @@ object JsonLoader {
     private lateinit var strokeAnalyzer: StrokeAnalyzer
     private lateinit var hanjaAnalyzer: HanjaAnalyzer
     private lateinit var reportHelper: ReportHelper
+
+    // 초기화 체크 헬퍼 메서드
+    private fun checkInitialized() {
+        if (!isInitialized) {
+            throw IllegalStateException("JsonLoader가 초기화되지 않았습니다. initialize()를 먼저 호출하세요.")
+        }
+    }
 
     // 기존 인터페이스 유지를 위한 프로퍼티들
     val scoreEvaluations get() = repository.scoreEvaluations
@@ -53,17 +63,56 @@ object JsonLoader {
         reportHelper = ReportHelper(repository)
 
         isInitialized = true
+        logger.d("JsonLoader initialized successfully")
     }
 
-    // 기존 메서드들 위임
-    fun getStrokeMeaning(stroke: Int) = strokeAnalyzer.getStrokeMeaning(stroke)
-    fun getElementCharacteristic(element: String) = hanjaAnalyzer.getElementCharacteristic(element)
-    fun getGrade(score: Int) = strokeAnalyzer.getGrade(score)
-    fun getHanjaMeaning(hanja: String) = hanjaAnalyzer.getHanjaMeaning(hanja)
-    fun isBusinessLuckStroke(stroke: Int) = strokeAnalyzer.isBusinessLuckStroke(stroke)
-    fun isLeadershipStroke(stroke: Int) = strokeAnalyzer.isLeadershipStroke(stroke)
-    fun hasPositiveMeaning(meaning: String) = hanjaAnalyzer.hasPositiveMeaning(meaning)
-    fun isMeaningHarmony(meaning1: String, meaning2: String) = hanjaAnalyzer.isMeaningHarmony(meaning1, meaning2)
-    fun getReportSectionTitle(section: String) = reportHelper.getReportSectionTitle(section)
-    fun getReportSubsectionLabel(subsection: String) = reportHelper.getReportSubsectionLabel(subsection)
+    fun getStrokeMeaning(stroke: Int): SimpleStrokeMeaning {
+        checkInitialized()
+        return strokeAnalyzer.getStrokeMeaning(stroke)
+    }
+
+    fun getElementCharacteristic(element: String): String {
+        checkInitialized()
+        return hanjaAnalyzer.getElementCharacteristic(element)
+    }
+
+    fun getGrade(score: Int): String {
+        checkInitialized()
+        return strokeAnalyzer.getGrade(score)
+    }
+
+    fun getHanjaMeaning(hanja: String): HanjaInfoMeaning? {
+        checkInitialized()
+        return hanjaAnalyzer.getHanjaInfo(hanja)
+    }
+
+    fun isBusinessLuckStroke(stroke: Int): Boolean {
+        checkInitialized()
+        return strokeAnalyzer.isBusinessLuckStroke(stroke)
+    }
+
+    fun isLeadershipStroke(stroke: Int): Boolean {
+        checkInitialized()
+        return strokeAnalyzer.isLeadershipStroke(stroke)
+    }
+
+    fun hasPositiveMeaning(meaning: String): Boolean {
+        checkInitialized()
+        return hanjaAnalyzer.hasPositiveMeaning(meaning)
+    }
+
+    fun isMeaningHarmony(meaning1: String, meaning2: String): Boolean {
+        checkInitialized()
+        return hanjaAnalyzer.isMeaningHarmony(meaning1, meaning2)
+    }
+
+    fun getReportSectionTitle(section: String): String {
+        checkInitialized()
+        return reportHelper.getReportSectionTitle(section)
+    }
+
+    fun getReportSubsectionLabel(subsection: String): String {
+        checkInitialized()
+        return reportHelper.getReportSubsectionLabel(subsection)
+    }
 }

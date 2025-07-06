@@ -15,6 +15,7 @@ import com.ssc.namespring.model.domain.entity.SajuInfo
 import com.ssc.namespring.model.domain.service.evaluation.SajuEvaluator
 import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
 import com.ssc.namespring.model.domain.service.utils.ProfileUpdater
+import com.ssc.namespring.utils.data.json.JsonLoader
 import com.ssc.namingengine.data.GeneratedName
 import java.time.ZoneId
 
@@ -25,6 +26,16 @@ class ProfileEvaluationService(
     companion object {
         private const val TAG = "ProfileEvaluationService"
         private val gson = Gson()
+    }
+
+    init {
+        // JsonLoader 초기화 확인
+        try {
+            JsonLoader.scoreEvaluations // 초기화 체크
+        } catch (e: Exception) {
+            Log.e(TAG, "JsonLoader not initialized, attempting to initialize", e)
+            // 임시 방어 코드 - 실제로는 Context가 필요하므로 이 방법은 권장하지 않음
+        }
     }
 
     override fun evaluate(profile: Profile): Profile {
@@ -88,39 +99,40 @@ class ProfileEvaluationService(
             if (generatedName != null) {
                 Log.d(TAG, "GeneratedName 받음:")
                 Log.d(TAG, "  - combinedHanja: ${generatedName.combinedHanja}")
-                Log.d(TAG, "  - combinedPronounciation: ${generatedName.combinedPronounciation}")
+                Log.d(TAG, "  - analysisInfo exists: ${generatedName.analysisInfo != null}")
 
                 // JSON 변환
                 val jsonTest = gson.toJson(generatedName)
                 Log.d(TAG, "JSON 변환 성공: ${jsonTest.length} bytes")
 
-                // 기존 프로필을 복사하면서 업데이트
-                val updatedProfile = profile.copy(
-                    givenName = updateGivenNameInfoFromGeneratedName(givenName, generatedName),
-                    updatedAt = System.currentTimeMillis(),
-                    evaluatedNameJson = jsonTest,  // 여기서 직접 설정
-                    nameBomScore = ProfileScoreCalculator.calculateNamebomScore(generatedName)
-                )
+                // 점수 계산
+                val calculatedScore = ProfileScoreCalculator.calculateNamebomScore(generatedName)
+                Log.d(TAG, "계산된 점수: $calculatedScore")
+
+                // 직접 필드 업데이트
+                profile.givenName = updateGivenNameInfoFromGeneratedName(givenName, generatedName)
+                profile.updatedAt = System.currentTimeMillis()
+                profile.evaluatedNameJson = jsonTest
+                profile.nameBomScore = calculatedScore
 
                 // 사주/오행 정보 업데이트
                 generatedName.analysisInfo?.let { analysisInfo ->
-                    updatedProfile.sajuInfo = SajuInfo.fromAnalysisInfo(analysisInfo)
-                    updatedProfile.ohaengInfo = OhaengInfo(
+                    profile.sajuInfo = SajuInfo.fromAnalysisInfo(analysisInfo)
+                    profile.ohaengInfo = OhaengInfo(
                         wood = analysisInfo.sajuInfo.sajuOhaengCount["木"] ?: 0,
                         fire = analysisInfo.sajuInfo.sajuOhaengCount["火"] ?: 0,
                         earth = analysisInfo.sajuInfo.sajuOhaengCount["土"] ?: 0,
                         metal = analysisInfo.sajuInfo.sajuOhaengCount["金"] ?: 0,
                         water = analysisInfo.sajuInfo.sajuOhaengCount["水"] ?: 0
                     )
+                    Log.d(TAG, "오행 정보 업데이트: ${profile.ohaengInfo}")
                 }
 
                 Log.d(TAG, "=== 평가 결과 ===")
-                Log.d(TAG, "  - nameBomScore: ${updatedProfile.nameBomScore}")
-                Log.d(TAG, "  - evaluatedNameJson: ${updatedProfile.evaluatedNameJson?.length} bytes")
-                Log.d(TAG, "  - evaluatedNameJson is null: ${updatedProfile.evaluatedNameJson == null}")
-                Log.d(TAG, "=== evaluateFullProfile 끝 ===")
+                Log.d(TAG, "  - nameBomScore: ${profile.nameBomScore}")
+                Log.d(TAG, "  - evaluatedNameJson: ${profile.evaluatedNameJson?.length} bytes")
 
-                return updatedProfile
+                return profile
             } else {
                 Log.w(TAG, "GeneratedName이 비어있음")
                 return SajuEvaluator.evaluateProfileSaju(profile, namingEngine)
@@ -160,5 +172,36 @@ class ProfileEvaluationService(
             "[${charInfo.korean}/${charInfo.hanja}]"
         }
         return surnameInput + givenNameInput
+    }
+
+    // 평가 필요 여부를 체크하는 메서드 추가
+    fun needsEvaluation(profile: Profile): Boolean {
+        // 이미 평가된 프로필이고 정보가 완전하면 재평가 불필요
+        if (profile.nameBomScore > 0 && profile.evaluatedNameJson != null) {
+            return false
+        }
+
+        // 필수 정보가 모두 있는지 체크
+        return hasCompleteInfo(profile)
+    }
+
+    fun hasCompleteInfo(profile: Profile): Boolean {
+        val hasCompleteName = profile.givenName?.let { givenName ->
+            givenName.charInfos.isNotEmpty() &&
+                    givenName.charInfos.all {
+                        it.korean.isNotEmpty() && it.hanja.isNotEmpty()
+                    }
+        } == true
+
+        return profile.surname != null && hasCompleteName
+    }
+
+    // 선택적 평가 메서드 추가
+    fun evaluateIfNeeded(profile: Profile): Profile {
+        return if (needsEvaluation(profile)) {
+            evaluate(profile)
+        } else {
+            profile
+        }
     }
 }

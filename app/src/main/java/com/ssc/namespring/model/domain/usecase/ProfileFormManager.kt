@@ -49,22 +49,11 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     private fun loadProfileData(profile: Profile) {
-        // 평가된 프로필인데 evaluatedNameJson이 없으면 재평가
-        if (profile.isEvaluated() && profile.evaluatedNameJson == null) {
-            Log.d(TAG, "편집할 프로필 재평가 필요")
-            val evaluationService = ProfileEvaluationService(NamingEngine.create())
-            val evaluatedProfile = evaluationService.evaluate(profile)
-
-            stateManager.loadFromProfile(evaluatedProfile)
-            dateTimeManager.setDateTime(evaluatedProfile.birthDate)
-            nameDataManager.loadFromProfile(evaluatedProfile)
-            updateUiState()
-        } else {
-            stateManager.loadFromProfile(profile)
-            dateTimeManager.setDateTime(profile.birthDate)
-            nameDataManager.loadFromProfile(profile)
-            updateUiState()
-        }
+        // 재평가 없이 기존 데이터만 로드
+        stateManager.loadFromProfile(profile)
+        dateTimeManager.setDateTime(profile.birthDate)
+        nameDataManager.loadFromProfile(profile)
+        updateUiState()
     }
 
     fun updateDate(calendar: Calendar) {

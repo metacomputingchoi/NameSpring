@@ -38,5 +38,8 @@ data class StrokeMeaningDetail(
     val challengePeriod: String?,
 
     @SerializedName("opportunity_area")
-    val opportunityArea: String?
+    val opportunityArea: String?,
+
+    @SerializedName("lucky_level")
+    val luckyLevel: String
 )

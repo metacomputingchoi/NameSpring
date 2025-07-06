@@ -98,13 +98,7 @@ class ProfileListManager {
         if (_uiState.value?.isSelectionMode == true) {
             toggleSelection(profile.id)
         } else {
-            // 프로필이 평가되었지만 evaluatedNameJson이 없는 경우 재평가
-            if (profile.isEvaluated() && profile.evaluatedNameJson == null) {
-                val evaluationService = ProfileEvaluationService(NamingEngine.create())
-                val evaluatedProfile = evaluationService.evaluate(profile)
-                profileManager.updateProfile(evaluatedProfile)
-            }
-
+            // 재평가 없이 바로 전환
             profileManager.switchProfile(profile.id)
             context.startActivity(Intent(context, MainActivity::class.java))
         }
