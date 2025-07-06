@@ -15,7 +15,7 @@ import com.ssc.namespring.model.domain.service.profile.ProfileServiceImpl
  * 의존성 주입을 위한 컨테이너
  * 향후 Hilt나 Koin으로 교체 가능
  */
-internal class ProfileDependencyContainer(private val context: Context) {
+internal class ProfileDependencyContainer(private val context: Context) : IProfileDependencyProvider {
 
     companion object {
         private const val TAG = "ProfileDependencyContainer"
@@ -52,7 +52,7 @@ internal class ProfileDependencyContainer(private val context: Context) {
         ProfileMigratorAdapter(ProfileMigrator(gson))
     }
 
-    fun provideProfileUseCase(): ProfileUseCase {
+    override fun provideProfileUseCase(): ProfileUseCase {
         return ProfileUseCase(repository, service, evaluator, migrator)
     }
 }

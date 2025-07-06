@@ -4,6 +4,7 @@ package com.ssc.namespring.model.domain.usecase
 import android.util.Log
 import com.google.gson.JsonSyntaxException
 import com.ssc.namespring.model.domain.entity.Profile
+import com.ssc.namespring.model.domain.service.interfaces.IProfileManager
 import com.ssc.namespring.model.domain.service.interfaces.IProfileRepository
 import com.ssc.namespring.model.domain.service.interfaces.IProfileService
 import com.ssc.namespring.model.domain.service.interfaces.IProfileEvaluator
@@ -52,7 +53,7 @@ class ProfileUseCase(
     fun searchProfiles(query: String): List<Profile> =
         service.searchProfiles(query)
 
-    fun getSortedProfiles(sortType: ProfileManager.SortType): List<Profile> =
+    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> =
         service.getSortedProfiles(sortType)
 
     fun getAllProfiles(): List<Profile> =

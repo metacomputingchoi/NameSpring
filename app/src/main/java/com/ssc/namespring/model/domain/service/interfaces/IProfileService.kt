@@ -2,7 +2,6 @@
 package com.ssc.namespring.model.domain.service.interfaces
 
 import com.ssc.namespring.model.domain.entity.Profile
-import com.ssc.namespring.model.domain.usecase.ProfileManager
 
 interface IProfileService {
     fun initProfiles(profiles: List<Profile>, currentProfileId: String?)
@@ -14,7 +13,7 @@ interface IProfileService {
     fun getCurrentProfile(): Profile?
     fun switchProfile(id: String): Boolean
     fun searchProfiles(query: String): List<Profile>
-    fun getSortedProfiles(sortType: ProfileManager.SortType): List<Profile>
+    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile>
     fun hasProfiles(): Boolean
     fun setSelectedProfile(profile: Profile)
     fun getSelectedProfile(): Profile?

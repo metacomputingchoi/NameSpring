@@ -4,9 +4,9 @@ package com.ssc.namespring.model.domain.service.profile
 import android.util.Log
 import com.ssc.namespring.model.common.utils.ChosungUtils
 import com.ssc.namespring.model.common.utils.MixedPatternUtils
+import com.ssc.namespring.model.domain.service.interfaces.IProfileManager
 import com.ssc.namespring.model.domain.service.interfaces.ProfileService
 import com.ssc.namespring.model.domain.entity.Profile
-import com.ssc.namespring.model.domain.usecase.ProfileManager
 
 class ProfileServiceImpl : ProfileService {
     companion object {
@@ -127,14 +127,14 @@ class ProfileServiceImpl : ProfileService {
         return MixedPatternUtils.matchChosungPattern(text, chosungQuery)
     }
 
-    fun getSortedProfiles(sortType: ProfileManager.SortType): List<Profile> {
+    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> {
         return when (sortType) {
-            ProfileManager.SortType.NAME_ASC -> profiles.sortedBy { it.profileName }
-            ProfileManager.SortType.NAME_DESC -> profiles.sortedByDescending { it.profileName }
-            ProfileManager.SortType.SCORE_DESC -> profiles.sortedByDescending { it.nameBomScore }
-            ProfileManager.SortType.SCORE_ASC -> profiles.sortedBy { it.nameBomScore }
-            ProfileManager.SortType.DATE_DESC -> profiles.sortedByDescending { it.createdAt }
-            ProfileManager.SortType.DATE_ASC -> profiles.sortedBy { it.createdAt }
+            IProfileManager.SortType.NAME_ASC -> profiles.sortedBy { it.profileName }
+            IProfileManager.SortType.NAME_DESC -> profiles.sortedByDescending { it.profileName }
+            IProfileManager.SortType.SCORE_DESC -> profiles.sortedByDescending { it.nameBomScore }
+            IProfileManager.SortType.SCORE_ASC -> profiles.sortedBy { it.nameBomScore }
+            IProfileManager.SortType.DATE_DESC -> profiles.sortedByDescending { it.createdAt }
+            IProfileManager.SortType.DATE_ASC -> profiles.sortedBy { it.createdAt }
         }
     }
 
