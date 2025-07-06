@@ -24,25 +24,22 @@ class SurnameSearchService(private val store: SurnameStore) : SearchService<Surn
 
     private val infoBuilder = SurnameInfoBuilder(store)
 
-    // 전체 성씨 목록을 가져오는 메서드
     fun getAllSurnames(): List<SurnameSearchResult> {
         if (!DataLoader.isReady()) {
             Log.e(TAG, "데이터가 아직 로드되지 않았습니다")
             return emptyList()
         }
 
-        if (store.surnameMapping.isEmpty() || store.charTripleDict.isEmpty()) {
-            Log.e(TAG, "성씨 데이터가 비어있습니다")
-            return emptyList()
-        }
-
         val results = mutableListOf<SurnameSearchResult>()
 
-        // 단일 성씨 추가
-        store.surnameMapping.forEach { (korean, hanjaList) ->
-            hanjaList.forEach { hanja ->
-                val key = "$korean/$hanja"
-                store.charTripleDict[key]?.let { info ->
+        // 1. 단일 성씨: charTripleDict에서 가져오기
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.contains("/") && key.count { it == '/' } == 1) {
+                val parts = key.split("/")
+                val korean = parts[0]
+                val hanja = parts[1]
+
+                if (korean.length == 1) {  // 단일 성씨만
                     results.add(SurnameSearchResult(
                         korean = korean,
                         hanja = hanja,
@@ -53,17 +50,20 @@ class SurnameSearchService(private val store: SurnameStore) : SearchService<Surn
             }
         }
 
-        // 복성 추가
+        // 2. 복성: surnameHanjaMapping에서 가져오기
         store.surnameHanjaMapping.keys
             .filter { it.contains("/") && it.count { c -> c == '/' } == 1 }
             .forEach { compoundKey ->
                 val parts = compoundKey.split("/")
-                if (parts[0].length > 1) {
+                val korean = parts[0]
+                val hanja = parts[1]
+
+                if (korean.length > 1) {  // 복성만
                     val meanings = collectMeanings(store.surnameHanjaMapping[compoundKey] ?: emptyList())
                     results.add(SurnameSearchResult(
-                        korean = parts[0],
-                        hanja = parts[1],
-                        meaning = meanings.joinToString(" ").ifEmpty { null },
+                        korean = korean,
+                        hanja = hanja,
+                        meaning = meanings.joinToString("; ").ifEmpty { null }, // 세미콜론으로 구분
                         isCompound = true
                     ))
                 }
@@ -79,7 +79,7 @@ class SurnameSearchService(private val store: SurnameStore) : SearchService<Surn
             return emptyList()
         }
 
-        if (store.surnameMapping.isEmpty() || store.charTripleDict.isEmpty()) {
+        if (store.charTripleDict.isEmpty()) {
             Log.e(TAG, "성씨 데이터가 비어있습니다")
             return emptyList()
         }

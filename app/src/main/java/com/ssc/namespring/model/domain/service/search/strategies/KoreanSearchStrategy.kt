@@ -9,36 +9,60 @@ import com.ssc.namespring.model.common.utils.MixedPatternUtils
 class KoreanSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
 
     override fun search(query: String, results: MutableList<SurnameSearchResult>) {
-        // 혼합 패턴 검색 (한글+초성)
+        // 혼합 패턴 검색
         if (MixedPatternUtils.containsMixedPattern(query)) {
             searchWithMixedPattern(query, results)
             return
         }
 
-        // 기존 로직
-        searchCompoundSurnamesExact(query, results)
-        if (query.length == 1) {
-            addCompoundSurnamesStartingWith(query, results)
-        }
-        addSurnameResults(query, results)
-    }
+        // charTripleDict에서 직접 검색
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.contains("/") && key.count { it == '/' } == 1) {
+                val parts = key.split("/")
+                val korean = parts[0]
 
-    private fun searchWithMixedPattern(query: String, results: MutableList<SurnameSearchResult>) {
-        // 단일 성씨 검색
-        store.surnameMapping.keys.forEach { korean ->
-            if (MixedPatternUtils.matchMixedPattern(korean, query)) {
-                addSurnameResults(korean, results)
+                // 단일 성씨이고 쿼리와 일치하는 경우
+                if (korean.length == 1 && korean == query) {
+                    results.add(SurnameSearchResult(
+                        korean = korean,
+                        hanja = parts[1],
+                        meaning = info.integratedInfo.nameMeaning,
+                        isCompound = false
+                    ))
+                }
             }
         }
 
-        // 복성 검색
+        // 복성 검색 (기존 코드)
+        searchCompoundSurnamesExact(query, results)
+    }
+
+    private fun searchWithMixedPattern(query: String, results: MutableList<SurnameSearchResult>) {
+        // 1. 단일 성씨 검색: charTripleDict에서
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.contains("/") && key.count { it == '/' } == 1) {
+                val parts = key.split("/")
+                val korean = parts[0]
+
+                if (korean.length == 1 && MixedPatternUtils.matchMixedPattern(korean, query)) {
+                    results.add(SurnameSearchResult(
+                        korean = korean,
+                        hanja = parts[1],
+                        meaning = info.integratedInfo.nameMeaning,
+                        isCompound = false
+                    ))
+                }
+            }
+        }
+
+        // 2. 복성 검색: surnameHanjaMapping에서
         store.surnameHanjaMapping.keys
-            .filter { it.contains("/") }
+            .filter { it.contains("/") && it.count { c -> c == '/' } == 1 }
             .forEach { key ->
-                val korean = key.split("/")[0]
-                if (MixedPatternUtils.matchMixedPattern(korean, query)) {
-                    val hanja = key.split("/")[1]
-                    addCompoundSurnameResult(korean, hanja, results)
+                val parts = key.split("/")
+                val korean = parts[0]
+                if (korean.length > 1 && MixedPatternUtils.matchMixedPattern(korean, query)) {
+                    addCompoundSurnameResult(korean, parts[1], results)
                 }
             }
     }

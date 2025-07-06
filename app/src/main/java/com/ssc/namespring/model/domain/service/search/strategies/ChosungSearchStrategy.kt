@@ -27,14 +27,24 @@ class ChosungSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
     }
 
     private fun searchMultipleChosung(query: String, results: MutableList<SurnameSearchResult>) {
-        // 단일 성씨에서 초성 패턴 매칭
-        store.surnameMapping.keys.forEach { korean ->
-            if (MixedPatternUtils.matchChosungPattern(korean, query)) {
-                addSurnameResults(korean, results)
+        // 1. 단일 성씨: charTripleDict에서 초성 패턴 매칭
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.contains("/") && key.count { it == '/' } == 1) {
+                val parts = key.split("/")
+                val korean = parts[0]
+
+                if (korean.length == 1 && MixedPatternUtils.matchChosungPattern(korean, query)) {
+                    results.add(SurnameSearchResult(
+                        korean = korean,
+                        hanja = parts[1],
+                        meaning = info.integratedInfo.nameMeaning,
+                        isCompound = false
+                    ))
+                }
             }
         }
 
-        // 복성에서 초성 패턴 매칭
+        // 2. 복성: surnameHanjaMapping에서 초성 패턴 매칭
         store.surnameHanjaMapping.keys
             .filter { it.contains("/") && it.count { c -> c == '/' } == 1 }
             .forEach { compoundKey ->

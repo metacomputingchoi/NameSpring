@@ -8,9 +8,10 @@ abstract class BaseSearchStrategy(protected val store: SurnameStore) {
     abstract fun search(query: String, results: MutableList<SurnameSearchResult>)
 
     protected fun addSurnameResults(korean: String, results: MutableList<SurnameSearchResult>) {
-        store.surnameMapping[korean]?.forEach { hanja ->
-            val key = "$korean/$hanja"
-            store.charTripleDict[key]?.let { info ->
+        // charTripleDict에서 직접 검색
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.startsWith("$korean/") && key.count { it == '/' } == 1) {
+                val hanja = key.split("/")[1]
                 results.add(SurnameSearchResult(
                     korean = korean,
                     hanja = hanja,
@@ -29,7 +30,7 @@ abstract class BaseSearchStrategy(protected val store: SurnameStore) {
                 results.add(SurnameSearchResult(
                     korean = korean,
                     hanja = hanja,
-                    meaning = meanings.joinToString(" ").ifEmpty { null },
+                    meaning = meanings.joinToString("; ").ifEmpty { null }, // 세미콜론으로 구분
                     isCompound = true
                 ))
             }
@@ -39,8 +40,16 @@ abstract class BaseSearchStrategy(protected val store: SurnameStore) {
     protected fun collectMeanings(parts: List<String>): List<String> {
         val meanings = mutableListOf<String>()
         parts.forEach { partKey ->
-            store.charTripleDict[partKey]?.integratedInfo?.nameMeaning?.let {
-                meanings.add(it)
+            store.charTripleDict[partKey]?.integratedInfo?.let { info ->
+                val meaning = info.nameMeaning ?: ""
+                val korean = partKey.split("/")[0]
+                val hanja = partKey.split("/")[1]
+                // 각 글자의 정보를 "한글(한자): 뜻" 형식으로 저장
+                if (meaning.isNotEmpty()) {
+                    meanings.add("$meaning")
+                } else {
+                    meanings.add("뜻없음")
+                }
             }
         }
         return meanings

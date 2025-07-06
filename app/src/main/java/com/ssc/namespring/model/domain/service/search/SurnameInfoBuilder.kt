@@ -45,7 +45,7 @@ class SurnameInfoBuilder(private val store: SurnameStore) {
             SurnameInfo(
                 korean = korean,
                 hanja = hanja,
-                meaning = meanings.joinToString(" ").ifEmpty { null },
+                meaning = meanings.joinToString("; ").ifEmpty { null }, // 세미콜론으로 구분
                 strokes = totalStrokes,
                 ohaeng = firstOhaeng,
                 eumyang = firstEumyang
@@ -56,8 +56,15 @@ class SurnameInfoBuilder(private val store: SurnameStore) {
     private fun collectMeanings(parts: List<String>): List<String> {
         val meanings = mutableListOf<String>()
         parts.forEach { partKey ->
-            store.charTripleDict[partKey]?.integratedInfo?.nameMeaning?.let {
-                meanings.add(it)
+            store.charTripleDict[partKey]?.integratedInfo?.let { info ->
+                val meaning = info.nameMeaning ?: ""
+                val korean = partKey.split("/")[0]
+                val hanja = partKey.split("/")[1]
+                if (meaning.isNotEmpty()) {
+                    meanings.add("$korean($hanja): $meaning")
+                } else {
+                    meanings.add("$korean($hanja)")
+                }
             }
         }
         return meanings

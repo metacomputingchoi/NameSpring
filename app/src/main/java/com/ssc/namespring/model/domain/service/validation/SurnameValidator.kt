@@ -34,25 +34,19 @@ class SurnameValidator(private val store: SurnameStore) {
         if (store.charTripleDict.isEmpty()) {
             criticalErrors.add("성씨 charTripleDict가 비어있음")
         }
-        if (store.surnameMapping.isEmpty()) {
-            criticalErrors.add("surnameMapping이 비어있음")
-        }
     }
 
     private fun validateCharTripleDict(warnings: MutableList<String>) {
-        var missingCount = 0
-        store.surnameMapping.forEach { (korean, hanjaList) ->
-            hanjaList.forEach { hanja ->
-                val key = "$korean/$hanja"
-                if (!store.charTripleDict.containsKey(key)) {
-                    missingCount++
-                    Log.v(TAG, "Missing in charTripleDict: $key")
-                }
+        var invalidCount = 0
+        store.charTripleDict.forEach { (key, info) ->
+            if (!key.contains("/") || key.count { it == '/' } != 1) {
+                invalidCount++
+                Log.v(TAG, "Invalid key format: $key")
             }
         }
 
-        if (missingCount > 0) {
-            warnings.add("성씨 charTripleDict에서 $missingCount 개의 키 누락")
+        if (invalidCount > 0) {
+            warnings.add("잘못된 형식의 키: $invalidCount 개")
         }
     }
 

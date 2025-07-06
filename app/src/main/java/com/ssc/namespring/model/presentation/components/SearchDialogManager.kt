@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.ssc.namespring.R
 import com.ssc.namespring.model.common.utils.MixedPatternUtils
@@ -38,7 +40,8 @@ class SearchDialogManager {
 
     fun showSurnameDialog(context: Context, onSurnameSelected: (SurnameInfo?) -> Unit) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_surname_search, null)
-        val etSearch = dialogView.findViewById<EditText>(R.id.etSearch)
+        val tilSearch = dialogView.findViewById<TextInputLayout>(R.id.tilSearch)
+        val etSearch = dialogView.findViewById<TextInputEditText>(R.id.etSearch)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerView)
 
         val adapter = SurnameSearchAdapter { result ->
@@ -57,33 +60,54 @@ class SearchDialogManager {
 
         adapter.onItemSelected = { dialog.dismiss() }
 
+        // 검색 함수
+        fun performSearch(query: String) {
+            try {
+                val results = if (query.isNotEmpty()) {
+                    SurnameData.searchSurnames(query)
+                } else {
+                    SurnameData.getAllSurnames()
+                }
+                adapter.submitList(results)
+            } catch (e: Exception) {
+                Log.e("SearchDialog", "성씨 검색 중 오류", e)
+                adapter.submitList(emptyList())
+            }
+        }
+
+        // 텍스트 변경 리스너
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                try {
-                    val query = s?.toString() ?: ""
-                    val results = if (query.isNotEmpty()) {
-                        SurnameData.searchSurnames(query)
-                    } else {
-                        SurnameData.getAllSurnames()
-                    }
-                    adapter.submitList(results)
-                } catch (e: Exception) {
-                    Log.e("SearchDialog", "성씨 검색 중 오류", e)
-                    adapter.submitList(emptyList())
-                }
+                performSearch(s?.toString() ?: "")
             }
         })
 
+        // 키보드 검색 버튼 클릭 리스너
+        etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch(etSearch.text?.toString() ?: "")
+                // 키보드 숨기기 (선택사항)
+                etSearch.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
+
         dialog.show()
 
+        // 초기 전체 목록 로드
         try {
             val allSurnames = SurnameData.getAllSurnames()
             adapter.submitList(allSurnames)
         } catch (e: Exception) {
             Log.e("SearchDialog", "초기 성씨 목록 로드 실패", e)
         }
+
+        // 포커스 요청 (선택사항 - 다이얼로그 열릴 때 키보드 자동 표시)
+        etSearch.requestFocus()
     }
 
     @SuppressLint("SetTextI18n")

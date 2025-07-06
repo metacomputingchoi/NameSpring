@@ -9,14 +9,24 @@ import com.ssc.namespring.model.common.utils.MixedPatternUtils
 class MixedPatternSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
 
     override fun search(query: String, results: MutableList<SurnameSearchResult>) {
-        // 단일 성씨 검색
-        store.surnameMapping.keys.forEach { korean ->
-            if (MixedPatternUtils.matchMixedPattern(korean, query)) {
-                addSurnameResults(korean, results)
+        // 1. 단일 성씨 검색: charTripleDict에서
+        store.charTripleDict.forEach { (key, info) ->
+            if (key.contains("/") && key.count { it == '/' } == 1) {
+                val parts = key.split("/")
+                val korean = parts[0]
+
+                if (korean.length == 1 && MixedPatternUtils.matchMixedPattern(korean, query)) {
+                    results.add(SurnameSearchResult(
+                        korean = korean,
+                        hanja = parts[1],
+                        meaning = info.integratedInfo.nameMeaning,
+                        isCompound = false
+                    ))
+                }
             }
         }
 
-        // 복성 검색
+        // 2. 복성 검색: surnameHanjaMapping에서
         store.surnameHanjaMapping.keys
             .filter { it.contains("/") && it.count { c -> c == '/' } == 1 }
             .forEach { compoundKey ->
