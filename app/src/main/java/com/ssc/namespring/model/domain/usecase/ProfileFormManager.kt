@@ -4,7 +4,6 @@ package com.ssc.namespring.model.domain.usecase
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
@@ -12,6 +11,8 @@ import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormDateTimeMa
 import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormStateManager
 import com.ssc.namespring.model.domain.usecase.profileform.ProfileFactory
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
+import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
 import java.util.Calendar
 
 class ProfileFormManager(private val profileId: String? = null) {
@@ -27,6 +28,7 @@ class ProfileFormManager(private val profileId: String? = null) {
     private val stateManager = ProfileFormStateManager()
     private val profileFactory = ProfileFactory()
     private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
+    private val nameDataService: INameDataService = NameDataServiceFactory.getInstance()
 
     init {
         nameDataManager.initialize()
@@ -91,9 +93,9 @@ class ProfileFormManager(private val profileId: String? = null) {
         // NameDataManager에 데이터 설정
         nameDataManager.setCharData(position, korean, hanja)
 
-        // NameData에서 CharTripleInfo 가져와서 설정
+        // INameDataService를 통해 CharTripleInfo 가져와서 설정
         if (korean.isNotEmpty() && hanja.isNotEmpty()) {
-            NameData.getCharInfo(korean, hanja)?.let { info ->
+            nameDataService.getCharInfo(korean, hanja)?.let { info ->
                 nameDataManager.setHanjaInfo(position, info)
             }
         }

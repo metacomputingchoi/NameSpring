@@ -7,7 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.ssc.namespring.R
-import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
+import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
 import com.ssc.namespring.model.presentation.adapter.HanjaSearchAdapter
 import kotlinx.coroutines.*
 
@@ -18,6 +19,7 @@ internal class HanjaSearchDialog {
 
     private val searchController = HanjaSearchCoordinator()
     private val uiController = HanjaSearchUIHandler()
+    private val nameDataService: INameDataService = NameDataServiceFactory.getInstance()
 
     fun show(
         context: Context,
@@ -35,14 +37,14 @@ internal class HanjaSearchDialog {
             Log.d(TAG, "Hanja selected: ${result.korean}/${result.hanja}")
 
             // 한자 정보가 존재하는지 확인
-            val charInfo = NameData.getCharInfo(result.tripleKey)
+            val charInfo = nameDataService.getCharInfo(result.tripleKey)
             if (charInfo != null) {
                 Log.d(TAG, "CharInfo found for ${result.korean}/${result.hanja}")
                 onHanjaSelected(position, result.korean, result.hanja)
             } else {
                 Log.e(TAG, "CharInfo not found for tripleKey: ${result.tripleKey}")
                 // tripleKey로 못찾으면 korean/hanja로 다시 시도
-                val altCharInfo = NameData.getCharInfo(result.korean, result.hanja)
+                val altCharInfo = nameDataService.getCharInfo(result.korean, result.hanja)
                 if (altCharInfo != null) {
                     Log.d(TAG, "CharInfo found with korean/hanja: ${result.korean}/${result.hanja}")
                     onHanjaSelected(position, result.korean, result.hanja)
@@ -72,7 +74,8 @@ internal class HanjaSearchDialog {
             hasKoreanConstraint,
             isChosung,
             initialKorean,
-            searchScope
+            searchScope,
+            nameDataService
         ) {
             Log.d(TAG, "Dialog dismissed after selection")
             dialog.dismiss()

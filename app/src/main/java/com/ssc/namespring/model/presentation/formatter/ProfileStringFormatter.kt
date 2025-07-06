@@ -7,28 +7,48 @@ import java.util.Calendar
 
 object ProfileStringFormatter {
     fun getFullName(profile: Profile): String {
-        val surnameText = profile.surname?.korean ?: ""
+        // 성씨 부분: 없으면 "-"
+        val surnameText = profile.surname?.korean ?: "-"
+
+        // 이름 부분: charInfo가 있으면 그대로 표시 (빈 값은 ◯)
         val givenNameText = profile.givenName?.let { givenName ->
-            givenName.charInfos.joinToString("") { charInfo ->
-                charInfo.korean.ifEmpty { "◯" }
+            if (givenName.charInfos.isNotEmpty()) {
+                givenName.charInfos.joinToString("") { charInfo ->
+                    charInfo.korean.ifEmpty { "◯" }
+                }
+            } else {
+                ""
             }
         } ?: ""
+
         return "$surnameText$givenNameText"
     }
 
     fun getFullNameWithHanja(profile: Profile): String {
-        val surnameHanja = profile.surname?.hanja ?: ""
+        // 한글 이름
+        val koreanName = getFullName(profile)
+
+        // 성씨 한자: 성씨가 없으면 "-"
+        val surnameHanja = profile.surname?.hanja ?: "-"
+
+        // 이름 한자
         val givenNameHanja = profile.givenName?.let { givenName ->
-            givenName.charInfos.joinToString("") { charInfo ->
-                charInfo.hanja.ifEmpty { "◯" }
+            if (givenName.charInfos.isNotEmpty()) {
+                givenName.charInfos.joinToString("") { charInfo ->
+                    charInfo.hanja.ifEmpty { "◯" }
+                }
+            } else {
+                ""
             }
         } ?: ""
-        val korean = getFullName(profile)
-        return if (surnameHanja.isNotEmpty() || givenNameHanja.isNotEmpty()) {
-            "$korean($surnameHanja$givenNameHanja)"
-        } else {
-            korean
+
+        // 한자 정보가 전혀 없으면 한글만 반환
+        // (성씨가 없어서 "-"이고 이름 한자도 비어있는 경우)
+        if (surnameHanja == "-" && givenNameHanja.isEmpty()) {
+            return koreanName
         }
+
+        return "$koreanName($surnameHanja$givenNameHanja)"
     }
 
     fun getBirthDateString(profile: Profile): String {

@@ -5,13 +5,16 @@ import android.util.Log
 import com.ssc.namespring.model.domain.entity.CharInfo
 import com.ssc.namespring.model.domain.entity.NameCharacter
 import com.ssc.namespring.model.domain.entity.NameComposition
-import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
+import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
 
 class NameCompositionService {
     companion object {
         private const val TAG = "NameCompositionService"
     }
+
+    private val nameDataService: INameDataService = NameDataServiceFactory.getInstance()
 
     fun updateCharacterWithHanjaInfo(
         character: NameCharacter,
@@ -19,7 +22,7 @@ class NameCompositionService {
         hanja: String
     ): NameCharacter {
         val charInfo = if (korean.isNotEmpty() && hanja.isNotEmpty()) {
-            NameData.getCharInfo(korean, hanja)?.let { tripleInfo ->
+            nameDataService.getCharInfo(korean, hanja)?.let { tripleInfo ->
                 convertToCharInfo(tripleInfo)
             } ?: CharInfo(korean = korean, hanja = hanja)
         } else {

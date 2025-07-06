@@ -3,9 +3,10 @@ package com.ssc.namespring.model.data.source
 
 import android.content.Context
 import android.util.Log
-import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.domain.entity.SurnameData
 import com.ssc.namespring.model.domain.entity.ValidationResult
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
+import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -15,6 +16,10 @@ object DataLoader {
     private val isInitialized = AtomicBoolean(false)
     private val isInitializing = AtomicBoolean(false)
     private var initJob: Job? = null
+
+    private val nameDataService: INameDataService by lazy {
+        NameDataServiceFactory.getInstance()
+    }
 
     interface LoadingListener {
         fun onProgress(progress: Int, message: String)
@@ -40,7 +45,7 @@ object DataLoader {
                     }
 
                     try {
-                        NameData.Companion.init(context)
+                        nameDataService.init(context)
                         Log.d(TAG, "NameData 초기화 성공")
                     } catch (e: Exception) {
                         Log.e(TAG, "NameData 초기화 실패", e)
@@ -102,7 +107,7 @@ object DataLoader {
         val warnings = mutableListOf<String>()
         val criticalErrors = mutableListOf<String>()
 
-        val nameValidation = NameData.Companion.validateData()
+        val nameValidation = nameDataService.validateData()
         warnings.addAll(nameValidation.warnings)
         criticalErrors.addAll(nameValidation.criticalErrors)
 

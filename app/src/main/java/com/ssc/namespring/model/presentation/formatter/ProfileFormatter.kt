@@ -11,21 +11,40 @@ class ProfileFormatter {
         val surname = profile.surname
         val givenName = profile.givenName
 
-        if (surname != null && (givenName == null || givenName.charInfos.isEmpty())) {
-            return "${surname.korean}(${surname.hanja}) ◯◯"
+        // 성씨 부분
+        val surnameText = if (surname != null) {
+            surname.korean
+        } else {
+            "-"
         }
 
-        if (surname != null && givenName != null) {
-            val givenKorean = givenName.charInfos.joinToString("") {
-                it.korean.ifEmpty { "◯" }
-            }
-            val givenHanja = givenName.charInfos.joinToString("") {
-                it.hanja.ifEmpty { "◯" }
-            }
-            return "${surname.korean}${givenKorean}(${surname.hanja}${givenHanja})"
+        // 이름 부분
+        val givenText = if (givenName != null && givenName.charInfos.isNotEmpty()) {
+            givenName.charInfos.joinToString("") { it.korean.ifEmpty { "◯" } }
+        } else {
+            ""
         }
 
-        return "-"
+        // 한자 성씨 부분: 성씨가 없으면 "-"
+        val surnameHanja = if (surname != null) {
+            surname.hanja
+        } else {
+            "-"
+        }
+
+        // 한자 이름 부분
+        val givenHanja = if (givenName != null && givenName.charInfos.isNotEmpty()) {
+            givenName.charInfos.joinToString("") { it.hanja.ifEmpty { "◯" } }
+        } else {
+            ""
+        }
+
+        // 한자 정보가 있으면 괄호 추가 (성씨가 없어도 이름에 한자가 있을 수 있으므로)
+        return if (surnameHanja != "-" || givenHanja.isNotEmpty()) {
+            "$surnameText$givenText($surnameHanja$givenHanja)"
+        } else {
+            "$surnameText$givenText"
+        }
     }
 
     @SuppressLint("DefaultLocale")

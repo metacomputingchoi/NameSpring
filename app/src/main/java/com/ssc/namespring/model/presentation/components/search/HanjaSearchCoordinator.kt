@@ -9,7 +9,7 @@ import android.widget.EditText
 import com.google.android.material.chip.ChipGroup
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.HanjaSearchResult
-import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.presentation.adapter.HanjaSearchAdapter
 import com.ssc.namespring.model.presentation.components.SearchDialogManager.SearchMode
 import kotlinx.coroutines.*
@@ -19,6 +19,7 @@ internal class HanjaSearchCoordinator {
     private lateinit var adapter: HanjaSearchAdapter
     private lateinit var searchScope: CoroutineScope
     private lateinit var uiUpdater: HanjaSearchUIUpdater
+    private lateinit var nameDataService: INameDataService
     private val searchFilter = SearchFilterService()
 
     private var baseResults: List<HanjaSearchResult> = emptyList()
@@ -35,6 +36,7 @@ internal class HanjaSearchCoordinator {
         isChosung: Boolean,
         initialKorean: String,
         searchScope: CoroutineScope,
+        nameDataService: INameDataService,
         onItemSelected: () -> Unit
     ) {
         this.adapter = adapter
@@ -42,6 +44,7 @@ internal class HanjaSearchCoordinator {
         this.hasKoreanConstraint = hasKoreanConstraint
         this.isChosung = isChosung
         this.initialKorean = initialKorean
+        this.nameDataService = nameDataService
         this.uiUpdater = HanjaSearchUIUpdater(dialogView, hasKoreanConstraint, baseResults)
 
         adapter.onItemSelected = onItemSelected
@@ -55,13 +58,13 @@ internal class HanjaSearchCoordinator {
             baseResults = withContext(Dispatchers.IO) {
                 if (hasKoreanConstraint) {
                     if (isChosung) {
-                        NameData.searchHanja(initialKorean)
+                        nameDataService.searchHanja(initialKorean)
                     } else {
-                        NameData.searchHanja(initialKorean)
+                        nameDataService.searchHanja(initialKorean)
                             .filter { it.korean == initialKorean }
                     }
                 } else {
-                    NameData.getAllHanja()
+                    nameDataService.getAllHanja()
                 }
             }
             Log.d("HanjaSearchCoordinator", "베이스 결과: ${baseResults.size}개")

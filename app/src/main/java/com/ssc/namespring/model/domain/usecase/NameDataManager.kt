@@ -6,15 +6,19 @@ import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.domain.service.name.NameDataService
 import com.ssc.namespring.model.domain.service.name.NameCompositionStateManager
 import com.ssc.namespring.model.domain.service.name.NameCharacterUpdateService
+import com.ssc.namespring.model.domain.service.name.NameCompositionService
+import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
 
 class NameDataManager : INameDataManager {
 
+    private val nameDataService: INameDataService = NameDataServiceFactory.getInstance()
     private val stateManager = NameCompositionStateManager()
-    private val updateService = NameCharacterUpdateService(stateManager, com.ssc.namespring.model.domain.service.name.NameCompositionService())
-    private val dataService = NameDataService(stateManager, updateService)
+    private val updateService = NameCharacterUpdateService(stateManager, NameCompositionService())
+    private val dataService = NameDataService(stateManager, updateService, nameDataService)
 
     override fun initialize() {
         dataService.initialize()

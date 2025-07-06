@@ -1,3 +1,4 @@
+// domain/entity/NameComposition.kt
 package com.ssc.namespring.model.domain.entity
 
 data class NameComposition(
@@ -71,11 +72,12 @@ data class NameComposition(
     fun toGivenNameInfo(): GivenNameInfo? {
         val visibleChars = visibleCharacters
 
-        // 최소한 하나의 문자가 있어야 함 (한글 또는 한자)
-        if (visibleChars.isEmpty() || visibleChars.all { it.korean.isEmpty() && it.hanja.isEmpty() }) {
+        // 빈 리스트인 경우만 null 반환
+        if (visibleChars.isEmpty()) {
             return null
         }
 
+        // 빈 문자도 포함하여 CharInfo 생성
         val charInfos = visibleChars.map { nameChar ->
             nameChar.charInfo ?: CharInfo(
                 korean = nameChar.korean,
@@ -87,9 +89,9 @@ data class NameComposition(
             )
         }
 
-        // 한글 이름: 비어있으면 빈 문자열로 처리 (◯ 표시는 UI에서 처리)
+        // 한글 이름: 빈 문자는 빈 문자열로 처리
         val koreanName = visibleChars.joinToString("") { it.korean }
-        // 한자 이름: 비어있으면 빈 문자열로 처리
+        // 한자 이름: 빈 문자는 빈 문자열로 처리
         val hanjaName = visibleChars.joinToString("") { it.hanja }
 
         return GivenNameInfo(
@@ -105,17 +107,38 @@ data class NameComposition(
 
     companion object {
         fun fromGivenNameInfo(givenNameInfo: GivenNameInfo?): NameComposition {
-            if (givenNameInfo == null || givenNameInfo.charInfos.isEmpty()) {
+            if (givenNameInfo == null) {
                 return NameComposition()
             }
 
-            val characters = givenNameInfo.charInfos.mapIndexed { index, charInfo ->
-                NameCharacter(
-                    position = index,
-                    korean = charInfo.korean,
-                    hanja = charInfo.hanja,
-                    charInfo = charInfo
-                )
+            // charInfos가 비어있어도 처리
+            val characters = if (givenNameInfo.charInfos.isEmpty()) {
+                // charInfos가 없지만 korean/hanja 문자열이 있을 수 있음
+                val koreanChars = givenNameInfo.korean.toList()
+                val hanjaChars = givenNameInfo.hanja.toList()
+                val maxLength = maxOf(koreanChars.size, hanjaChars.size, 1)
+
+                (0 until maxLength).map { index ->
+                    NameCharacter(
+                        position = index,
+                        korean = koreanChars.getOrNull(index)?.toString() ?: "",
+                        hanja = hanjaChars.getOrNull(index)?.toString() ?: "",
+                        charInfo = CharInfo(
+                            korean = koreanChars.getOrNull(index)?.toString() ?: "",
+                            hanja = hanjaChars.getOrNull(index)?.toString() ?: ""
+                        )
+                    )
+                }
+            } else {
+                // charInfos에서 정보 가져오기 (빈 문자도 포함)
+                givenNameInfo.charInfos.mapIndexed { index, charInfo ->
+                    NameCharacter(
+                        position = index,
+                        korean = charInfo.korean,
+                        hanja = charInfo.hanja,
+                        charInfo = charInfo
+                    )
+                }
             }
 
             return NameComposition(

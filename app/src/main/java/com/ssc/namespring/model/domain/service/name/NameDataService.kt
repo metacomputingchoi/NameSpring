@@ -7,10 +7,12 @@ import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.domain.entity.NameComposition
 import com.ssc.namespring.model.presentation.components.NameCharData
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
+import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 
 class NameDataService(
     private val stateManager: NameCompositionStateManager,
-    private val updateService: NameCharacterUpdateService
+    private val updateService: NameCharacterUpdateService,
+    private val nameDataService: INameDataService
 ) {
     companion object {
         private const val TAG = "NameDataService"
@@ -37,10 +39,7 @@ class NameDataService(
                 stateManager.updateCurrentState(index, charInfo.korean, charInfo.hanja)
 
                 // CharTripleInfo 복원 시도
-                com.ssc.namespring.model.domain.entity.NameData.getCharInfo(
-                    charInfo.korean,
-                    charInfo.hanja
-                )?.let { info ->
+                nameDataService.getCharInfo(charInfo.korean, charInfo.hanja)?.let { info ->
                     stateManager.addHanjaInfo(index, info)
                     Log.d(TAG, "Loaded hanja info for position $index: ${charInfo.korean}/${charInfo.hanja}")
                 }
