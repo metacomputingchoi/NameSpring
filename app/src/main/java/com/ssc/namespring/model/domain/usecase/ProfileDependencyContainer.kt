@@ -10,6 +10,7 @@ import com.ssc.namespring.model.data.repository.ProfileRepository
 import com.ssc.namespring.model.domain.service.interfaces.*
 import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
 import com.ssc.namespring.model.domain.service.profile.ProfileServiceImpl
+import com.ssc.namespring.model.domain.service.factory.NamingEngineProvider
 
 /**
  * 의존성 주입을 위한 컨테이너
@@ -26,11 +27,12 @@ internal class ProfileDependencyContainer(private val context: Context) : IProfi
 
     private val namingEngine: NamingEngine by lazy {
         try {
-            NamingEngine.create().also {
-                Log.d(TAG, "NamingEngine initialized successfully")
+            // NamingEngineProvider를 통해 싱글톤 인스턴스 사용
+            NamingEngineProvider.getInstance().also {
+                Log.d(TAG, "NamingEngine retrieved from provider")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize NamingEngine", e)
+            Log.e(TAG, "Failed to get NamingEngine from provider", e)
             throw RuntimeException("NamingEngine initialization failed", e)
         }
     }

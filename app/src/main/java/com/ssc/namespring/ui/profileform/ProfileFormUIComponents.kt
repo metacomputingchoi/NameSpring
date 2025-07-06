@@ -26,6 +26,7 @@ class ProfileFormUIComponents(
     val btnSave: Button = activity.findViewById(R.id.btnSave)
     val btnReset: Button = activity.findViewById(R.id.btnReset)
     val tvNameInputLabel: TextView = activity.findViewById(R.id.tvNameInputLabel)
+    val scrollView: ScrollView? = activity.findViewById(R.id.scrollView)
 
     // btnLoadProfile의 실제 타입에 따라 수정
     val btnLoadProfile: View? = try {

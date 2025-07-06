@@ -3,6 +3,8 @@ package com.ssc.namespring
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.model.domain.entity.ProfileFormConfig
 import com.ssc.namespring.model.domain.entity.ProfileFormMode
@@ -18,6 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var uiUpdater: MainUIUpdater
     private lateinit var themeManager: MainThemeManager
     private lateinit var navigationHelper: MainNavigationHelper
+
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +48,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupButtonListeners() {
-        uiComponents.btnNaming.setOnClickListener {
-            // 작명 모드로 ProfileFormActivity 시작
+        uiComponents.btnNaming.setOnClickListener { view ->
+            // 즉시 시각적 피드백
+            view.isEnabled = false
+            view.alpha = 0.6f
+
+            // 햅틱 피드백 (옵션)
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+
             val currentProfile = viewModel.getCurrentProfile()
             currentProfile?.let { profile ->
                 val config = ProfileFormConfig(
@@ -54,11 +64,26 @@ class MainActivity : AppCompatActivity() {
                 )
                 val intent = ProfileFormActivity.newIntent(this, config)
                 startActivity(intent)
+
+                // 슬라이드 애니메이션
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
+
+            // 버튼 상태 복구
+            handler.postDelayed({
+                view.isEnabled = true
+                view.alpha = 1.0f
+            }, 500)
         }
 
-        uiComponents.btnEvaluation.setOnClickListener {
-            // 평가 모드로 ProfileFormActivity 시작
+        uiComponents.btnEvaluation.setOnClickListener { view ->
+            // 즉시 시각적 피드백
+            view.isEnabled = false
+            view.alpha = 0.6f
+
+            // 햅틱 피드백 (옵션)
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+
             val currentProfile = viewModel.getCurrentProfile()
             currentProfile?.let { profile ->
                 val config = ProfileFormConfig(
@@ -67,15 +92,26 @@ class MainActivity : AppCompatActivity() {
                 )
                 val intent = ProfileFormActivity.newIntent(this, config)
                 startActivity(intent)
+
+                // 슬라이드 애니메이션
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
+
+            // 버튼 상태 복구
+            handler.postDelayed({
+                view.isEnabled = true
+                view.alpha = 1.0f
+            }, 500)
         }
 
         uiComponents.btnCompare.setOnClickListener {
             startActivity(Intent(this@MainActivity, CompareActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
         uiComponents.btnHistory.setOnClickListener {
             startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 

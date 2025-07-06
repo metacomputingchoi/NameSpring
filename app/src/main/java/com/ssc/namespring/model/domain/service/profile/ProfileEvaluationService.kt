@@ -14,13 +14,15 @@ import com.ssc.namespring.model.domain.entity.OhaengInfo
 import com.ssc.namespring.model.domain.entity.SajuInfo
 import com.ssc.namespring.model.domain.service.evaluation.SajuEvaluator
 import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
+import com.ssc.namespring.model.domain.service.factory.NamingEngineProvider
 import com.ssc.namespring.model.domain.service.utils.ProfileUpdater
 import com.ssc.namespring.utils.data.json.JsonLoader
 import com.ssc.namingengine.data.GeneratedName
 import java.time.ZoneId
 
 class ProfileEvaluationService(
-    private val namingEngine: NamingEngine
+    // NamingEngine을 직접 받거나, 기본값으로 Provider에서 가져옴
+    private val namingEngine: NamingEngine = NamingEngineProvider.getInstance()
 ) : EvaluationService {
 
     companion object {
