@@ -52,6 +52,33 @@ class NameDataRepositoryImpl : NameDataRepository {
         return searchService.search(query)
     }
 
+    override fun getAllHanja(): List<HanjaSearchResult> {
+        if (!isInitialized || optimizedMapping == null) {
+            Log.e(TAG, "NameData가 초기화되지 않았습니다")
+            return emptyList()
+        }
+
+        return searchService.getAllHanja()
+    }
+
+    override fun searchHanjaByMeaning(query: String): List<HanjaSearchResult> {
+        if (!isInitialized || optimizedMapping == null) {
+            Log.e(TAG, "NameData가 초기화되지 않았습니다")
+            return emptyList()
+        }
+
+        return searchService.searchByMeaning(query)
+    }
+
+    override fun searchHanjaByHanja(query: String): List<HanjaSearchResult> {
+        if (!isInitialized || optimizedMapping == null) {
+            Log.e(TAG, "NameData가 초기화되지 않았습니다")
+            return emptyList()
+        }
+
+        return searchService.searchByHanja(query)
+    }
+
     override fun getCharInfo(tripleKey: String): CharTripleInfo? = charTripleDict[tripleKey]
 
     override fun getCharInfo(korean: String, hanja: String): CharTripleInfo? =

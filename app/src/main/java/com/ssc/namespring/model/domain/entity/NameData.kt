@@ -17,6 +17,9 @@ class NameData {
         fun init(context: Context) = repository.init(context)
 
         @JvmStatic
+        fun getAllHanja(): List<HanjaSearchResult> = repository.getAllHanja()
+
+        @JvmStatic
         fun searchHanja(query: String): List<HanjaSearchResult> = repository.searchHanja(query)
 
         @JvmStatic
@@ -35,6 +38,14 @@ class NameData {
                 criticalErrors = result.criticalErrors
             )
         }
+
+        @JvmStatic
+        fun searchHanjaByMeaning(query: String): List<HanjaSearchResult> =
+            repository.searchHanjaByMeaning(query)
+
+        @JvmStatic
+        fun searchHanjaByHanja(query: String): List<HanjaSearchResult> =
+            repository.searchHanjaByHanja(query)
 
         @JvmStatic
         fun isReady(): Boolean = repository.isReady()

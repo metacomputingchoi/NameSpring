@@ -20,4 +20,15 @@ object ChosungUtils {
             ""
         }
     }
+
+    fun extractChosung(text: String): String {
+        return text.map { char ->
+            getChosung(char.toString())
+        }.joinToString("")
+    }
+
+    fun matchesChosungPattern(text: String, pattern: String): Boolean {
+        val textChosung = extractChosung(text)
+        return textChosung.contains(pattern)
+    }
 }

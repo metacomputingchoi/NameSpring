@@ -48,13 +48,14 @@ class ProfileFormNameInputHandler(
 
     private fun handleHanjaSearch(context: Context, position: Int) {
         val currentData = formManager.getNameDataManager().getCharData(position)
-        val initialQuery = currentData?.korean ?: ""
+        val koreanValue = currentData?.korean ?: ""
 
         searchDialogManager.showHanjaSearchDialog(
             context,
             position,
-            initialQuery
+            koreanValue  // 한글 입력값을 전달
         ) { pos, korean, hanja ->
+            // 한자 선택 시 한글도 함께 업데이트
             formManager.setHanjaInfo(pos, korean, hanja)
 
             NameData.getCharInfo(korean, hanja)?.let { info ->

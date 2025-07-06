@@ -84,20 +84,24 @@ class NameInputManager(
         when {
             hanja.isNotEmpty() -> {
                 button.text = "한자 변경"
-                button.setTextColor(button.context.getColor(R.color.white))
+                button.setTextColor(button.context.getColor(R.color.primary))
             }
             korean.length == 1 && korean.matches(Regex("[가-힣]")) -> {
-                val results = NameData.searchHanja(korean)
+                val results = NameData.searchHanja(korean).filter { it.korean == korean }
                 button.text = if (results.isNotEmpty()) {
-                    "예시: ${results[0].hanja}"
+                    "선택: ${results.size}개"
                 } else {
-                    "한자 검색"
+                    "한자 없음"
                 }
-                button.setTextColor(button.context.getColor(R.color.white))
+                button.setTextColor(button.context.getColor(R.color.text_secondary))
+            }
+            korean.matches(Regex("^[ㄱ-ㅎ]$")) -> {
+                button.text = "초성 검색"
+                button.setTextColor(button.context.getColor(R.color.text_secondary))
             }
             else -> {
                 button.text = "한자 검색"
-                button.setTextColor(button.context.getColor(R.color.white))
+                button.setTextColor(button.context.getColor(R.color.text_secondary))
             }
         }
     }

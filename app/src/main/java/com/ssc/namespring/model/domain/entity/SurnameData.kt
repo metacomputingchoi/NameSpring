@@ -22,6 +22,10 @@ object SurnameData {
         return validator.validate()
     }
 
+    fun getAllSurnames(): List<SurnameSearchResult> {
+        return searchService.getAllSurnames()
+    }
+
     fun searchSurnames(query: String): List<SurnameSearchResult> {
         return searchService.search(query)
     }
