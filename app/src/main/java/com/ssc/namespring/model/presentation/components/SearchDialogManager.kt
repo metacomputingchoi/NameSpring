@@ -25,6 +25,7 @@ import com.ssc.namespring.model.presentation.adapter.HanjaSearchAdapter
 import com.ssc.namespring.model.domain.entity.HanjaSearchResult
 import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.domain.entity.SurnameData
+import kotlinx.coroutines.*
 
 class SearchDialogManager {
 
@@ -114,6 +115,10 @@ class SearchDialogManager {
         // 베이스 결과 캐시
         var baseResults: List<HanjaSearchResult> = emptyList()
 
+        // 디바운싱을 위한 변수
+        var searchJob: Job? = null
+        val searchScope = CoroutineScope(Dispatchers.Main)
+
         // 검색 모드는 항상 표시
         chipGroupSearchMode.visibility = View.VISIBLE
 
@@ -152,21 +157,6 @@ class SearchDialogManager {
 
         adapter.onItemSelected = { dialog.dismiss() }
 
-        // 베이스 결과 초기화
-        fun loadBaseResults() {
-            baseResults = if (hasKoreanConstraint) {
-                if (isChosung) {
-                    NameData.searchHanja(initialKorean)
-                } else {
-                    NameData.searchHanja(initialKorean)
-                        .filter { it.korean == initialKorean }
-                }
-            } else {
-                NameData.getAllHanja()
-            }
-            Log.d("SearchDialog", "베이스 결과: ${baseResults.size}개")
-        }
-
         // 결과 업데이트 함수
         fun updateResults(results: List<HanjaSearchResult>) {
             adapter.submitList(results)
@@ -179,23 +169,47 @@ class SearchDialogManager {
             }
         }
 
-        // 검색 수행 함수
-        fun performSearch(query: String) {
+        // 검색 수행 함수 - loadBaseResults보다 먼저 정의
+        suspend fun performSearch(query: String) {
             Log.d("SearchDialog", "검색 수행: query='$query', mode=$currentSearchMode")
 
-            val results = if (query.isEmpty()) {
-                baseResults
-            } else {
-                when (currentSearchMode) {
-                    SearchMode.ALL -> searchAllInResults(baseResults, query)
-                    SearchMode.SOUND -> searchSoundInResults(baseResults, query)
-                    SearchMode.MEANING -> searchMeaningInResults(baseResults, query)
-                    SearchMode.HANJA -> searchHanjaInResults(baseResults, query)
+            val results = withContext(Dispatchers.IO) {
+                if (query.isEmpty()) {
+                    baseResults
+                } else {
+                    when (currentSearchMode) {
+                        SearchMode.ALL -> searchAllInResults(baseResults, query)
+                        SearchMode.SOUND -> searchSoundInResults(baseResults, query)
+                        SearchMode.MEANING -> searchMeaningInResults(baseResults, query)
+                        SearchMode.HANJA -> searchHanjaInResults(baseResults, query)
+                    }
                 }
             }
 
-            Log.d("SearchDialog", "검색 결과: ${results.size}개")
-            updateResults(results)
+            withContext(Dispatchers.Main) {
+                Log.d("SearchDialog", "검색 결과: ${results.size}개")
+                updateResults(results)
+            }
+        }
+
+        // 베이스 결과 초기화 - performSearch 다음에 정의
+        fun loadBaseResults() {
+            searchScope.launch {
+                baseResults = withContext(Dispatchers.IO) {
+                    if (hasKoreanConstraint) {
+                        if (isChosung) {
+                            NameData.searchHanja(initialKorean)
+                        } else {
+                            NameData.searchHanja(initialKorean)
+                                .filter { it.korean == initialKorean }
+                        }
+                    } else {
+                        NameData.getAllHanja()
+                    }
+                }
+                Log.d("SearchDialog", "베이스 결과: ${baseResults.size}개")
+                performSearch("")
+            }
         }
 
         // 검색 모드 변경 리스너
@@ -213,24 +227,42 @@ class SearchDialogManager {
             }
 
             val currentQuery = etSearch.text?.toString()?.trim() ?: ""
-            performSearch(currentQuery)
+
+            // 검색 모드 변경 시에도 디바운싱 적용
+            searchJob?.cancel()
+            searchJob = searchScope.launch {
+                performSearch(currentQuery)
+            }
         }
 
-        // 검색어 입력 리스너
+        // 검색어 입력 리스너 - 디바운싱 적용
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s?.toString()?.trim() ?: ""
-                performSearch(query)
+
+                // 이전 검색 취소
+                searchJob?.cancel()
+
+                // 300ms 후에 검색 실행
+                searchJob = searchScope.launch {
+                    delay(300) // 사용자가 타이핑을 멈춘 후 300ms 대기
+                    performSearch(query)
+                }
             }
         })
+
+        // Dialog 닫힐 때 코루틴 정리
+        dialog.setOnDismissListener {
+            searchJob?.cancel()
+            searchScope.cancel()
+        }
 
         dialog.show()
 
         // 초기 데이터 로드
         loadBaseResults()
-        performSearch("")
 
         // 힌트를 위로 올리기
         tilSearch.isHintAnimationEnabled = true
@@ -327,7 +359,7 @@ class SearchDialogManager {
         tilSearch.hint = when (mode) {
             SearchMode.ALL -> "초성, 한글, 한자, 뜻, 획수 검색"
             SearchMode.SOUND -> "초성(ㅁ) 또는 한글(민) 검색"
-            SearchMode.MEANING -> "뜻 검색 (예: 밝을, 지혜, ㄷㅎ)"  // 초성 예시 추가
+            SearchMode.MEANING -> "뜻 검색 (예: 밝을, 지혜, ㄷㅎ)"
             SearchMode.HANJA -> "한자 또는 획수 검색 (예: 敏, 15)"
         }
     }

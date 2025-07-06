@@ -17,8 +17,16 @@ class HanjaSearchAdapter(
     private var results = listOf<HanjaSearchResult>()
     var onItemSelected: (() -> Unit)? = null
 
+    init {
+        // ViewHolder 재활용 향상을 위한 고정 ID 설정
+        setHasStableIds(true)
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(list: List<HanjaSearchResult>) {
+        // 리스트가 같으면 업데이트하지 않음
+        if (results == list) return
+
         results = list
         notifyDataSetChanged()
     }
@@ -34,6 +42,11 @@ class HanjaSearchAdapter(
     }
 
     override fun getItemCount() = results.size
+
+    override fun getItemId(position: Int): Long {
+        // tripleKey를 기반으로 안정적인 ID 생성
+        return results[position].tripleKey.hashCode().toLong()
+    }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvHanja: TextView = itemView.findViewById(R.id.tvHanja)
