@@ -87,6 +87,8 @@ class MainMagager {
         }
     }
 
+    fun getCurrentProfile(): Profile? = profileManager.getCurrentProfile()
+
     fun hasCurrentProfile(): Boolean = profileManager.getCurrentProfile() != null
 }
 

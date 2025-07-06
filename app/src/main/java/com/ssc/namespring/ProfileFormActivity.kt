@@ -1,24 +1,38 @@
 // ProfileFormActivity.kt
 package com.ssc.namespring
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.entity.ProfileFormConfig
+import com.ssc.namespring.model.domain.entity.ProfileFormMode
 import com.ssc.namespring.model.domain.service.profile.ProfileFormService
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
+import com.ssc.namespring.model.domain.usecase.ProfileManager
+import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.presentation.components.SearchDialogManager
 import com.ssc.namespring.ui.profileform.*
 
 class ProfileFormActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "ProfileFormActivity"
+        private const val EXTRA_CONFIG = "profile_form_config"
+
+        fun newIntent(context: Context, config: ProfileFormConfig): Intent {
+            return Intent(context, ProfileFormActivity::class.java).apply {
+                putExtra(EXTRA_CONFIG, config)
+            }
+        }
     }
 
+    private lateinit var config: ProfileFormConfig
     private lateinit var formManager: ProfileFormManager
     private lateinit var searchDialogManager: SearchDialogManager
     private lateinit var profileFormService: ProfileFormService
+    private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
     private lateinit var uiComponents: ProfileFormUIComponents
     private lateinit var eventHandler: ProfileFormEventHandler
@@ -29,43 +43,56 @@ class ProfileFormActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_form)
 
-        val profileId = intent.getStringExtra("profileId")
+        config = intent.getSerializableExtra(EXTRA_CONFIG) as? ProfileFormConfig
+            ?: ProfileFormConfig(ProfileFormMode.CREATE)
 
-        // 초기화 순서가 중요합니다
-        initializeManagers(profileId)
+        initializeManagers()
         initializeComponents()
         observeFormState()
 
-        // formManager 초기화 후에 체크
         formManager.initialize()
     }
 
-    private fun initializeManagers(profileId: String?) {
-        formManager = ProfileFormManager(profileId)
+    private fun initializeManagers() {
+        formManager = ProfileFormManager(config.profileId)
         searchDialogManager = SearchDialogManager()
         profileFormService = ProfileFormService()
     }
 
     private fun initializeComponents() {
-        uiComponents = ProfileFormUIComponents(this)
+        uiComponents = ProfileFormUIComponents(this, config)
+
         nameInputHandler = ProfileFormNameInputHandler(
             formManager,
             searchDialogManager
         )
+
         eventHandler = ProfileFormEventHandler(
             this,
             formManager,
             searchDialogManager,
             profileFormService,
             uiComponents,
-            nameInputHandler
+            nameInputHandler,
+            config
         )
+
         uiUpdater = ProfileFormUIUpdater(
             uiComponents,
-            nameInputHandler
+            nameInputHandler,
+            config
         )
 
         eventHandler.setupListeners()
+    }
+
+    private fun loadParentProfileData() {
+        config.parentProfileId?.let { parentId ->
+            profileManager.getProfile(parentId)?.let { parentProfile ->
+                // 부모 프로필의 데이터를 formManager에 로드
+                formManager.loadFromParentProfile(parentProfile)
+            }
+        }
     }
 
     private fun observeFormState() {
@@ -75,35 +102,38 @@ class ProfileFormActivity : AppCompatActivity() {
     }
 
     fun saveProfile() {
-        val profileName = uiComponents.etProfileName.text?.toString() ?: ""
+        // 작명/평가 모드에서는 프로필 이름이 비어있어도 기본값 사용
+        val profileName = uiComponents.etProfileName.text?.toString()?.takeIf { it.isNotEmpty() }
+            ?: if (config.mode in listOf(ProfileFormMode.NAMING, ProfileFormMode.EVALUATION)) {
+                config.getDefaultName()
+            } else {
+                ""
+            }
 
         if (profileName.isEmpty()) {
-            Toast.makeText(this, "프로필 이름을 입력해주세요", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "${config.profileLabelText}을(를) 입력해주세요", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val profileId = intent.getStringExtra("profileId")
+        Log.d(TAG, "Saving profile: name=$profileName, mode=${config.mode}, profileId=${config.profileId}")
 
-        Log.d(TAG, "Saving profile: name=$profileName, profileId=$profileId")
+        // 작명/평가 모드일 때 실제 기능은 아직 미구현
+        if (config.mode in listOf(ProfileFormMode.NAMING, ProfileFormMode.EVALUATION)) {
+            // TODO: 실제 작명/평가 로직 구현
+            Toast.makeText(this, "기능 구현 예정입니다", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // 프로필 생성 전 현재 상태 로그
-        val givenNameInfo = formManager.getNameDataManager().createGivenNameInfo()
-        Log.d(TAG, "GivenNameInfo before save: ${givenNameInfo?.korean}/${givenNameInfo?.hanja}")
-
+        // 기존 프로필 저장 로직
         profileFormService.saveProfile(
             this,
             formManager,
             profileName,
-            profileId
+            config.profileId
         ) { success ->
             if (success) {
                 Log.d(TAG, "Profile saved successfully")
-                val message = if (profileId.isNullOrEmpty()) {
-                    "프로필이 생성되었습니다"
-                } else {
-                    "프로필이 수정되었습니다"
-                }
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, config.successMessage, Toast.LENGTH_SHORT).show()
                 setResult(RESULT_OK)
                 finish()
             } else {
@@ -115,7 +145,6 @@ class ProfileFormActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Activity가 완전히 종료될 때만 cleanup
         nameInputHandler.cleanup()
     }
 }

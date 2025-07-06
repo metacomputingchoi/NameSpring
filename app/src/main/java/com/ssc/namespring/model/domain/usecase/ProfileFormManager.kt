@@ -149,6 +149,36 @@ class ProfileFormManager(private val profileId: String? = null) {
     fun getNameDataManager(): INameDataManager = nameDataManager
     fun getSelectedDate() = dateTimeManager.getCalendar()
 
+    fun loadFromParentProfile(parentProfile: Profile) {
+        // 날짜/시간 정보 로드
+        dateTimeManager.setDateTime(parentProfile.birthDate)
+        stateManager.updateYajaTime(parentProfile.isYajaTime)
+
+        // 성씨 정보 로드
+        stateManager.setSurname(parentProfile.surname)
+
+        // 이름 정보 로드 (길이까지 동일하게)
+        parentProfile.givenName?.let { givenName ->
+            // 기존 이름 데이터 리셋
+            nameDataManager.reset()
+
+            // 부모 프로필의 이름 길이만큼 글자 추가
+            val targetCount = givenName.charInfos.size
+            repeat(targetCount - 1) { // 기본 1글자이므로 targetCount-1만큼 추가
+                nameDataManager.addChar()
+            }
+
+            // 각 글자의 한글과 한자 정보 설정
+            givenName.charInfos.forEachIndexed { index, charInfo ->
+                if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
+                    setHanjaInfo(index, charInfo.korean, charInfo.hanja)
+                }
+            }
+        }
+
+        updateUiState()
+    }
+
     private fun updateUiState() {
         _uiState.value = ProfileFormUiState(
             profileName = stateManager.getProfileName(),

@@ -4,6 +4,8 @@ package com.ssc.namespring
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.ssc.namespring.model.domain.entity.ProfileFormConfig
+import com.ssc.namespring.model.domain.entity.ProfileFormMode
 import com.ssc.namespring.model.domain.usecase.MainMagager
 import com.ssc.namespring.ui.main.MainNavigationHelper
 import com.ssc.namespring.ui.main.MainThemeManager
@@ -43,14 +45,35 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupButtonListeners() {
         uiComponents.btnNaming.setOnClickListener {
-            startActivity(Intent(this@MainActivity, NamingActivity::class.java))
+            // 작명 모드로 ProfileFormActivity 시작
+            val currentProfile = viewModel.getCurrentProfile()
+            currentProfile?.let { profile ->
+                val config = ProfileFormConfig(
+                    mode = ProfileFormMode.NAMING,
+                    parentProfileId = profile.id
+                )
+                val intent = ProfileFormActivity.newIntent(this, config)
+                startActivity(intent)
+            }
         }
+
         uiComponents.btnEvaluation.setOnClickListener {
-            startActivity(Intent(this@MainActivity, EvaluationActivity::class.java))
+            // 평가 모드로 ProfileFormActivity 시작
+            val currentProfile = viewModel.getCurrentProfile()
+            currentProfile?.let { profile ->
+                val config = ProfileFormConfig(
+                    mode = ProfileFormMode.EVALUATION,
+                    parentProfileId = profile.id
+                )
+                val intent = ProfileFormActivity.newIntent(this, config)
+                startActivity(intent)
+            }
         }
+
         uiComponents.btnCompare.setOnClickListener {
             startActivity(Intent(this@MainActivity, CompareActivity::class.java))
         }
+
         uiComponents.btnHistory.setOnClickListener {
             startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
         }

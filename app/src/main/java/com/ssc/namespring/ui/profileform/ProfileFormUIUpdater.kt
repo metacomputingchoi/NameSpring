@@ -3,11 +3,14 @@ package com.ssc.namespring.ui.profileform
 
 import android.annotation.SuppressLint
 import android.view.View
+import com.ssc.namespring.model.domain.entity.ProfileFormConfig
+import com.ssc.namespring.model.domain.entity.ProfileFormMode
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 
 class ProfileFormUIUpdater(
     private val uiComponents: ProfileFormUIComponents,
-    private val nameInputHandler: ProfileFormNameInputHandler
+    private val nameInputHandler: ProfileFormNameInputHandler,
+    private val config: ProfileFormConfig
 ) {
     fun updateUI(state: ProfileFormUiState) {
         updateProfileName(state)
@@ -21,9 +24,16 @@ class ProfileFormUIUpdater(
     }
 
     private fun updateProfileName(state: ProfileFormUiState) {
-        if (uiComponents.etProfileName.text.toString() != state.profileName &&
-            state.profileName.isNotEmpty()) {
-            uiComponents.etProfileName.setText(state.profileName)
+        // 작명/평가 모드에서는 사용자가 입력한 값이 없으면 기본값 유지
+        if (config.mode in listOf(ProfileFormMode.NAMING, ProfileFormMode.EVALUATION)) {
+            if (uiComponents.etProfileName.text.toString().isEmpty() && state.profileName.isEmpty()) {
+                uiComponents.etProfileName.setText(config.getDefaultName())
+            }
+        } else {
+            if (uiComponents.etProfileName.text.toString() != state.profileName &&
+                state.profileName.isNotEmpty()) {
+                uiComponents.etProfileName.setText(state.profileName)
+            }
         }
     }
 
