@@ -1,12 +1,16 @@
 // model/domain/usecase/profileform/ProfileFactory.kt
 package com.ssc.namespring.model.domain.usecase.profileform
 
+import android.util.Log
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
 import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import java.util.Calendar
 
 class ProfileFactory {
+    companion object {
+        private const val TAG = "ProfileFactory"
+    }
 
     fun createProfile(
         profileId: String?,
@@ -17,6 +21,15 @@ class ProfileFactory {
         givenName: GivenNameInfo?,
         existingProfile: Profile? = null
     ): Profile {
+        Log.d(TAG, "createProfile: profileName='$profileName', surname=${surname?.korean}(${surname?.hanja})")
+
+        if (givenName != null) {
+            Log.d(TAG, "GivenName: korean='${givenName.korean}', hanja='${givenName.hanja}'")
+            givenName.charInfos.forEachIndexed { index, charInfo ->
+                Log.d(TAG, "  CharInfo[$index]: korean='${charInfo.korean}', hanja='${charInfo.hanja}'")
+            }
+        }
+
         return if (!profileId.isNullOrEmpty() && existingProfile != null) {
             // 기존 프로필 업데이트
             Profile(

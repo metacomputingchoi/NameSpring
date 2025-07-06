@@ -2,22 +2,26 @@
 package com.ssc.namespring.model.domain.usecase
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.ssc.namespring.R
 import com.ssc.namespring.model.presentation.components.NameCharData
-import com.ssc.namespring.model.presentation.components.SimpleHanjaTextWatcher
-import com.ssc.namespring.model.presentation.components.SimpleKoreanTextWatcher
 import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
-import java.lang.ref.WeakReference
 
 class NameInputManager(
     private val nameDataManager: INameDataManager,
     private val onHanjaSearchClick: (Int) -> Unit
 ) {
+    companion object {
+        private const val TAG = "NameInputManager"
+    }
+
+    private val textWatchers = mutableMapOf<Int, Pair<TextWatcher, TextWatcher>>()
 
     fun createNameInputView(
         context: Context,
@@ -43,41 +47,88 @@ class NameInputManager(
         val positions = arrayOf("첫째", "둘째", "셋째", "넷째")
         tvPosition.text = positions[index]
 
+        // 기존 TextWatcher 제거
+        removeTextWatchers(index, etKorean, etHanja)
+
+        // 초기값 설정 (TextWatcher 없이)
         etKorean.setText(data.korean)
         etHanja.setText(data.hanja)
         updateButtonText(btnSearchHanja, data.korean, data.hanja)
 
-        // WeakReference를 사용하여 메모리 누수 방지
-        val weakContext = WeakReference(context)
-
-        val koreanWatcher = SimpleKoreanTextWatcher(index) { pos, korean ->
-            val ctx = weakContext.get() ?: return@SimpleKoreanTextWatcher
-            val hanjaText = etHanja.text.toString()
-
-            if (korean != data.korean && hanjaText.isNotEmpty()) {
-                etHanja.setText("")
-                nameDataManager.removeHanjaInfo(pos)
-                Toast.makeText(ctx, "한글이 변경되어 한자가 초기화되었습니다", Toast.LENGTH_SHORT).show()
-            }
-
-            nameDataManager.setCharData(pos, korean, etHanja.text.toString())
-            updateButtonText(btnSearchHanja, korean, etHanja.text.toString())
-        }
-
-        val hanjaWatcher = SimpleHanjaTextWatcher(index) { pos, hanja ->
-            nameDataManager.setCharData(pos, etKorean.text.toString(), hanja)
-            updateButtonText(btnSearchHanja, etKorean.text.toString(), hanja)
-        }
+        // 새로운 TextWatcher 생성 및 추가
+        val koreanWatcher = createKoreanTextWatcher(index, etHanja, btnSearchHanja, context)
+        val hanjaWatcher = createHanjaTextWatcher(index, etKorean, btnSearchHanja)
 
         etKorean.addTextChangedListener(koreanWatcher)
         etHanja.addTextChangedListener(hanjaWatcher)
 
-        btnSearchHanja.setOnClickListener { onHanjaSearchClick(index) }
+        textWatchers[index] = Pair(koreanWatcher, hanjaWatcher)
+
+        // 버튼 리스너 설정
+        btnSearchHanja.setOnClickListener {
+            onHanjaSearchClick(index)
+        }
+
         btnClearChar.setOnClickListener {
+            removeTextWatchers(index, etKorean, etHanja)
             etKorean.setText("")
             etHanja.setText("")
             nameDataManager.removeHanjaInfo(index)
             nameDataManager.setCharData(index, "", "")
+            updateButtonText(btnSearchHanja, "", "")
+        }
+    }
+
+    private fun createKoreanTextWatcher(
+        index: Int,
+        etHanja: EditText,
+        btnSearchHanja: Button,
+        context: Context
+    ): TextWatcher {
+        return object : TextWatcher {
+            private var previousText = ""
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                previousText = s?.toString() ?: ""
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val korean = s?.toString() ?: ""
+                val currentData = nameDataManager.getCharData(index)
+                val currentHanja = currentData?.hanja ?: ""
+
+                // 한글이 변경되고 기존에 한자가 있었으면 한자 초기화
+                if (korean != previousText && currentHanja.isNotEmpty()) {
+                    nameDataManager.setCharData(index, korean, "")
+                    nameDataManager.removeHanjaInfo(index)
+                    etHanja.setText("")
+                    Toast.makeText(context, "한글이 변경되어 한자가 초기화되었습니다", Toast.LENGTH_SHORT).show()
+                } else {
+                    nameDataManager.setCharData(index, korean, currentHanja)
+                }
+
+                updateButtonText(btnSearchHanja, korean, etHanja.text.toString())
+            }
+        }
+    }
+
+    private fun createHanjaTextWatcher(
+        index: Int,
+        etKorean: EditText,
+        btnSearchHanja: Button
+    ): TextWatcher {
+        return object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val hanja = s?.toString() ?: ""
+                val korean = etKorean.text.toString()
+                nameDataManager.setCharData(index, korean, hanja)
+                updateButtonText(btnSearchHanja, korean, hanja)
+            }
         }
     }
 
@@ -86,6 +137,10 @@ class NameInputManager(
             hanja.isNotEmpty() -> {
                 button.text = "한자 변경"
                 button.setTextColor(button.context.getColor(R.color.primary))
+            }
+            korean.matches(Regex("^[ㄱ-ㅎ]+$")) -> {
+                button.text = "초성 검색"
+                button.setTextColor(button.context.getColor(R.color.text_secondary))
             }
             korean.length == 1 && korean.matches(Regex("[가-힣]")) -> {
                 val results = NameData.searchHanja(korean).filter { it.korean == korean }
@@ -96,14 +151,22 @@ class NameInputManager(
                 }
                 button.setTextColor(button.context.getColor(R.color.text_secondary))
             }
-            korean.matches(Regex("^[ㄱ-ㅎ]$")) -> {
-                button.text = "초성 검색"
-                button.setTextColor(button.context.getColor(R.color.text_secondary))
-            }
             else -> {
                 button.text = "한자 검색"
                 button.setTextColor(button.context.getColor(R.color.text_secondary))
             }
         }
+    }
+
+    private fun removeTextWatchers(index: Int, etKorean: EditText, etHanja: EditText) {
+        textWatchers[index]?.let { (koreanWatcher, hanjaWatcher) ->
+            etKorean.removeTextChangedListener(koreanWatcher)
+            etHanja.removeTextChangedListener(hanjaWatcher)
+        }
+        textWatchers.remove(index)
+    }
+
+    fun cleanup() {
+        textWatchers.clear()
     }
 }

@@ -4,15 +4,21 @@ package com.ssc.namespring
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.domain.usecase.SplashManager
 import com.ssc.namespring.model.domain.usecase.SplashManager.LoadingState
 import kotlinx.coroutines.*
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "SplashActivity"
+    }
+
     private lateinit var progressBar: ProgressBar
     private lateinit var tvProgress: TextView
     private lateinit var tvStatus: TextView
@@ -22,6 +28,12 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            ProfileManagerProvider.init(this)
+            Log.d(TAG, "ProfileManager initialized successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize ProfileManager", e)
+        }
         setContentView(R.layout.splash_layout)
 
         initViews()

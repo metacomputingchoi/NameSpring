@@ -2,6 +2,7 @@
 package com.ssc.namespring.model.presentation.components.search
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -11,6 +12,9 @@ import com.ssc.namespring.model.presentation.adapter.HanjaSearchAdapter
 import kotlinx.coroutines.*
 
 internal class HanjaSearchDialog {
+    companion object {
+        private const val TAG = "HanjaSearchDialog"
+    }
 
     private val searchController = HanjaSearchCoordinator()
     private val uiController = HanjaSearchUIHandler()
@@ -21,13 +25,32 @@ internal class HanjaSearchDialog {
         initialKorean: String,
         onHanjaSelected: (Int, String, String) -> Unit
     ) {
+        Log.d(TAG, "show: position=$position, initialKorean='$initialKorean'")
+
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_hanja_search, null)
         val hasKoreanConstraint = initialKorean.trim().isNotEmpty()
         val isChosung = initialKorean.matches(Regex("^[ㄱ-ㅎ]+$"))
 
         val adapter = HanjaSearchAdapter { result ->
-            NameData.getCharInfo(result.tripleKey)?.let {
+            Log.d(TAG, "Hanja selected: ${result.korean}/${result.hanja}")
+
+            // 한자 정보가 존재하는지 확인
+            val charInfo = NameData.getCharInfo(result.tripleKey)
+            if (charInfo != null) {
+                Log.d(TAG, "CharInfo found for ${result.korean}/${result.hanja}")
                 onHanjaSelected(position, result.korean, result.hanja)
+            } else {
+                Log.e(TAG, "CharInfo not found for tripleKey: ${result.tripleKey}")
+                // tripleKey로 못찾으면 korean/hanja로 다시 시도
+                val altCharInfo = NameData.getCharInfo(result.korean, result.hanja)
+                if (altCharInfo != null) {
+                    Log.d(TAG, "CharInfo found with korean/hanja: ${result.korean}/${result.hanja}")
+                    onHanjaSelected(position, result.korean, result.hanja)
+                } else {
+                    Log.e(TAG, "CharInfo not found at all")
+                    // 그래도 기본 데이터는 전달
+                    onHanjaSelected(position, result.korean, result.hanja)
+                }
             }
         }
 
@@ -50,7 +73,10 @@ internal class HanjaSearchDialog {
             isChosung,
             initialKorean,
             searchScope
-        ) { dialog.dismiss() }
+        ) {
+            Log.d(TAG, "Dialog dismissed after selection")
+            dialog.dismiss()
+        }
 
         dialog.setOnDismissListener {
             searchScope.cancel()

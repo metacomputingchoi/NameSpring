@@ -2,6 +2,7 @@
 package com.ssc.namespring.ui.profileform
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.ssc.namespring.model.domain.usecase.NameInputManager
@@ -14,14 +15,21 @@ class ProfileFormNameInputHandler(
     private val formManager: ProfileFormManager,
     private val searchDialogManager: SearchDialogManager
 ) {
+    companion object {
+        private const val TAG = "ProfileFormNameInputHandler"
+    }
+
     private var nameInputManager: NameInputManager? = null
 
     fun refreshNameInputViews(
         container: LinearLayout,
         state: ProfileFormUiState
     ) {
+        Log.d(TAG, "refreshNameInputViews: charCount=${state.nameCharCount}")
+
         container.removeAllViews()
 
+        // NameInputManager 초기화 또는 재사용
         if (nameInputManager == null) {
             nameInputManager = NameInputManager(
                 formManager.getNameDataManager()
@@ -33,7 +41,10 @@ class ProfileFormNameInputHandler(
         val context = container.context
         val inflater = LayoutInflater.from(context)
 
-        state.nameCharDataList.forEachIndexed { index, _ ->
+        // 각 글자 입력 뷰 생성
+        state.nameCharDataList.forEachIndexed { index, charData ->
+            Log.d(TAG, "Creating input view for position $index: korean='${charData.korean}', hanja='${charData.hanja}'")
+
             nameInputManager?.let { manager ->
                 val itemView = manager.createNameInputView(
                     context,
@@ -50,21 +61,33 @@ class ProfileFormNameInputHandler(
         val currentData = formManager.getNameDataManager().getCharData(position)
         val koreanValue = currentData?.korean ?: ""
 
+        Log.d(TAG, "Opening hanja search for position $position with korean: '$koreanValue'")
+
         searchDialogManager.showHanjaSearchDialog(
             context,
             position,
-            koreanValue  // 한글 입력값을 전달
+            koreanValue
         ) { pos, korean, hanja ->
-            // 한자 선택 시 한글도 함께 업데이트
-            formManager.setHanjaInfo(pos, korean, hanja)
+            Log.d(TAG, "Hanja selected: position=$pos, korean='$korean', hanja='$hanja'")
 
+            // 선택된 한자 정보를 가져와서 저장
             NameData.getCharInfo(korean, hanja)?.let { info ->
+                Log.d(TAG, "Found CharTripleInfo for $korean/$hanja")
+                // 한자 정보 설정
                 formManager.getNameDataManager().setHanjaInfo(pos, info)
+                // UI 업데이트를 위해 formManager 상태 업데이트
+                formManager.setHanjaInfo(pos, korean, hanja)
+            } ?: run {
+                Log.w(TAG, "No CharTripleInfo found for $korean/$hanja")
+                // CharTripleInfo가 없어도 기본 데이터는 업데이트
+                formManager.setHanjaInfo(pos, korean, hanja)
             }
         }
     }
 
     fun cleanup() {
+        Log.d(TAG, "cleanup()")
+        nameInputManager?.cleanup()
         nameInputManager = null
     }
 }

@@ -1,126 +1,232 @@
 // model/domain/usecase/NameDataManager.kt
 package com.ssc.namespring.model.domain.usecase
 
+import android.util.Log
 import com.ssc.namespring.model.presentation.components.NameCharData
 import com.ssc.namespring.model.domain.entity.CharInfo
 import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.domain.entity.Profile
-import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.entity.NameCharacter
+import com.ssc.namespring.model.domain.entity.NameComposition
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
+import com.ssc.namespring.model.domain.service.name.NameCompositionService
 
 class NameDataManager : INameDataManager {
-    private val nameCharDataList = mutableListOf<NameCharData>()
-    private val selectedHanjaInfo = mutableMapOf<Int, CharTripleInfo>()
-    private var displayCount = 1
+    companion object {
+        private const val TAG = "NameDataManager"
+    }
+
+    private var nameComposition = NameComposition()
+    private val compositionService = NameCompositionService()
+
+    // 한자 정보를 별도로 관리 (CharTripleInfo 저장)
+    private val hanjaInfoMap = mutableMapOf<Int, CharTripleInfo>()
+
+    // 현재 상태를 추적하기 위한 맵 (디버깅용)
+    private val currentStateMap = mutableMapOf<Int, Pair<String, String>>()
 
     override fun initialize() {
-        nameCharDataList.clear()
-        nameCharDataList.add(NameCharData())
-        displayCount = 1
+        Log.d(TAG, "initialize()")
+        nameComposition = NameComposition()
+        hanjaInfoMap.clear()
+        currentStateMap.clear()
     }
 
     override fun loadFromProfile(profile: Profile) {
-        nameCharDataList.clear()
-        selectedHanjaInfo.clear()
+        Log.d(TAG, "loadFromProfile: profile=${profile.profileName}")
 
-        profile.givenName?.let { givenName ->
-            givenName.charInfos.forEach { charInfo ->
-                nameCharDataList.add(
-                    NameCharData(
-                        korean = charInfo.korean,
-                        hanja = charInfo.hanja
-                    )
-                )
+        nameComposition = NameComposition.fromGivenNameInfo(profile.givenName)
+        hanjaInfoMap.clear()
+        currentStateMap.clear()
+
+        // 프로필에서 한자 정보 복원
+        profile.givenName?.charInfos?.forEachIndexed { index, charInfo ->
+            if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
+                // 현재 상태 저장
+                currentStateMap[index] = Pair(charInfo.korean, charInfo.hanja)
+
+                // CharTripleInfo 복원 시도
+                com.ssc.namespring.model.domain.entity.NameData.getCharInfo(
+                    charInfo.korean,
+                    charInfo.hanja
+                )?.let { info ->
+                    hanjaInfoMap[index] = info
+                    Log.d(TAG, "Loaded hanja info for position $index: ${charInfo.korean}/${charInfo.hanja}")
+                }
             }
+        }
+    }
 
-            givenName.charInfos.forEachIndexed { index, charInfo ->
-                if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
-                    NameData.getCharInfo(charInfo.korean, charInfo.hanja)?.let { info ->
-                        selectedHanjaInfo[index] = info
-                    }
+    override fun canAddChar(): Boolean = nameComposition.canAddCharacter()
+
+    override fun canRemoveChar(): Boolean = nameComposition.canRemoveCharacter()
+
+    override fun addChar() {
+        Log.d(TAG, "addChar()")
+        nameComposition = nameComposition.addCharacter()
+    }
+
+    override fun removeChar() {
+        Log.d(TAG, "removeChar()")
+        val lastIndex = nameComposition.visibleCount - 1
+        hanjaInfoMap.remove(lastIndex)
+        currentStateMap.remove(lastIndex)
+        nameComposition = nameComposition.removeCharacter()
+    }
+
+    override fun setCharData(position: Int, korean: String, hanja: String) {
+        Log.d(TAG, "setCharData: position=$position, korean='$korean', hanja='$hanja'")
+
+        val currentChar = nameComposition.getCharacter(position)
+        val previousState = currentStateMap[position]
+        val koreanChanged = previousState?.first != korean
+
+        // 상태 업데이트
+        currentStateMap[position] = Pair(korean, hanja)
+
+        // 한글이 변경되었고 기존에 한자가 있었으면 한자 정보 제거
+        if (koreanChanged && currentChar?.hanja?.isNotEmpty() == true) {
+            hanjaInfoMap.remove(position)
+            Log.d(TAG, "Korean changed, removing hanja info for position $position")
+        }
+
+        // NameComposition 업데이트
+        nameComposition = nameComposition.updateCharacter(position) { character ->
+            when {
+                koreanChanged && character.hanja.isNotEmpty() -> {
+                    // 한글이 변경되면 한자를 초기화
+                    character.withKorean(korean).clearHanja()
+                }
+                korean.isNotEmpty() && hanja.isNotEmpty() -> {
+                    // 한글과 한자가 모두 있는 경우
+                    val charInfo = hanjaInfoMap[position]?.let { info ->
+                        convertToCharInfo(info)
+                    } ?: CharInfo(korean = korean, hanja = hanja)
+
+                    character
+                        .withKorean(korean)
+                        .withHanja(hanja)
+                        .withCharInfo(charInfo)
+                }
+                else -> {
+                    // 그 외의 경우
+                    character
+                        .withKorean(korean)
+                        .withHanja(hanja)
+                        .withCharInfo(null)
                 }
             }
         }
 
-        if (nameCharDataList.isEmpty()) {
-            nameCharDataList.add(NameCharData())
-        }
-        displayCount = nameCharDataList.size
-    }
-
-    override fun canAddChar(): Boolean = displayCount < 4
-
-    override fun canRemoveChar(): Boolean = displayCount > 1
-
-    override fun addChar() {
-        if (nameCharDataList.size <= displayCount) {
-            nameCharDataList.add(NameCharData())
-        }
-        displayCount++
-    }
-
-    override fun removeChar() {
-        if (displayCount > 1) {
-            displayCount--
-        }
-    }
-
-    override fun setCharData(position: Int, korean: String, hanja: String) {
-        if (position < nameCharDataList.size) {
-            nameCharDataList[position].korean = korean
-            nameCharDataList[position].hanja = hanja
-        }
+        Log.d(TAG, "Updated character at position $position: korean='$korean', hanja='$hanja'")
     }
 
     override fun setHanjaInfo(position: Int, info: CharTripleInfo) {
-        selectedHanjaInfo[position] = info
+        try {
+            val korean = info.koreanInfo?.character ?: return
+            val hanja = info.hanjaInfo?.character ?: return
+
+            Log.d(TAG, "setHanjaInfo: position=$position, korean='$korean', hanja='$hanja'")
+
+            // 한자 정보 저장
+            hanjaInfoMap[position] = info
+            currentStateMap[position] = Pair(korean, hanja)
+
+            // CharInfo 생성
+            val charInfo = convertToCharInfo(info)
+
+            // NameComposition 업데이트
+            nameComposition = nameComposition.updateCharacter(position) { character ->
+                character
+                    .withKorean(korean)
+                    .withHanja(hanja)
+                    .withCharInfo(charInfo)
+            }
+
+            Log.d(TAG, "Hanja info set successfully at position $position")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in setHanjaInfo", e)
+        }
     }
 
     override fun removeHanjaInfo(position: Int) {
-        selectedHanjaInfo.remove(position)
-    }
+        Log.d(TAG, "removeHanjaInfo: position=$position")
 
-    override fun getCharCount(): Int = displayCount
-
-    override fun getCharDataList(): List<NameCharData> = nameCharDataList.take(displayCount)
-
-    override fun getCharData(position: Int): NameCharData? =
-        if (position < nameCharDataList.size) nameCharDataList[position] else null
-
-    override fun getHanjaInfo(position: Int): CharTripleInfo? = selectedHanjaInfo[position]
-
-    override fun createGivenNameInfo(): GivenNameInfo? {
-        val charInfos = mutableListOf<CharInfo>()
-
-        // 모든 displayCount만큼의 자리를 보존 (빈 자리도 포함)
-        for (i in 0 until displayCount) {
-            val data = if (i < nameCharDataList.size) nameCharDataList[i] else NameCharData()
-            val info = selectedHanjaInfo[i]
-
-            charInfos.add(CharInfo(
-                korean = data.korean,  // 빈 문자열도 허용
-                hanja = data.hanja,    // 빈 문자열도 허용
-                meaning = info?.integratedInfo?.nameMeaning,
-                strokes = info?.hanjaInfo?.strokes ?: 0,
-                ohaeng = info?.hanjaInfo?.ohaeng,
-                eumyang = info?.hanjaInfo?.eumyang ?: 0
-            ))
+        hanjaInfoMap.remove(position)
+        currentStateMap[position]?.let { (korean, _) ->
+            currentStateMap[position] = Pair(korean, "")
         }
 
-        return if (charInfos.isNotEmpty()) {
-            GivenNameInfo(
-                korean = charInfos.joinToString("") { it.korean.ifEmpty { "◯" } },
-                hanja = charInfos.joinToString("") { it.hanja.ifEmpty { "◯" } },
-                charInfos = charInfos
+        nameComposition = nameComposition.updateCharacter(position) { character ->
+            character.clearHanja()
+        }
+    }
+
+    override fun getCharCount(): Int = nameComposition.size
+
+    override fun getCharDataList(): List<NameCharData> {
+        return (0 until nameComposition.visibleCount).map { index ->
+            val character = nameComposition.getCharacter(index)
+            NameCharData(
+                korean = character?.korean ?: "",
+                hanja = character?.hanja ?: ""
             )
-        } else null
+        }
+    }
+
+    override fun getCharData(position: Int): NameCharData? {
+        return nameComposition.getCharacter(position)?.let { character ->
+            NameCharData(
+                korean = character.korean,
+                hanja = character.hanja
+            )
+        }
+    }
+
+    override fun getHanjaInfo(position: Int): CharTripleInfo? = hanjaInfoMap[position]
+
+    override fun createGivenNameInfo(): GivenNameInfo? {
+        Log.d(TAG, "createGivenNameInfo called")
+
+        // 현재 상태 확인
+        Log.d(TAG, "Current state:")
+        currentStateMap.forEach { (pos, state) ->
+            Log.d(TAG, "  Position $pos: korean='${state.first}', hanja='${state.second}'")
+        }
+
+        val givenNameInfo = nameComposition.toGivenNameInfo()
+
+        if (givenNameInfo != null) {
+            Log.d(TAG, "Created GivenNameInfo: korean='${givenNameInfo.korean}', hanja='${givenNameInfo.hanja}'")
+            givenNameInfo.charInfos.forEachIndexed { index, charInfo ->
+                Log.d(TAG, "  CharInfo[$index]: korean='${charInfo.korean}', hanja='${charInfo.hanja}', " +
+                        "meaning='${charInfo.meaning}', strokes=${charInfo.strokes}, " +
+                        "ohaeng='${charInfo.ohaeng}', eumyang=${charInfo.eumyang}")
+            }
+        } else {
+            Log.d(TAG, "GivenNameInfo is null")
+        }
+
+        return givenNameInfo
     }
 
     override fun reset() {
-        nameCharDataList.clear()
-        selectedHanjaInfo.clear()
-        nameCharDataList.add(NameCharData())
-        displayCount = 1
+        Log.d(TAG, "reset()")
+        nameComposition = NameComposition()
+        hanjaInfoMap.clear()
+        currentStateMap.clear()
+    }
+
+    private fun convertToCharInfo(tripleInfo: CharTripleInfo): CharInfo {
+        return CharInfo(
+            korean = tripleInfo.koreanInfo?.character ?: "",
+            hanja = tripleInfo.hanjaInfo?.character ?: "",
+            meaning = tripleInfo.integratedInfo?.nameMeaning,
+            strokes = tripleInfo.hanjaInfo?.strokes ?: 0,
+            ohaeng = tripleInfo.hanjaInfo?.ohaeng ?: "",
+            eumyang = tripleInfo.hanjaInfo?.eumyang ?: 0
+        )
     }
 }

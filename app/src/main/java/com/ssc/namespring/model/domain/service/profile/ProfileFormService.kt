@@ -2,12 +2,16 @@
 package com.ssc.namespring.model.domain.service.profile
 
 import android.content.Context
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.domain.usecase.ProfileManager
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 
 class ProfileFormService {
+    companion object {
+        private const val TAG = "ProfileFormService"
+    }
 
     private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
@@ -19,7 +23,18 @@ class ProfileFormService {
         callback: (Boolean) -> Unit
     ) {
         try {
+            Log.d(TAG, "saveProfile: profileName='$profileName', profileId=$profileId")
+
             val profile = formManager.createProfile(profileName)
+
+            // 프로필 데이터 검증 로그
+            Log.d(TAG, "Created profile:")
+            Log.d(TAG, "  - Name: ${profile.profileName}")
+            Log.d(TAG, "  - Surname: ${profile.surname?.korean}(${profile.surname?.hanja})")
+            Log.d(TAG, "  - GivenName: ${profile.givenName?.korean}(${profile.givenName?.hanja})")
+            profile.givenName?.charInfos?.forEachIndexed { index, charInfo ->
+                Log.d(TAG, "    CharInfo[$index]: ${charInfo.korean}/${charInfo.hanja}")
+            }
 
             val success = if (!profileId.isNullOrEmpty()) {
                 profileManager.updateProfile(profile)
@@ -33,6 +48,7 @@ class ProfileFormService {
 
             callback(success)
         } catch (e: Exception) {
+            Log.e(TAG, "Error saving profile", e)
             e.printStackTrace()
             callback(false)
         }
