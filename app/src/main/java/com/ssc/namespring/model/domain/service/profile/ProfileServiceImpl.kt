@@ -2,8 +2,6 @@
 package com.ssc.namespring.model.domain.service.profile
 
 import android.util.Log
-import com.ssc.namespring.model.common.utils.ChosungUtils
-import com.ssc.namespring.model.common.utils.MixedPatternUtils
 import com.ssc.namespring.model.domain.service.interfaces.IProfileManager
 import com.ssc.namespring.model.domain.service.interfaces.ProfileService
 import com.ssc.namespring.model.domain.entity.Profile
@@ -16,6 +14,7 @@ class ProfileServiceImpl : ProfileService {
     private val profiles = mutableListOf<Profile>()
     private var currentProfileId: String? = null
     private var selectedProfile: Profile? = null
+    private val searchService = ProfileSearchService()
 
     fun initProfiles(loadedProfiles: List<Profile>, loadedCurrentId: String?) {
         profiles.clear()
@@ -78,53 +77,7 @@ class ProfileServiceImpl : ProfileService {
 
     fun searchProfiles(query: String): List<Profile> {
         if (query.isEmpty()) return getAllProfiles()
-
-        val lowercaseQuery = query.lowercase()
-
-        // 초성 검색인지 확인
-        val isChosungQuery = query.matches(Regex("^[ㄱ-ㅎ]+$"))
-
-        // 혼합 패턴인지 확인
-        val isMixedPattern = MixedPatternUtils.containsMixedPattern(query)
-
-        return profiles.filter { profile ->
-            when {
-                // 혼합 패턴 검색
-                isMixedPattern -> {
-                    matchesMixedPattern(profile, query)
-                }
-                // 순수 초성 검색
-                isChosungQuery -> {
-                    matchesChosung(profile.profileName, query) ||
-                            matchesChosung(profile.getFullName(), query)
-                }
-                // 일반 검색
-                else -> {
-                    profile.profileName.lowercase().contains(lowercaseQuery) ||
-                            profile.getFullName().lowercase().contains(lowercaseQuery) ||
-                            profile.getFullNameWithHanja().lowercase().contains(lowercaseQuery) ||
-                            profile.getBirthDateString().contains(query)
-                }
-            }
-        }
-    }
-
-    private fun matchesMixedPattern(profile: Profile, pattern: String): Boolean {
-        // 프로필명에서 검색
-        if (MixedPatternUtils.matchMixedPattern(profile.profileName, pattern)) {
-            return true
-        }
-
-        // 전체 이름(성+이름)에서 검색
-        if (MixedPatternUtils.matchMixedPattern(profile.getFullName(), pattern)) {
-            return true
-        }
-
-        return false
-    }
-
-    private fun matchesChosung(text: String, chosungQuery: String): Boolean {
-        return MixedPatternUtils.matchChosungPattern(text, chosungQuery)
+        return searchService.search(profiles, query)
     }
 
     fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> {
