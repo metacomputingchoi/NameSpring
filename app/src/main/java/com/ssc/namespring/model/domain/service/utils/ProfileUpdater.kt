@@ -11,17 +11,30 @@ import com.ssc.namingengine.data.GeneratedName
 import com.ssc.namingengine.data.analysis.NameAnalysisInfo
 
 object ProfileUpdater {
+    private const val TAG = "ProfileUpdater"
+
     fun updateFromGeneratedName(profile: Profile, generatedName: GeneratedName) {
-        profile.evaluatedName = generatedName
+        Log.d(TAG, "updateFromGeneratedName 시작")
+
+        // GeneratedName 저장
+        profile.updateEvaluatedName(generatedName)
+
+        // 점수 계산
         profile.nameBomScore = ProfileScoreCalculator.calculateNamebomScore(generatedName)
 
+        // analysisInfo가 있을 때만 사주/오행 정보 업데이트
         generatedName.analysisInfo?.let { analysisInfo ->
+            Log.d(TAG, "analysisInfo 있음, 사주/오행 정보 업데이트")
             profile.sajuInfo = SajuInfo.fromAnalysisInfo(analysisInfo)
             profile.ohaengInfo = extractOhaengInfo(analysisInfo)
-        }
+
+            Log.d(TAG, "업데이트된 sajuInfo: ${profile.sajuInfo?.fourPillars}")
+            Log.d(TAG, "업데이트된 ohaengInfo: ${profile.ohaengInfo}")
+        } ?: Log.w(TAG, "analysisInfo가 null입니다")
 
         profile.updatedAt = System.currentTimeMillis()
-        Log.d("Profile", "updateFromGeneratedName - 점수: ${profile.nameBomScore}, 오행: ${profile.ohaengInfo}")
+
+        Log.d(TAG, "updateFromGeneratedName 완료")
     }
 
     private fun extractOhaengInfo(analysisInfo: NameAnalysisInfo): OhaengInfo {

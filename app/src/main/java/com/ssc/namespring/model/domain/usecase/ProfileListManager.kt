@@ -13,6 +13,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.ssc.namespring.MainActivity
 import com.ssc.namespring.model.presentation.components.ProfileListUiState
 import com.ssc.namespring.model.domain.entity.Profile
+import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
+import com.ssc.namingengine.NamingEngine
 
 class ProfileListManager {
     private val _uiState = MutableLiveData<ProfileListUiState>()
@@ -96,6 +98,13 @@ class ProfileListManager {
         if (_uiState.value?.isSelectionMode == true) {
             toggleSelection(profile.id)
         } else {
+            // 프로필이 평가되었지만 evaluatedNameJson이 없는 경우 재평가
+            if (profile.isEvaluated() && profile.evaluatedNameJson == null) {
+                val evaluationService = ProfileEvaluationService(NamingEngine.create())
+                val evaluatedProfile = evaluationService.evaluate(profile)
+                profileManager.updateProfile(evaluatedProfile)
+            }
+
             profileManager.switchProfile(profile.id)
             context.startActivity(Intent(context, MainActivity::class.java))
         }

@@ -1,6 +1,9 @@
 // model/domain/entity/Profile.kt
 package com.ssc.namespring.model.domain.entity
 
+import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.annotations.Expose
 import com.ssc.namespring.model.presentation.formatter.ProfileStringFormatter
 import com.ssc.namespring.model.domain.service.utils.ProfileUpdater
 import com.ssc.namingengine.data.GeneratedName
@@ -17,14 +20,38 @@ data class Profile(
     var nameBomScore: Int = 0,
     var sajuInfo: SajuInfo? = null,
     var ohaengInfo: OhaengInfo? = null,
-    var evaluatedName: GeneratedName? = null,
+    var evaluatedNameJson: String? = null,  // JSON만 저장
     val nameCharCount: Int = 2,
     val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis()
 ) : Serializable {
 
-    fun updateFromGeneratedName(generatedName: GeneratedName) {
-        ProfileUpdater.updateFromGeneratedName(this, generatedName)
+    companion object {
+        private const val TAG = "Profile"
+        private val gson = Gson()
+    }
+
+    // evaluatedName은 필요할 때만 JSON에서 파싱
+    val evaluatedName: GeneratedName?
+        get() = evaluatedNameJson?.let {
+            try {
+                gson.fromJson(it, GeneratedName::class.java)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to parse evaluatedNameJson", e)
+                null
+            }
+        }
+
+    fun updateEvaluatedName(generatedName: GeneratedName?) {
+        this.evaluatedNameJson = generatedName?.let {
+            try {
+                gson.toJson(it)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to serialize GeneratedName", e)
+                null
+            }
+        }
+        Log.d(TAG, "updateEvaluatedName: json length = ${evaluatedNameJson?.length}")
     }
 
     fun getFullName(): String {

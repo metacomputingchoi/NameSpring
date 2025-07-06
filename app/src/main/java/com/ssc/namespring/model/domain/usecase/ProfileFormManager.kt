@@ -13,6 +13,8 @@ import com.ssc.namespring.model.domain.usecase.profileform.ProfileFactory
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
 import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
+import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
+import com.ssc.namingengine.NamingEngine
 import java.util.Calendar
 
 class ProfileFormManager(private val profileId: String? = null) {
@@ -47,10 +49,22 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     private fun loadProfileData(profile: Profile) {
-        stateManager.loadFromProfile(profile)
-        dateTimeManager.setDateTime(profile.birthDate)
-        nameDataManager.loadFromProfile(profile)
-        updateUiState()
+        // 평가된 프로필인데 evaluatedNameJson이 없으면 재평가
+        if (profile.isEvaluated() && profile.evaluatedNameJson == null) {
+            Log.d(TAG, "편집할 프로필 재평가 필요")
+            val evaluationService = ProfileEvaluationService(NamingEngine.create())
+            val evaluatedProfile = evaluationService.evaluate(profile)
+
+            stateManager.loadFromProfile(evaluatedProfile)
+            dateTimeManager.setDateTime(evaluatedProfile.birthDate)
+            nameDataManager.loadFromProfile(evaluatedProfile)
+            updateUiState()
+        } else {
+            stateManager.loadFromProfile(profile)
+            dateTimeManager.setDateTime(profile.birthDate)
+            nameDataManager.loadFromProfile(profile)
+            updateUiState()
+        }
     }
 
     fun updateDate(calendar: Calendar) {

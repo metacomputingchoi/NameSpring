@@ -29,14 +29,28 @@ class ProfileUseCase(
     }
 
     fun addProfile(profile: Profile): Boolean {
+        Log.d(TAG, "ProfileUseCase.addProfile 시작")
+        Log.d(TAG, "  - 평가 전 evaluatedNameJson: ${profile.evaluatedNameJson?.length}")
+
         val evaluatedProfile = evaluator.evaluate(profile)
+
+        Log.d(TAG, "  - 평가 후 evaluatedNameJson: ${evaluatedProfile.evaluatedNameJson?.length}")
+        Log.d(TAG, "  - 평가 후 nameBomScore: ${evaluatedProfile.nameBomScore}")
+
         val success = service.addProfile(evaluatedProfile)
         if (success) saveProfiles()
         return success
     }
 
     fun updateProfile(profile: Profile): Boolean {
+        Log.d(TAG, "ProfileUseCase.updateProfile 시작")
+        Log.d(TAG, "  - 평가 전 evaluatedNameJson: ${profile.evaluatedNameJson?.length}")
+
         val evaluatedProfile = evaluator.evaluate(profile)
+
+        Log.d(TAG, "  - 평가 후 evaluatedNameJson: ${evaluatedProfile.evaluatedNameJson?.length}")
+        Log.d(TAG, "  - 평가 후 nameBomScore: ${evaluatedProfile.nameBomScore}")
+
         val success = service.updateProfile(evaluatedProfile)
         if (success) saveProfiles()
         return success

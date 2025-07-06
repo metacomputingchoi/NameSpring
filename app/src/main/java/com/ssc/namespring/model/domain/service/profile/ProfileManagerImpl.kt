@@ -33,11 +33,23 @@ class ProfileManagerImpl(
 
     override fun addProfile(profile: Profile): Boolean {
         ensureInitialized()
+
+        Log.d(TAG, "addProfile 호출:")
+        Log.d(TAG, "  - evaluatedName: ${profile.evaluatedName != null}")
+        Log.d(TAG, "  - evaluatedNameJson 길이: ${profile.evaluatedNameJson?.length}")
+        Log.d(TAG, "  - nameBomScore: ${profile.nameBomScore}")
+
         return useCase.addProfile(profile)
     }
 
     override fun updateProfile(profile: Profile): Boolean {
         ensureInitialized()
+
+        Log.d(TAG, "updateProfile 호출:")
+        Log.d(TAG, "  - evaluatedName: ${profile.evaluatedName != null}")
+        Log.d(TAG, "  - evaluatedNameJson 길이: ${profile.evaluatedNameJson?.length}")
+        Log.d(TAG, "  - nameBomScore: ${profile.nameBomScore}")
+
         return useCase.updateProfile(profile)
     }
 

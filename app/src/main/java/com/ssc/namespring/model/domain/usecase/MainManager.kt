@@ -1,9 +1,12 @@
 // model/domain/usecase/MainManager.kt
 package com.ssc.namespring.model.domain.usecase
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ssc.namespring.model.domain.entity.Profile
+import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
+import com.ssc.namingengine.NamingEngine
 
 class MainMagager {
     private val _uiState = MutableLiveData<MainUiState>()
@@ -16,27 +19,82 @@ class MainMagager {
     }
 
     fun refreshProfile() {
-        profileManager.getCurrentProfile()?.let { profile ->
-            _uiState.value = MainUiState(
-                profileName = profile.profileName,
-                scoreText = if (profile.isEvaluated()) profile.nameBomScore.toString() else "-",
-                fullName = profile.getFullName(),
-                birthInfo = profile.getBirthDateString(),
-                ohaengInfo = getOhaengInfoText(profile),
-                ohaengCounts = listOf(
-                    profile.ohaengInfo?.wood ?: 0,
-                    profile.ohaengInfo?.fire ?: 0,
-                    profile.ohaengInfo?.earth ?: 0,
-                    profile.ohaengInfo?.metal ?: 0,
-                    profile.ohaengInfo?.water ?: 0
-                ),
-                theme = if (profile.isEvaluated()) {
-                    profile.getScoreThemeColor()
-                } else {
-                    Profile.ScoreTheme.NOT_EVALUATED
+        val currentProfile = profileManager.getCurrentProfile()
+        if (currentProfile != null) {
+            // evaluatedNameJson이 없는 평가된 프로필인 경우 재평가
+            if (currentProfile.isEvaluated() && currentProfile.evaluatedNameJson == null) {
+                Log.d("MainManager", "현재 프로필 재평가 필요: ${currentProfile.profileName}")
+
+                try {
+                    // NamingEngine 인스턴스 생성
+                    val namingEngine = NamingEngine.create()
+                    val evaluationService = ProfileEvaluationService(namingEngine)
+
+                    // 프로필 재평가
+                    val evaluatedProfile = evaluationService.evaluate(currentProfile)
+
+                    // 재평가된 프로필 저장
+                    val updateSuccess = profileManager.updateProfile(evaluatedProfile)
+
+                    if (updateSuccess) {
+                        Log.d("MainManager", "프로필 재평가 및 저장 성공")
+
+                        // 재평가된 프로필로 UI 업데이트
+                        updateUIWithProfile(evaluatedProfile)
+                    } else {
+                        Log.e("MainManager", "재평가된 프로필 저장 실패")
+                        // 저장 실패 시 기존 프로필로 UI 업데이트
+                        updateUIWithProfile(currentProfile)
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainManager", "프로필 재평가 중 오류 발생", e)
+                    // 오류 발생 시 기존 프로필로 UI 업데이트
+                    updateUIWithProfile(currentProfile)
                 }
-            )
+            } else {
+                // 재평가가 필요 없는 경우 기존 프로필로 UI 업데이트
+                updateUIWithProfile(currentProfile)
+            }
+        } else {
+            Log.w("MainManager", "현재 프로필이 null입니다")
         }
+    }
+
+    private fun updateUIWithProfile(profile: Profile) {
+        Log.d("MainManager", "현재 프로필 정보:")
+        Log.d("MainManager", "  - profileName: ${profile.profileName}")
+        Log.d("MainManager", "  - nameBomScore: ${profile.nameBomScore}")
+        Log.d("MainManager", "  - evaluatedName 존재: ${profile.evaluatedName != null}")
+        Log.d("MainManager", "  - evaluatedNameJson 길이: ${profile.evaluatedNameJson?.length}")
+
+        // evaluatedName이 있으면 내용도 로그
+        profile.evaluatedName?.let { generatedName ->
+            Log.d("MainManager", "  - GeneratedName 내용:")
+            Log.d("MainManager", "    - combinedHanja: ${generatedName.combinedHanja}")
+            Log.d("MainManager", "    - combinedPronounciation: ${generatedName.combinedPronounciation}")
+            Log.d("MainManager", "    - hanjaDetails 수: ${generatedName.hanjaDetails.size}")
+            Log.d("MainManager", "    - analysisInfo 존재: ${generatedName.analysisInfo != null}")
+        }
+
+        _uiState.value = MainUiState(
+            profileName = profile.profileName,
+            scoreText = if (profile.isEvaluated()) profile.nameBomScore.toString() else "-",
+            fullName = profile.getFullName(),
+            birthInfo = profile.getBirthDateString(),
+            ohaengInfo = getOhaengInfoText(profile),
+            ohaengCounts = listOf(
+                profile.ohaengInfo?.wood ?: 0,
+                profile.ohaengInfo?.fire ?: 0,
+                profile.ohaengInfo?.earth ?: 0,
+                profile.ohaengInfo?.metal ?: 0,
+                profile.ohaengInfo?.water ?: 0
+            ),
+            theme = if (profile.isEvaluated()) {
+                profile.getScoreThemeColor()
+            } else {
+                Profile.ScoreTheme.NOT_EVALUATED
+            }
+        )
     }
 
     private fun getOhaengInfoText(profile: Profile): String {

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.domain.usecase.ProfileManager
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
+import com.ssc.namingengine.NamingEngine
 
 class ProfileFormService {
     companion object {
@@ -36,10 +37,38 @@ class ProfileFormService {
                 Log.d(TAG, "    CharInfo[$index]: ${charInfo.korean}/${charInfo.hanja}")
             }
 
-            val success = if (!profileId.isNullOrEmpty()) {
-                profileManager.updateProfile(profile)
+            // 프로필 저장 전에 평가 수행
+            val evaluatedProfile = if (profile.surname != null && profile.givenName != null) {
+                // ProfileEvaluationService를 통해 평가
+                val evaluationService = ProfileEvaluationService(NamingEngine.create())
+                val evaluated = evaluationService.evaluate(profile)
+
+                // 평가 결과 로그
+                Log.d(TAG, "After evaluation:")
+                Log.d(TAG, "  - evaluatedName exists: ${evaluated.evaluatedName != null}")
+                Log.d(TAG, "  - evaluatedNameJson length: ${evaluated.evaluatedNameJson?.length}")
+                Log.d(TAG, "  - nameBomScore: ${evaluated.nameBomScore}")
+
+                // 디버깅을 위해 evaluatedName의 내용도 로그
+                evaluated.evaluatedName?.let { name ->
+                    Log.d(TAG, "  - GeneratedName details:")
+                    Log.d(TAG, "    - combinedHanja: ${name.combinedHanja}")
+                    Log.d(TAG, "    - combinedPronounciation: ${name.combinedPronounciation}")
+                    Log.d(TAG, "    - hanjaDetails count: ${name.hanjaDetails.size}")
+                    Log.d(TAG, "    - analysisInfo exists: ${name.analysisInfo != null}")
+                }
+
+                evaluated
             } else {
-                profileManager.addProfile(profile)
+                // 이름 정보가 불완전한 경우 evaluatedName = null로 유지
+                Log.d(TAG, "이름 정보가 불완전하여 평가하지 않음")
+                profile
+            }
+
+            val success = if (!profileId.isNullOrEmpty()) {
+                profileManager.updateProfile(evaluatedProfile)
+            } else {
+                profileManager.addProfile(evaluatedProfile)
             }
 
             if (!success) {
