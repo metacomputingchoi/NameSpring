@@ -1,5 +1,5 @@
-// model/domain/usecase/NameDataManager.kt
-package com.ssc.namespring.model.domain.usecase
+// model/domain/usecase/profileform/ProfileFormNameDataManager.kt
+package com.ssc.namespring.model.domain.usecase.profileform
 
 import com.ssc.namespring.model.presentation.components.NameCharData
 import com.ssc.namespring.model.domain.entity.CharInfo
@@ -9,10 +9,14 @@ import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.data.mapper.CharTripleInfo
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
 
-class NameDataManager : INameDataManager {
+class ProfileFormNameDataManager : INameDataManager {
     private val nameCharDataList = mutableListOf<NameCharData>()
     private val selectedHanjaInfo = mutableMapOf<Int, CharTripleInfo>()
     private var displayCount = 1
+
+    init {
+        reset()
+    }
 
     override fun initialize() {
         nameCharDataList.clear()

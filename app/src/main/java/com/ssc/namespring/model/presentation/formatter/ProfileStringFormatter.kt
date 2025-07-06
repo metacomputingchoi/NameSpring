@@ -8,13 +8,21 @@ import java.util.Calendar
 object ProfileStringFormatter {
     fun getFullName(profile: Profile): String {
         val surnameText = profile.surname?.korean ?: ""
-        val givenNameText = profile.givenName?.korean ?: ""
+        val givenNameText = profile.givenName?.let { givenName ->
+            givenName.charInfos.joinToString("") { charInfo ->
+                charInfo.korean.ifEmpty { "◯" }
+            }
+        } ?: ""
         return "$surnameText$givenNameText"
     }
 
     fun getFullNameWithHanja(profile: Profile): String {
         val surnameHanja = profile.surname?.hanja ?: ""
-        val givenNameHanja = profile.givenName?.hanja ?: ""
+        val givenNameHanja = profile.givenName?.let { givenName ->
+            givenName.charInfos.joinToString("") { charInfo ->
+                charInfo.hanja.ifEmpty { "◯" }
+            }
+        } ?: ""
         val korean = getFullName(profile)
         return if (surnameHanja.isNotEmpty() || givenNameHanja.isNotEmpty()) {
             "$korean($surnameHanja$givenNameHanja)"

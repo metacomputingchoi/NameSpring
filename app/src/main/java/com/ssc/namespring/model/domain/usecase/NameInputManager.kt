@@ -11,10 +11,11 @@ import com.ssc.namespring.model.presentation.components.NameCharData
 import com.ssc.namespring.model.presentation.components.SimpleHanjaTextWatcher
 import com.ssc.namespring.model.presentation.components.SimpleKoreanTextWatcher
 import com.ssc.namespring.model.domain.entity.NameData
+import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
 import java.lang.ref.WeakReference
 
 class NameInputManager(
-    private val nameDataManager: NameDataManager,
+    private val nameDataManager: INameDataManager,
     private val onHanjaSearchClick: (Int) -> Unit
 ) {
 

@@ -4,26 +4,30 @@ package com.ssc.namespring.model.domain.usecase
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
-import com.ssc.namespring.model.common.utils.DateTimeManager
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
+import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormDateTimeManager
+import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormNameDataManager
+import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormStateManager
+import com.ssc.namespring.model.domain.usecase.profileform.ProfileFactory
+import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
 import java.util.Calendar
 
 class ProfileFormManager(private val profileId: String? = null) {
     private val _uiState = MutableLiveData<ProfileFormUiState>()
     val uiState: LiveData<ProfileFormUiState> = _uiState
 
-    private val dateTimeManager = DateTimeManager()
-    private val nameDataManager = NameDataManager()
+    private val dateTimeManager = ProfileFormDateTimeManager()
+    private val nameDataManager = ProfileFormNameDataManager()
+    private val stateManager = ProfileFormStateManager()
+    private val profileFactory = ProfileFactory()
     private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
 
     init {
-        _uiState.value = ProfileFormUiState()
+        updateUiState()
     }
 
     fun initialize() {
-        nameDataManager.initialize()
-
         if (!profileId.isNullOrEmpty()) {
             profileManager.getProfile(profileId)?.let { profile ->
                 loadProfileData(profile)
@@ -34,18 +38,10 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     private fun loadProfileData(profile: Profile) {
+        stateManager.loadFromProfile(profile)
         dateTimeManager.setDateTime(profile.birthDate)
         nameDataManager.loadFromProfile(profile)
-
-        _uiState.value = ProfileFormUiState(
-            profileName = profile.profileName,
-            birthDateText = dateTimeManager.getFormattedDate(),
-            birthTimeText = dateTimeManager.getFormattedTime(),
-            isYajaTime = profile.isYajaTime,
-            selectedSurname = profile.surname,
-            nameCharCount = nameDataManager.getCharCount(),
-            nameCharDataList = nameDataManager.getCharDataList()
-        )
+        updateUiState()
     }
 
     fun updateDate(calendar: Calendar) {
@@ -59,7 +55,8 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     fun updateYajaTime(isChecked: Boolean) {
-        _uiState.value = _uiState.value?.copy(isYajaTime = isChecked)
+        stateManager.updateYajaTime(isChecked)
+        updateUiState()
     }
 
     fun addNameChar() {
@@ -77,7 +74,8 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     fun setSurname(surname: SurnameInfo?) {
-        _uiState.value = _uiState.value?.copy(selectedSurname = surname)
+        stateManager.setSurname(surname)
+        updateUiState()
     }
 
     fun setHanjaInfo(position: Int, korean: String, hanja: String) {
@@ -88,44 +86,32 @@ class ProfileFormManager(private val profileId: String? = null) {
     fun resetAllFields() {
         dateTimeManager.reset()
         nameDataManager.reset()
-        _uiState.value = ProfileFormUiState()
+        stateManager.reset()
+        updateUiState()
     }
 
     fun createProfile(profileName: String): Profile {
-        val givenName = nameDataManager.createGivenNameInfo()
-
-        return if (!profileId.isNullOrEmpty()) {
-            // 기존 프로필 업데이트
-            Profile(
-                id = profileId,
-                profileName = profileName,
-                birthDate = dateTimeManager.getCalendar(),
-                isYajaTime = _uiState.value?.isYajaTime == true,
-                surname = _uiState.value?.selectedSurname,
-                givenName = givenName,
-                createdAt = profileManager.getProfile(profileId)?.createdAt ?: System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
-            )
-        } else {
-            // 새 프로필 생성
-            Profile(
-                profileName = profileName,
-                birthDate = dateTimeManager.getCalendar(),
-                isYajaTime = _uiState.value?.isYajaTime == true,
-                surname = _uiState.value?.selectedSurname,
-                givenName = givenName
-            )
-        }
+        return profileFactory.createProfile(
+            profileId = profileId,
+            profileName = profileName,
+            birthDate = dateTimeManager.getCalendar(),
+            isYajaTime = stateManager.isYajaTime(),
+            surname = stateManager.getSurname(),
+            givenName = nameDataManager.createGivenNameInfo(),
+            existingProfile = if (!profileId.isNullOrEmpty()) profileManager.getProfile(profileId) else null
+        )
     }
 
-    fun getNameDataManager() = nameDataManager
+    fun getNameDataManager(): INameDataManager = nameDataManager
     fun getSelectedDate() = dateTimeManager.getCalendar()
 
     private fun updateUiState() {
-        val currentState = _uiState.value ?: ProfileFormUiState()
-        _uiState.value = currentState.copy(
+        _uiState.value = ProfileFormUiState(
+            profileName = stateManager.getProfileName(),
             birthDateText = dateTimeManager.getFormattedDate(),
             birthTimeText = dateTimeManager.getFormattedTime(),
+            isYajaTime = stateManager.isYajaTime(),
+            selectedSurname = stateManager.getSurname(),
             nameCharCount = nameDataManager.getCharCount(),
             nameCharDataList = nameDataManager.getCharDataList()
         )
