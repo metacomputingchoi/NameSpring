@@ -3,122 +3,108 @@ package com.ssc.namespring.model.domain.usecase
 
 import android.content.Context
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
-import com.ssc.namingengine.NamingEngine
 import com.ssc.namespring.model.domain.entity.Profile
-import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
-import com.ssc.namespring.model.data.mapper.ProfileMigrator
-import com.ssc.namespring.model.data.repository.ProfileRepository
-import com.ssc.namespring.model.domain.service.profile.ProfileServiceImpl
 
+/**
+ * ProfileManager - Facade pattern을 사용하여 기존 인터페이스 유지
+ * 내부적으로는 책임이 분리된 클래스들에게 위임
+ */
 object ProfileManager {
     private const val TAG = "ProfileManager"
-    private const val PREF_NAME = "namespring_profiles"
 
-    private lateinit var repository: ProfileRepository
-    private lateinit var service: ProfileServiceImpl
-    private lateinit var evaluator: ProfileEvaluationService
-    private lateinit var migrator: ProfileMigrator
-    private lateinit var namingEngine: NamingEngine
-    private val gson = Gson()
+    private lateinit var container: ProfileDependencyContainer
+    private lateinit var useCase: ProfileUseCase
+
+    private var isInitialized = false
 
     fun init(context: Context) {
-        val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        repository = ProfileRepository(sharedPreferences, gson)
-        service = ProfileServiceImpl()
-        migrator = ProfileMigrator(gson)
-
-        try {
-            namingEngine = NamingEngine.create()
-            Log.d(TAG, "NamingEngine 초기화 성공")
-        } catch (e: Exception) {
-            Log.e(TAG, "NamingEngine 초기화 실패", e)
+        if (isInitialized) {
+            Log.d(TAG, "ProfileManager already initialized")
+            return
         }
 
-        evaluator = ProfileEvaluationService(namingEngine)
-        loadProfiles()
-        updateProfilesIfNeeded()
+        container = ProfileDependencyContainer(context)
+        useCase = container.provideProfileUseCase()
+
+        useCase.initialize()
+        isInitialized = true
+
+        Log.d(TAG, "ProfileManager initialized successfully")
     }
 
     fun addProfile(profile: Profile): Boolean {
-        val evaluatedProfile = evaluator.evaluate(profile)
-        val success = service.addProfile(evaluatedProfile)
-        if (success) saveProfiles()
-        return success
+        ensureInitialized()
+        return useCase.addProfile(profile)
     }
 
     fun updateProfile(profile: Profile): Boolean {
-        val evaluatedProfile = evaluator.evaluate(profile)
-        val success = service.updateProfile(evaluatedProfile)
-        if (success) saveProfiles()
-        return success
+        ensureInitialized()
+        return useCase.updateProfile(profile)
     }
 
     fun deleteProfiles(profileIds: List<String>) {
-        service.deleteProfiles(profileIds)
-        saveProfiles()
+        ensureInitialized()
+        useCase.deleteProfiles(profileIds)
     }
 
-    fun deleteProfile(profileId: String) = deleteProfiles(listOf(profileId))
-    fun isDuplicateProfile(profile: Profile): Boolean =
-        service.getAllProfiles().any { it.equals(profile) && it.id != profile.id }
-    fun searchProfiles(query: String): List<Profile> = service.searchProfiles(query)
-    fun getSortedProfiles(sortType: SortType): List<Profile> = service.getSortedProfiles(sortType)
-    fun getAllProfiles(): List<Profile> = service.getAllProfiles()
-    fun getProfile(id: String): Profile? = service.getProfile(id)
-    fun getCurrentProfile(): Profile? = service.getCurrentProfile()
-    fun hasProfiles(): Boolean = service.hasProfiles()
-    fun setSelectedProfile(profile: Profile) = service.setSelectedProfile(profile)
-    fun getSelectedProfile(): Profile? = service.getSelectedProfile()
+    fun deleteProfile(profileId: String) {
+        deleteProfiles(listOf(profileId))
+    }
+
+    fun isDuplicateProfile(profile: Profile): Boolean {
+        ensureInitialized()
+        return useCase.isDuplicateProfile(profile)
+    }
+
+    fun searchProfiles(query: String): List<Profile> {
+        ensureInitialized()
+        return useCase.searchProfiles(query)
+    }
+
+    fun getSortedProfiles(sortType: SortType): List<Profile> {
+        ensureInitialized()
+        return useCase.getSortedProfiles(sortType)
+    }
+
+    fun getAllProfiles(): List<Profile> {
+        ensureInitialized()
+        return useCase.getAllProfiles()
+    }
+
+    fun getProfile(id: String): Profile? {
+        ensureInitialized()
+        return useCase.getProfile(id)
+    }
+
+    fun getCurrentProfile(): Profile? {
+        ensureInitialized()
+        return useCase.getCurrentProfile()
+    }
+
+    fun hasProfiles(): Boolean {
+        ensureInitialized()
+        return useCase.hasProfiles()
+    }
+
+    fun setSelectedProfile(profile: Profile) {
+        ensureInitialized()
+        useCase.setSelectedProfile(profile)
+    }
+
+    fun getSelectedProfile(): Profile? {
+        ensureInitialized()
+        return useCase.getSelectedProfile()
+    }
 
     fun switchProfile(id: String) {
-        if (service.switchProfile(id)) {
-            saveProfiles()
-        }
+        ensureInitialized()
+        useCase.switchProfile(id)
     }
 
-    private fun loadProfiles() {
-        val json = repository.loadProfilesJson()
-        if (json != null) {
-            try {
-                val profiles = repository.loadProfiles()
-                val currentId = repository.loadCurrentProfileId()
-                service.initProfiles(profiles, currentId)
-            } catch (e: JsonSyntaxException) {
-                handleLegacyProfiles(json)
-            }
-        } else {
-            service.initProfiles(emptyList(), null)
+    private fun ensureInitialized() {
+        if (!isInitialized) {
+            throw IllegalStateException("ProfileManager must be initialized before use")
         }
-    }
-
-    private fun handleLegacyProfiles(json: String) {
-        val migratedProfiles = migrator.migrateFromJson(json)
-        if (migratedProfiles != null) {
-            service.initProfiles(migratedProfiles, null)
-            saveProfiles()
-        } else {
-            repository.clearProfiles()
-            service.initProfiles(emptyList(), null)
-        }
-    }
-
-    private fun updateProfilesIfNeeded() {
-        val profiles = service.getAllProfiles()
-        val updatedProfiles = evaluator.updateProfilesIfNeeded(profiles)
-
-        profiles.zip(updatedProfiles).forEach { (old, new) ->
-            if (old != new) service.replaceProfile(old, new)
-        }
-
-        if (profiles != updatedProfiles) {
-            saveProfiles()
-        }
-    }
-
-    private fun saveProfiles() {
-        repository.saveProfiles(service.getAllProfiles(), service.getCurrentProfileId())
     }
 
     enum class SortType {
