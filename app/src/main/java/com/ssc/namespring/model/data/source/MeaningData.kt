@@ -64,7 +64,7 @@ data class CharacterMeaningStrings(
     val patternDelimiter: String
 )
 
-data class HanjaInfo(
+data class HanjaInfoMeaning(
     val origin: String?,
     val components: List<String>?,
     val relatedCharacters: List<String>?

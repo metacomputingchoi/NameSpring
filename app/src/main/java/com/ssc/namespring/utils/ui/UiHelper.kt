@@ -49,33 +49,33 @@ object UiHelper {
         return features.take(3)
     }
 
-    fun getThemeColors(theme: Theme): ThemeColors {
+    fun getThemeColors(theme: Theme): ThemeColorsUI {
         return when (theme.name) {
-            "화창한 봄" -> ThemeColors(
+            "화창한 봄" -> ThemeColorsUI(
                 primary = "#FFB6C1",
                 secondary = "#98FB98",
                 background = "#F0F8FF",
                 accent = "#FF69B4"
             )
-            "따뜻한 봄" -> ThemeColors(
+            "따뜻한 봄" -> ThemeColorsUI(
                 primary = "#FFDAB9",
                 secondary = "#FFFACD",
                 background = "#FFF8DC",
                 accent = "#FFB347"
             )
-            "흐린 봄" -> ThemeColors(
+            "흐린 봄" -> ThemeColorsUI(
                 primary = "#D3D3D3",
                 secondary = "#E6E6FA",
                 background = "#F5F5F5",
                 accent = "#9370DB"
             )
-            "비내리는 봄" -> ThemeColors(
+            "비내리는 봄" -> ThemeColorsUI(
                 primary = "#B0C4DE",
                 secondary = "#DDA0DD",
                 background = "#E0E0E0",
                 accent = "#4682B4"
             )
-            else -> ThemeColors(
+            else -> ThemeColorsUI(
                 primary = "#87CEEB",
                 secondary = "#DCDCDC",
                 background = "#F0FFFF",
@@ -84,7 +84,7 @@ object UiHelper {
         }
     }
 
-    data class ThemeColors(
+    data class ThemeColorsUI(
         val primary: String,
         val secondary: String,
         val background: String,

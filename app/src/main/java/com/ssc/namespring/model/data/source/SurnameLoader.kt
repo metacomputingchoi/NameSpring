@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.ssc.namespring.model.domain.entity.CharTripleInfo
+import com.ssc.namespring.model.domain.entity.CharTripleInfoSurname
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -62,7 +62,7 @@ class SurnameLoader(private val store: SurnameStore) {
     private fun loadCharTripleDict(context: Context, gson: Gson) {
         context.assets.open("surname/surname_char_triple_dict.json").use { stream ->
             BufferedReader(InputStreamReader(stream, "UTF-8")).use { reader ->
-                val type = object : TypeToken<Map<String, CharTripleInfo>>() {}.type
+                val type = object : TypeToken<Map<String, CharTripleInfoSurname>>() {}.type
                 store.charTripleDict = gson.fromJson(reader, type) ?: emptyMap()
                 Log.d(TAG, "charTripleDict loaded: ${store.charTripleDict.size} entries")
             }

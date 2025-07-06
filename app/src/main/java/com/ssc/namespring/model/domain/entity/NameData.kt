@@ -27,9 +27,9 @@ class NameData {
             repository.getCharInfo(korean, hanja)
 
         @JvmStatic
-        fun validateData(): DataLoader.ValidationResult {
+        fun validateData(): ValidationResult {
             val result = repository.validateData()
-            return DataLoader.ValidationResult(
+            return ValidationResult(
                 isValid = result.isValid,
                 warnings = result.warnings,
                 criticalErrors = result.criticalErrors

@@ -39,12 +39,12 @@ data class HanjaInfo(
 )
 
 data class CharTripleInfo(
-    val koreanInfo: CharInfo,
-    val hanjaInfo: CharInfo,
+    val koreanInfo: CharInfoMapping,
+    val hanjaInfo: CharInfoMapping,
     val integratedInfo: IntegratedInfo
 )
 
-data class CharInfo(
+data class CharInfoMapping(
     val character: String,
     val meaning: String?,
     val sound: String,

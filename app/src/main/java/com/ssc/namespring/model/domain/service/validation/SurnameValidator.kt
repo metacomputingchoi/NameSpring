@@ -2,15 +2,15 @@
 package com.ssc.namespring.model.domain.service.validation
 
 import android.util.Log
-import com.ssc.namespring.model.data.source.DataLoader
 import com.ssc.namespring.model.data.source.SurnameStore
+import com.ssc.namespring.model.domain.entity.ValidationResult
 
 class SurnameValidator(private val store: SurnameStore) {
     companion object {
         private const val TAG = "SurnameValidator"
     }
 
-    fun validate(): DataLoader.ValidationResult {
+    fun validate(): ValidationResult {
         val warnings = mutableListOf<String>()
         val criticalErrors = mutableListOf<String>()
 
@@ -23,7 +23,7 @@ class SurnameValidator(private val store: SurnameStore) {
         Log.d(TAG, "=== 성씨 데이터 검증 완료 ===")
         Log.d(TAG, "경고: ${warnings.size}개, 치명적 오류: ${criticalErrors.size}개")
 
-        return DataLoader.ValidationResult(
+        return ValidationResult(
             isValid = warnings.isEmpty() && criticalErrors.isEmpty(),
             warnings = warnings,
             criticalErrors = criticalErrors

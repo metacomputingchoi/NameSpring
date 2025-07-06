@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.ssc.namespring.model.domain.entity.NameData
 import com.ssc.namespring.model.domain.entity.SurnameData
+import com.ssc.namespring.model.domain.entity.ValidationResult
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -116,10 +117,4 @@ object DataLoader {
     }
 
     fun isReady(): Boolean = isInitialized.get()
-
-    data class ValidationResult(
-        val isValid: Boolean,
-        val warnings: List<String>,
-        val criticalErrors: List<String>
-    )
 }

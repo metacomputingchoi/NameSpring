@@ -3,16 +3,16 @@ package com.ssc.namespring.model.domain.entity
 
 import com.google.gson.annotations.SerializedName
 
-data class CharTripleInfo(
+data class CharTripleInfoSurname(
     @SerializedName("한글정보")
     val koreanInfo: CharInfo,
     @SerializedName("한자정보")
     val hanjaInfo: CharInfo,
     @SerializedName("통합정보")
-    val integratedInfo: IntegratedInfo
+    val integratedInfo: IntegratedInfoSurname
 )
 
-data class CharacterInfo(
+data class CharInfoSurname(
     @SerializedName("글자")
     val character: String?,
     @SerializedName("뜻")
@@ -29,7 +29,7 @@ data class CharacterInfo(
     val originalStrokes: Int
 )
 
-data class IntegratedInfo(
+data class IntegratedInfoSurname(
     @SerializedName("한자")
     val hanja: String,
     @SerializedName("인명용 뜻")

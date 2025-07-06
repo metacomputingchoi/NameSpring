@@ -18,7 +18,7 @@ object SurnameData {
         loader.loadData(context)
     }
 
-    fun validateData(): DataLoader.ValidationResult {
+    fun validateData(): ValidationResult {
         return validator.validate()
     }
 
