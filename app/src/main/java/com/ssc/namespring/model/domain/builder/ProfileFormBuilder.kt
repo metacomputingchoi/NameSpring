@@ -6,7 +6,7 @@ import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
 import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.domain.usecase.profileform.ProfileFactory
-import com.ssc.namespring.model.domain.usecase.ProfileFormManager.NamingEngineInput
+import com.ssc.namespring.model.domain.usecase.profileform.NamingEngineInput
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 import java.time.LocalDateTime
 import java.time.ZoneId

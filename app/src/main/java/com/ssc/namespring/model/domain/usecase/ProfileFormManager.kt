@@ -1,31 +1,19 @@
 // model/domain/usecase/ProfileFormManager.kt
 package com.ssc.namespring.model.domain.usecase
 
-import android.util.Log
-import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.ssc.namespring.R
-import com.ssc.namespring.model.domain.entity.GivenNameInfo
-import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.SurnameInfo
-import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormDateTimeManager
-import com.ssc.namespring.model.domain.usecase.profileform.ProfileFormStateManager
-import com.ssc.namespring.model.domain.usecase.profileform.ProfileFactory
+import com.ssc.namespring.model.presentation.components.ProfileFormUiState
+import com.ssc.namespring.model.domain.usecase.profileform.*
 import com.ssc.namespring.model.domain.service.interfaces.INameDataManager
 import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.domain.service.factory.NameDataServiceFactory
-import com.ssc.namespring.model.domain.service.profile.ProfileEvaluationService
-import com.ssc.namespring.model.domain.validation.ProfileFormValidationHelper
 import com.ssc.namespring.model.domain.helper.NameDataHandler
 import com.ssc.namespring.model.domain.builder.ProfileFormBuilder
 import com.ssc.namespring.model.domain.coordinator.ProfileFormUiCoordinator
 import com.ssc.namespring.model.domain.loader.ProfileFormLoader
-import com.ssc.namingengine.NamingEngine
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.Calendar
 
 /**
@@ -45,11 +33,15 @@ class ProfileFormManager(private val profileId: String? = null) {
     private val nameDataService: INameDataService = NameDataServiceFactory.getInstance()
 
     // Helper Classes
-    private val validationHelper = ProfileFormValidationHelper()
     private val nameDataHandler = NameDataHandler(nameDataManager, nameDataService)
     private val profileBuilder = ProfileFormBuilder()
     private val uiCoordinator = ProfileFormUiCoordinator(dateTimeManager, nameDataManager, stateManager)
     private val profileLoader = ProfileFormLoader(dateTimeManager, nameDataManager, stateManager, nameDataService)
+
+    // Delegate Classes
+    private val validator = ProfileFormValidator()
+    private val inputFactory = ProfileFormInputFactory()
+    private val dataProvider = ProfileFormDataProvider(nameDataManager, stateManager)
 
     // LiveData delegates
     val uiState: LiveData<ProfileFormUiState> = uiCoordinator.uiState
@@ -87,20 +79,14 @@ class ProfileFormManager(private val profileId: String? = null) {
         updateUiState()
     }
 
-    fun resetProfileLoadedFlag() {
-        uiCoordinator.resetProfileLoadedFlag()
-    }
+    fun resetProfileLoadedFlag() = uiCoordinator.resetProfileLoadedFlag()
 
     fun addNameChar() {
-        if (nameDataHandler.addCharIfPossible()) {
-            updateUiState()
-        }
+        if (nameDataHandler.addCharIfPossible()) updateUiState()
     }
 
     fun removeNameChar() {
-        if (nameDataHandler.removeCharIfPossible()) {
-            updateUiState()
-        }
+        if (nameDataHandler.removeCharIfPossible()) updateUiState()
     }
 
     fun setSurname(surname: SurnameInfo?) {
@@ -109,9 +95,7 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     fun setHanjaInfo(position: Int, korean: String, hanja: String) {
-        if (nameDataHandler.updateHanjaInfo(position, korean, hanja)) {
-            updateUiState()
-        }
+        if (nameDataHandler.updateHanjaInfo(position, korean, hanja)) updateUiState()
     }
 
     fun resetAllFields() {
@@ -141,37 +125,30 @@ class ProfileFormManager(private val profileId: String? = null) {
 
     fun getNameDataManager(): INameDataManager = nameDataManager
     fun getSelectedDate() = dateTimeManager.getCalendar()
+    fun getSurname(): SurnameInfo? = stateManager.getSurname()
+    fun isYajaTime(): Boolean = stateManager.isYajaTime()
+    fun getGivenNameInfo() = dataProvider.getGivenNameInfo()
 
-    fun isValidForNaming(): Boolean {
-        val result = validationHelper.validateForNaming(
-            surname = getSurname(),
-            nameCharCount = nameDataManager.getCharCount()
-        )
-        return result.isValid
-    }
+    fun isValidForNaming(): Boolean = 
+        validator.isValidForNaming(getSurname(), nameDataManager.getCharCount())
 
-    fun isValidForEvaluation(): Boolean {
-        val result = validationHelper.validateForEvaluation(
-            surname = getSurname(),
-            givenNameInfo = getGivenNameInfo()
-        )
-        return result.isValid
-    }
+    fun isValidForEvaluation(): Boolean = 
+        validator.isValidForEvaluation(getSurname(), getGivenNameInfo())
 
     fun createNamingInput(): NamingEngineInput? {
         val surname = getSurname() ?: return null
         val currentUiState = uiState.value ?: return null
-
-        return profileBuilder.buildNamingInput(
-            surname = surname,
-            uiState = currentUiState,
-            calendar = dateTimeManager.getCalendar(),
-            isYajaTime = isYajaTime()
-        )
+        return inputFactory.createNamingInput(surname, currentUiState, 
+            dateTimeManager.getCalendar(), isYajaTime())
     }
 
-    fun createEvaluationInput(): NamingEngineInput? {
-        return createNamingEngineInput()
+    fun createEvaluationInput() = createNamingEngineInput()
+
+    fun createNamingEngineInput(): NamingEngineInput? {
+        val surname = getSurname() ?: return null
+        val givenNameInfo = nameDataManager.createGivenNameInfo()
+        return inputFactory.createEvaluationInput(surname, givenNameInfo,
+            dateTimeManager.getCalendar(), isYajaTime())
     }
 
     fun loadFromParentProfile(parentProfile: Profile) {
@@ -181,60 +158,8 @@ class ProfileFormManager(private val profileId: String? = null) {
         }
     }
 
-    fun getSurname(): SurnameInfo? = stateManager.getSurname()
-    fun isYajaTime(): Boolean = stateManager.isYajaTime()
+    fun getGivenNameData() = dataProvider.getGivenNameData(uiState.value ?: ProfileFormUiState())
 
-    fun createNamingEngineInput(): NamingEngineInput? {
-        val surname = getSurname() ?: return null
-        val givenNameInfo = nameDataManager.createGivenNameInfo()
-
-        return profileBuilder.buildEvaluationInput(
-            surname = surname,
-            givenNameInfo = givenNameInfo,
-            calendar = dateTimeManager.getCalendar(),
-            isYajaTime = isYajaTime()
-        )
-    }
-
-    fun getGivenNameInfo(): GivenNameInfo? = nameDataManager.createGivenNameInfo()
-
-    fun getGivenNameData(): GivenNameData {
-        val state = uiState.value ?: ProfileFormUiState()
-        val korean = state.nameCharDataList.joinToString("") { it.korean }
-        val hanja = state.nameCharDataList.joinToString("") { it.hanja }
-        val charInfos = state.nameCharDataList.map { charData ->
-            mapOf(
-                "korean" to charData.korean,
-                "hanja" to charData.hanja
-            )
-        }
-
-        return GivenNameData(
-            korean = korean,
-            hanja = hanja,
-            charInfos = charInfos,
-            charCount = state.nameCharCount
-        )
-    }
-
-    data class GivenNameData(
-        val korean: String,
-        val hanja: String,
-        val charInfos: List<Map<String, String>>,
-        val charCount: Int
-    )
-
-    data class NamingEngineInput(
-        val userInput: String,
-        val birthDateTime: LocalDateTime,
-        val useYajasi: Boolean
-    )
-
-    private fun updateUiState() {
-        uiCoordinator.updateState()
-    }
-
-    fun forceUpdateUiState() {
-        updateUiState()
-    }
+    private fun updateUiState() = uiCoordinator.updateState()
+    fun forceUpdateUiState() = updateUiState()
 }
