@@ -1,3 +1,4 @@
+// ui/compare/manager/SortingManager.kt
 package com.ssc.namespring.ui.compare.manager
 
 import androidx.lifecycle.LiveData

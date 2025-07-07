@@ -1,3 +1,4 @@
+// ui/history/view/NameListViewBinder.kt
 package com.ssc.namespring.ui.history.view
 
 import android.view.View

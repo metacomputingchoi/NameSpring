@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/HistoryViewModelFactory.kt
+// ui/history/HistoryViewModelFactory.kt
 package com.ssc.namespring.ui.history
 
 import android.content.Context

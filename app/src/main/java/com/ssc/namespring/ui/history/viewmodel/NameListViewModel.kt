@@ -1,3 +1,4 @@
+// ui/history/viewmodel/NameListViewModel.kt
 package com.ssc.namespring.ui.history.viewmodel
 
 import androidx.lifecycle.ViewModel

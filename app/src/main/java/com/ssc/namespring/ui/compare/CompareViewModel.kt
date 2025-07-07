@@ -1,3 +1,4 @@
+// ui/compare/CompareViewModel.kt
 package com.ssc.namespring.ui.compare
 
 import android.app.Application

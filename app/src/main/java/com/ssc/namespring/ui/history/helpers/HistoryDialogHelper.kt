@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/helpers/HistoryDialogHelper.kt
+// ui/history/helpers/HistoryDialogHelper.kt
 package com.ssc.namespring.ui.history.helpers
 
 import androidx.fragment.app.FragmentManager

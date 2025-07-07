@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/helpers/HistoryChipHelper.kt
+// ui/history/helpers/HistoryChipHelper.kt
 package com.ssc.namespring.ui.history.helpers
 
 import android.content.Context

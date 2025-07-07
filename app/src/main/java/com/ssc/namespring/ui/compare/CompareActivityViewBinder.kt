@@ -1,3 +1,4 @@
+// ui/compare/CompareActivityViewBinder.kt
 package com.ssc.namespring.ui.compare
 
 import android.app.Activity

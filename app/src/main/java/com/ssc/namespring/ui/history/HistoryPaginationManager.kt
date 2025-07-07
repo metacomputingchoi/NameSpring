@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/HistoryPaginationManager.kt
+// ui/history/HistoryPaginationManager.kt
 package com.ssc.namespring.ui.history
 
 import com.ssc.namespring.model.domain.entity.Task

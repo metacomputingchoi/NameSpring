@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/helpers/HistoryScrollListener.kt
+// ui/history/helpers/HistoryScrollListener.kt
 package com.ssc.namespring.ui.history.helpers
 
 import android.view.View

@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/helpers/HistoryTabHelper.kt
+// ui/history/helpers/HistoryTabHelper.kt
 package com.ssc.namespring.ui.history.helpers
 
 import com.google.android.material.tabs.TabLayout

@@ -1,3 +1,4 @@
+// ui/compare/CompareTabManager.kt
 package com.ssc.namespring.ui.compare
 
 import com.google.android.material.tabs.TabLayout

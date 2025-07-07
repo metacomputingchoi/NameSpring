@@ -1,4 +1,4 @@
-// domain/entity/NameComposition.kt
+// model/domain/entity/NameComposition.kt
 package com.ssc.namespring.model.domain.entity
 
 data class NameComposition(

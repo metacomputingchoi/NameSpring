@@ -1,3 +1,4 @@
+// ui/compare/CompareActivityInitializer.kt
 package com.ssc.namespring.ui.compare
 
 import android.content.Context

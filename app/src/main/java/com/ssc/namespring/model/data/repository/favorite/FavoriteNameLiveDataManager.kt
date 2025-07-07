@@ -1,3 +1,4 @@
+// model/data/repository/favorite/FavoriteNameLiveDataManager.kt
 package com.ssc.namespring.model.data.repository.favorite
 
 import androidx.lifecycle.LiveData

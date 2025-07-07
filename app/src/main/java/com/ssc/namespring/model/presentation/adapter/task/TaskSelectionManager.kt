@@ -1,3 +1,4 @@
+// model/presentation/adapter/task/TaskSelectionManager.kt
 package com.ssc.namespring.model.presentation.adapter.task
 
 import com.ssc.namespring.model.domain.entity.Task

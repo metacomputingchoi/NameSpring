@@ -1,3 +1,4 @@
+// ui/history/manager/NameSortManager.kt
 package com.ssc.namespring.ui.history.manager
 
 import com.ssc.namingengine.data.GeneratedName

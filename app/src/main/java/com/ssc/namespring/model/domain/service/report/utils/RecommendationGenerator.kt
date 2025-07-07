@@ -1,3 +1,4 @@
+// model/domain/service/report/utils/RecommendationGenerator.kt
 package com.ssc.namespring.model.domain.service.report.utils
 
 import com.ssc.namespring.model.domain.entity.Profile

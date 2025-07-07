@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/HistorySelectionManager.kt
+// ui/history/HistorySelectionManager.kt
 package com.ssc.namespring.ui.history
 
 import android.view.View

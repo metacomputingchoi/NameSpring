@@ -1,3 +1,4 @@
+// model/domain/service/report/generators/SajuSectionGenerator.kt
 package com.ssc.namespring.model.domain.service.report.generators
 
 import com.ssc.namespring.model.domain.entity.Profile

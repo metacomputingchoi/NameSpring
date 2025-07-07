@@ -1,3 +1,4 @@
+// ui/compare/manager/SelectionManager.kt
 package com.ssc.namespring.ui.compare.manager
 
 import android.util.Log

@@ -1,3 +1,4 @@
+// ui/history/NameListDialogFragment.kt
 package com.ssc.namespring.ui.history
 
 import android.os.Bundle

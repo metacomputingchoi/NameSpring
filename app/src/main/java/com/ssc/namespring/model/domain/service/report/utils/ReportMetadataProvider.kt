@@ -1,3 +1,4 @@
+// model/domain/service/report/utils/ReportMetadataProvider.kt
 package com.ssc.namespring.model.domain.service.report.utils
 
 class ReportMetadataProvider {

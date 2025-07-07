@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/HistoryActivity.kt
+// HistoryActivity.kt
 package com.ssc.namespring
 
 import android.os.Bundle

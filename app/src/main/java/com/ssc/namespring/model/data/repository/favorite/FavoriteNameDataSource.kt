@@ -1,3 +1,4 @@
+// model/data/repository/favorite/FavoriteNameDataSource.kt
 package com.ssc.namespring.model.data.repository.favorite
 
 import android.content.Context

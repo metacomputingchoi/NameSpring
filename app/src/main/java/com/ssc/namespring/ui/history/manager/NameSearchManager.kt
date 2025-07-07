@@ -1,3 +1,4 @@
+// ui/history/manager/NameSearchManager.kt
 package com.ssc.namespring.ui.history.manager
 
 import com.ssc.namespring.utils.search.NameSearchHelper

@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/HistoryFilterManager.kt
+// ui/history/HistoryFilterManager.kt
 package com.ssc.namespring.ui.history
 
 import com.ssc.namespring.model.domain.entity.Task

@@ -1,3 +1,4 @@
+// ui/compare/CompareViewModelObserver.kt
 package com.ssc.namespring.ui.compare
 
 import androidx.lifecycle.LifecycleOwner

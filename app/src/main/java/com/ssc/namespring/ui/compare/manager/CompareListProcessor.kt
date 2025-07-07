@@ -1,3 +1,4 @@
+// ui/compare/manager/CompareListProcessor.kt
 package com.ssc.namespring.ui.compare.manager
 
 import android.util.Log

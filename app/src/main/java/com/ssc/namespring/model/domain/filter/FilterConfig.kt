@@ -1,3 +1,4 @@
+// model/domain/filter/FilterConfig.kt
 package com.ssc.namespring.model.domain.filter
 
 import com.ssc.namespring.ui.compare.CompareViewModel.FilterType

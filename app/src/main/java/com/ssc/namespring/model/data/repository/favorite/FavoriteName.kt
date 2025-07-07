@@ -1,3 +1,4 @@
+// model/data/repository/favorite/FavoriteName.kt
 package com.ssc.namespring.model.data.repository.favorite
 
 data class FavoriteName(

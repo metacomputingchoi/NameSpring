@@ -1,3 +1,4 @@
+// ui/compare/CompareSearchManager.kt
 package com.ssc.namespring.ui.compare
 
 import android.content.Context

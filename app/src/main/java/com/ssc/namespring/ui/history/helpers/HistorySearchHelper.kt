@@ -1,4 +1,4 @@
-// app/src/main/java/com/ssc/namespring/ui/history/helpers/HistorySearchHelper.kt
+// ui/history/helpers/HistorySearchHelper.kt
 package com.ssc.namespring.ui.history.helpers
 
 import android.content.Context

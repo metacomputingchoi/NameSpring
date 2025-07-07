@@ -1,3 +1,4 @@
+// ui/compare/state/FilterStateManager.kt
 package com.ssc.namespring.ui.compare.state
 
 import androidx.lifecycle.LiveData
