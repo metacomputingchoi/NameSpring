@@ -16,10 +16,15 @@
     <color name="accent">#FF69B4</color>
     <color name="darker_gray">#555555</color>
     <color name="holo_blue_light">#FF33B5E5</color>
+    <color name="error">#F44336</color>
+    <color name="star_yellow">#FFD700</color>
+    <color name="chip_background">#E0E0E0</color>
+    <color name="selected_card_background">#E3F2FD</color>
 
     <!-- 배경 색상 -->
     <color name="background_light">#F5F5F5</color>
     <color name="background_white">#FFFFFF</color>
+    <color name="chip_state_list">#E0E0E0</color>
 
     <!-- 상태 색상 -->
     <color name="success_green">#4CAF50</color>

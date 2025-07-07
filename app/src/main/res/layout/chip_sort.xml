@@ -6,6 +6,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textSize="14sp"
-    app:chipBackgroundColor="@color/chip_bg_color_selector"
+    app:chipBackgroundColor="@color/chip_background_selector"
     app:chipStrokeColor="@color/primary"
     app:chipStrokeWidth="1dp" />

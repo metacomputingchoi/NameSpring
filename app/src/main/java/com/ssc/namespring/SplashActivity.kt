@@ -31,7 +31,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.splash_layout)
-
+        ProfileManagerProvider.init(this)
         initViews()
         loadAllData()
     }
