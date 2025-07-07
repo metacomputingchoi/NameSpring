@@ -1,6 +1,7 @@
 // ui/history/components/taskdetail/TaskDetailNameResultBuilder.kt
 package com.ssc.namespring.ui.history.components.taskdetail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
@@ -45,6 +46,7 @@ class TaskDetailNameResultBuilder(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun createNameView(index: Int, name: GeneratedName): LinearLayout {
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
