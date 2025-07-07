@@ -1,4 +1,4 @@
-// CompareActivityComponents.kt
+// ui/compare/CompareActivityComponents.kt
 package com.ssc.namespring.ui.compare
 
 import androidx.appcompat.app.AppCompatActivity
