@@ -1,20 +1,13 @@
 // ui/history/manager/NameSearchManager.kt
 package com.ssc.namespring.ui.history.manager
 
-import com.ssc.namespring.utils.search.NameSearchHelper
+import com.ssc.namespring.ui.history.components.namelist.NameListSearchHelper
 import com.ssc.namingengine.data.GeneratedName
 
-class NameSearchManager(
-    private val searchHelper: NameSearchHelper = NameSearchHelper()
-) {
+class NameSearchManager {
+    private val searchHelper = NameListSearchHelper()
 
     fun filter(names: List<GeneratedName>, query: String): List<GeneratedName> {
-        if (query.isEmpty()) {
-            return names
-        }
-
-        return names.filter { name ->
-            searchHelper.matches(name, query)
-        }
+        return searchHelper.filterNames(names, query)
     }
 }
