@@ -94,6 +94,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
+    // WorkManager
+    val workVersion = "2.9.0"
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
+    // Optional - RxJava2 support
+    implementation("androidx.work:work-rxjava2:$workVersion")
+    // Optional - GCMNetworkManager support
+    implementation("androidx.work:work-gcm:$workVersion")
+    // Optional - Test helpers
+    androidTestImplementation("androidx.work:work-testing:$workVersion")
+
     // Unit Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")

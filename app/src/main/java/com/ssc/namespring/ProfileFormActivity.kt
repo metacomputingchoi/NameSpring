@@ -6,27 +6,31 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.entity.ProfileFormConfig
 import com.ssc.namespring.model.domain.entity.ProfileFormMode
+import com.ssc.namespring.model.domain.entity.Task
+import com.ssc.namespring.model.domain.entity.TaskType
 import com.ssc.namespring.model.domain.service.profile.ProfileFormService
+import com.ssc.namespring.model.domain.service.workmanager.TaskWorkManager
 import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.domain.usecase.ProfileManager
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.presentation.components.SearchDialogManager
 import com.ssc.namespring.ui.profileform.*
-import com.ssc.namingengine.NamingEngine
-import com.ssc.namingengine.data.GeneratedName
-import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
 import com.ssc.namespring.model.domain.service.factory.NamingEngineProvider
+import com.ssc.namespring.model.domain.usecase.nameinput.NameInputButtonUpdater
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 class ProfileFormActivity : AppCompatActivity() {
     companion object {
@@ -45,7 +49,7 @@ class ProfileFormActivity : AppCompatActivity() {
     private lateinit var searchDialogManager: SearchDialogManager
     private lateinit var profileFormService: ProfileFormService
     private val profileManager: ProfileManager = ProfileManagerProvider.getInstance()
-    private var namingEngine: NamingEngine? = null
+    private lateinit var taskWorkManager: TaskWorkManager
 
     private lateinit var uiComponents: ProfileFormUIComponents
     private lateinit var eventHandler: ProfileFormEventHandler
@@ -54,6 +58,7 @@ class ProfileFormActivity : AppCompatActivity() {
 
     private lateinit var progressBar: ProgressBar
     private var isInitialized = false
+    private var parentProfileId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +66,8 @@ class ProfileFormActivity : AppCompatActivity() {
 
         config = intent.getSerializableExtra(EXTRA_CONFIG) as? ProfileFormConfig
             ?: ProfileFormConfig(ProfileFormMode.CREATE)
+
+        parentProfileId = config.parentProfileId
 
         initializeProgressBar()
         initializeManagers()
@@ -71,16 +78,33 @@ class ProfileFormActivity : AppCompatActivity() {
         lifecycleScope.launch {
             initializeAsync()
         }
+
+        val prefs = getSharedPreferences("temp_profile", MODE_PRIVATE)
+        val profileData = prefs.getString("profile_data", null)
+        if (profileData != null) {
+            val profile = Gson().fromJson(profileData, Profile::class.java)
+            prefs.edit().clear().apply()  // 사용 후 삭제
+
+            lifecycleScope.launch {
+                delay(500)  // UI 초기화 대기
+                formManager.loadFromParentProfile(profile)
+            }
+        }
     }
 
     private fun initializeProgressBar() {
         progressBar = findViewById(R.id.progressBar)
     }
 
+    fun syncUiStateWithInput(position: Int, korean: String, hanja: String) {
+        formManager.setHanjaInfo(position, korean, hanja)
+    }
+
     private fun initializeManagers() {
         formManager = ProfileFormManager(config.profileId)
         searchDialogManager = SearchDialogManager()
         profileFormService = ProfileFormService()
+        taskWorkManager = TaskWorkManager.getInstance(this)
     }
 
     private fun initializeComponents() {
@@ -101,34 +125,45 @@ class ProfileFormActivity : AppCompatActivity() {
             config
         )
 
+        // formManager 파라미터 추가
         uiUpdater = ProfileFormUIUpdater(
             uiComponents,
             nameInputHandler,
-            config
+            config,
+            formManager  // 추가
         )
 
-        // 초기화 완료 전까지 저장 버튼 비활성화
         uiComponents.btnSave.isEnabled = false
+    }
+
+    fun loadParentProfileData() {
+        parentProfileId?.let { parentId ->
+            profileManager.getProfile(parentId)?.let { parentProfile ->
+                // TextWatcher 임시 비활성화
+                nameInputHandler.cleanup()
+
+                // 프로필 로드
+                formManager.loadFromParentProfile(parentProfile)
+
+                // UI가 완전히 업데이트된 후 TextWatcher 재활성화
+                uiComponents.nameInputContainer.postDelayed({
+                    formManager.forceUpdateUiState()
+                    Toast.makeText(this, "프로필 데이터를 불러왔습니다", Toast.LENGTH_SHORT).show()
+                }, 100)
+            }
+        }
     }
 
     private suspend fun initializeAsync() {
         showLoading(true)
 
         try {
-            // NamingEngine 가져오기 (이미 초기화되어 있으므로 빠름)
-            withContext(Dispatchers.IO) {
-                namingEngine = NamingEngineProvider.getInstance()
-            }
-
-            // UI 스레드에서 나머지 초기화
             withContext(Dispatchers.Main) {
                 eventHandler.setupListeners()
                 formManager.initialize()
 
-                // 부모 프로필 데이터 로드 (작명/평가 모드)
-                if (config.mode in listOf(ProfileFormMode.NAMING, ProfileFormMode.EVALUATION)) {
-                    loadParentProfileData()
-                }
+                // 작명/평가 모드에서는 데이터 로드 버튼을 통해서만 부모 프로필 데이터 로드
+                // 자동 로드 제거!
 
                 isInitialized = true
                 uiComponents.btnSave.isEnabled = true
@@ -144,19 +179,9 @@ class ProfileFormActivity : AppCompatActivity() {
 
     private fun showLoading(show: Boolean) {
         progressBar.visibility = if (show) View.VISIBLE else View.GONE
-        // 로딩 중에는 전체 폼 비활성화
         uiComponents.scrollView?.isEnabled = !show
         uiComponents.btnSave.isEnabled = !show && isInitialized
         uiComponents.btnReset.isEnabled = !show
-    }
-
-    private fun loadParentProfileData() {
-        config.parentProfileId?.let { parentId ->
-            profileManager.getProfile(parentId)?.let { parentProfile ->
-                // 부모 프로필의 데이터를 formManager에 로드
-                formManager.loadFromParentProfile(parentProfile)
-            }
-        }
     }
 
     private fun observeFormState() {
@@ -217,177 +242,181 @@ class ProfileFormActivity : AppCompatActivity() {
     }
 
     private fun handleNamingMode() {
-        if (namingEngine == null) {
-            Toast.makeText(this, "작명 엔진이 초기화되지 않았습니다", Toast.LENGTH_SHORT).show()
-            return
-        }
+        parentProfileId?.let { parentId ->
+            val uiState = formManager.uiState.value ?: return
 
-        // 작명 모드 검증
-        if (!formManager.isValidForNaming()) {
-            Toast.makeText(this, "성씨 정보(한글+한자)를 모두 입력해주세요", Toast.LENGTH_SHORT).show()
-            return
-        }
+            // 성씨 검증 (한글+한자 모두 필수)
+            val surname = uiState.selectedSurname
+            if (surname == null || surname.korean.isEmpty() || surname.hanja.isEmpty()) {
+                Toast.makeText(this, "성씨 정보(한글+한자)를 모두 입력해주세요", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-        val namingInput = formManager.createNamingInput()
-        if (namingInput == null) {
-            Toast.makeText(this, "입력 정보를 확인해주세요", Toast.LENGTH_SHORT).show()
-            return
-        }
+            // 현재 UI의 실제 값들을 저장
+            val currentNameData = mutableListOf<Pair<String, String>>()
+            val container = uiComponents.nameInputContainer
 
-        Log.d(TAG, "=== NAMING Mode Input ===")
-        Log.d(TAG, "userInput: ${namingInput.userInput}")
-        Log.d(TAG, "birthDateTime: ${namingInput.birthDateTime}")
-        Log.d(TAG, "useYajasi: ${namingInput.useYajasi}")
+            Log.d(TAG, "=== NAMING MODE UI VALUES DEBUG ===")
+            Log.d(TAG, "Container child count: ${container.childCount}")
 
-        // 프로그레스 표시
-        showLoading(true)
+            // UI에서 직접 값 읽기
+            for (i in 0 until container.childCount) {
+                val itemView = container.getChildAt(i)
+                val etKorean = itemView?.findViewById<EditText>(R.id.etKorean)
+                val etHanja = itemView?.findViewById<EditText>(R.id.etHanja)
 
-        lifecycleScope.launch {
-            try {
-                val generatedNames = withContext(Dispatchers.IO) {
-                    namingEngine!!.generateNames(
-                        userInput = namingInput.userInput,
-                        birthDateTime = namingInput.birthDateTime,
-                        useYajasi = namingInput.useYajasi,
-                        verbose = true,
-                    )
-                }
+                val korean = etKorean?.text?.toString() ?: ""
+                val hanja = etHanja?.text?.toString() ?: ""
 
-                withContext(Dispatchers.Main) {
-                    Log.d(TAG, "=== NAMING Results ===")
-                    Log.d(TAG, "Generated ${generatedNames.size} names")
+                Log.d(TAG, "Position $i - EditText values: korean='$korean', hanja='$hanja'")
+                currentNameData.add(Pair(korean, hanja))
+            }
 
-                    // 상위 5개 결과만 출력
-                    generatedNames.take(5).forEachIndexed { index, name ->
-                        Log.d(TAG, "[$index] ${name.combinedPronounciation}(${name.combinedHanja})")
-                        name.analysisInfo?.let { info ->
-                            Log.d(TAG, "  - 총점: ${info.totalScore}")
-                            Log.d(TAG, "  - 음양: ${info.eumYangInfo.pattern}")
-                            Log.d(TAG, "  - 오행: ${info.ohaengInfo.overallHarmony}")
-                        }
-                    }
-                    Log.d(TAG, "=== End of NAMING Results ===")
+            // 작명 모드 검증: 이름 부분에 최소 하나 이상의 빈 필드가 있어야 함
+            val hasEmptyField = currentNameData.any { (korean, hanja) ->
+                korean.isEmpty() || hanja.isEmpty()
+            }
 
-                    Toast.makeText(this@ProfileFormActivity, "${generatedNames.size}개의 이름이 생성되었습니다", Toast.LENGTH_LONG).show()
+            if (!hasEmptyField) {
+                Toast.makeText(
+                    this,
+                    "작명 모드에서는 이름 부분에 최소 하나 이상의 빈 입력란이 있어야 합니다",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
 
-                    // TODO: 결과를 화면에 표시하거나 저장
-                }
+            // 생년월일과 야자시 정보
+            val birthDateTime = formManager.getSelectedDate()
+            val birthDateTimeMillis = birthDateTime.timeInMillis
+            val isYajaTime = uiState.isYajaTime
 
-            } catch (e: Exception) {
-                Log.e(TAG, "작명 실행 중 오류", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@ProfileFormActivity, "작명 중 오류가 발생했습니다", Toast.LENGTH_SHORT).show()
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    showLoading(false)
+            // 이름 입력 부분을 NamingEngine 형식으로 구성
+            val nameInput = currentNameData.joinToString("") { (korean, hanja) ->
+                when {
+                    korean.isEmpty() && hanja.isEmpty() -> "[_/_]"
+                    korean.isNotEmpty() && hanja.isEmpty() -> "[${korean}/_]"
+                    korean.isEmpty() && hanja.isNotEmpty() -> "[_/${hanja}]"
+                    else -> "[${korean}/${hanja}]"
                 }
             }
+
+            Log.d(TAG, "Final currentNameData: $currentNameData")
+            Log.d(TAG, "Naming input format: [${surname.korean}/${surname.hanja}]$nameInput")
+
+            // 작명 작업을 WorkManager에 추가
+            val namingTask = Task(
+                profileId = parentId,
+                type = TaskType.NAMING,
+                inputData = mapOf(
+                    "profileName" to (uiState.profileName.ifEmpty { config.getDefaultName() }),
+                    "birthDateTime" to birthDateTimeMillis.toString(),
+                    "isYajaTime" to isYajaTime,
+                    "nameCharCount" to currentNameData.size,
+                    "nameInputFormat" to nameInput,
+                    "surname" to mapOf(
+                        "korean" to surname.korean,
+                        "hanja" to surname.hanja,
+                        "strokes" to (surname.strokes ?: 0)
+                    )
+                )
+            )
+
+            taskWorkManager.enqueueTask(namingTask)
+            Toast.makeText(this, "작명 기록 생성", Toast.LENGTH_SHORT).show()
+
+            setResult(RESULT_OK)
+            finish()
         }
     }
 
     private fun handleEvaluationMode() {
-        if (namingEngine == null) {
-            Toast.makeText(this, "평가 엔진이 초기화되지 않았습니다", Toast.LENGTH_SHORT).show()
-            return
-        }
+        parentProfileId?.let { parentId ->
+            val uiState = formManager.uiState.value ?: return
 
-        // 평가 모드 검증
-        if (!formManager.isValidForEvaluation()) {
-            Toast.makeText(
-                this,
-                "성씨와 이름 모두 한글과 한자를 입력해주세요\n(이름은 1~4글자)",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        val evaluationInput = formManager.createEvaluationInput()
-        if (evaluationInput == null) {
-            Toast.makeText(this, "입력 정보를 확인해주세요", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Log.d(TAG, "=== EVALUATION Mode Input ===")
-        Log.d(TAG, "userInput: ${evaluationInput.userInput}")
-        Log.d(TAG, "birthDateTime: ${evaluationInput.birthDateTime}")
-        Log.d(TAG, "useYajasi: ${evaluationInput.useYajasi}")
-
-        // 프로그레스 표시
-        showLoading(true)
-
-        lifecycleScope.launch {
-            try {
-                val generatedNames = withContext(Dispatchers.IO) {
-                    namingEngine!!.generateNames(
-                        userInput = evaluationInput.userInput,
-                        birthDateTime = evaluationInput.birthDateTime,
-                        useYajasi = evaluationInput.useYajasi,
-                        verbose = true,
-                        withoutFilter = true  // 필터링 없이 입력한 이름 그대로 평가
-                    )
-                }
-
-                withContext(Dispatchers.Main) {
-                    if (generatedNames.isNotEmpty()) {
-                        val evaluatedName = generatedNames.first()
-
-                        Log.d(TAG, "=== EVALUATION Result ===")
-                        Log.d(TAG, "Name: ${evaluatedName.combinedPronounciation}(${evaluatedName.combinedHanja})")
-
-                        evaluatedName.analysisInfo?.let { info ->
-                            Log.d(TAG, "총점: ${info.totalScore}")
-                            Log.d(TAG, "음양: ${info.eumYangInfo.pattern} (균형: ${info.eumYangInfo.isBalanced})")
-                            Log.d(TAG, "오행: ${info.ohaengInfo.overallHarmony}")
-
-                            // 상세 점수
-                            Log.d(TAG, "=== 점수 상세 ===")
-                            info.scoreBreakdown.forEach { (key, value) ->
-                                Log.d(TAG, "$key: $value")
-                            }
-
-                            // 사격 정보
-                            evaluatedName.sagyeok?.let { sagyeok ->
-                                Log.d(TAG, "=== 사격 정보 ===")
-                                Log.d(TAG, "형격: ${sagyeok.hyeong}")
-                                Log.d(TAG, "원격: ${sagyeok.won}")
-                                Log.d(TAG, "이격: ${sagyeok.i}")
-                                Log.d(TAG, "정격: ${sagyeok.jeong}")
-                            }
-                        }
-                        Log.d(TAG, "=== End of EVALUATION Result ===")
-
-                        // 이름봄 점수 계산
-                        val namebomScore = ProfileScoreCalculator.calculateNamebomScore(evaluatedName)
-                        Toast.makeText(
-                            this@ProfileFormActivity,
-                            "평가 완료\n이름봄 점수: ${namebomScore}점",
-                            Toast.LENGTH_LONG
-                        ).show()
-
-                        // TODO: 평가 결과를 프로필에 저장하거나 화면에 표시
-
-                    } else {
-                        Log.e(TAG, "평가 결과가 없습니다")
-                        Toast.makeText(this@ProfileFormActivity, "평가를 수행할 수 없습니다", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "평가 실행 중 오류", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@ProfileFormActivity, "평가 중 오류가 발생했습니다", Toast.LENGTH_SHORT).show()
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    showLoading(false)
-                }
+            // 성씨 검증 (한글+한자 모두 필수)
+            val surname = uiState.selectedSurname
+            if (surname == null || surname.korean.isEmpty() || surname.hanja.isEmpty()) {
+                Toast.makeText(this, "성씨 정보(한글+한자)를 모두 입력해주세요", Toast.LENGTH_SHORT).show()
+                return
             }
+
+            // 현재 UI의 실제 값들을 저장
+            val currentNameData = mutableListOf<Pair<String, String>>()
+            val container = uiComponents.nameInputContainer
+
+            Log.d(TAG, "=== EVALUATION MODE UI VALUES DEBUG ===")
+            Log.d(TAG, "Container child count: ${container.childCount}")
+
+            // UI에서 직접 값 읽기
+            for (i in 0 until container.childCount) {
+                val itemView = container.getChildAt(i)
+                val etKorean = itemView?.findViewById<EditText>(R.id.etKorean)
+                val etHanja = itemView?.findViewById<EditText>(R.id.etHanja)
+
+                val korean = etKorean?.text?.toString() ?: ""
+                val hanja = etHanja?.text?.toString() ?: ""
+
+                Log.d(TAG, "Position $i - EditText values: korean='$korean', hanja='$hanja'")
+                currentNameData.add(Pair(korean, hanja))
+            }
+
+            // 평가 모드 검증: 모든 이름 필드가 한글+한자 모두 채워져 있어야 함
+            val hasEmptyField = currentNameData.any { (korean, hanja) ->
+                korean.isEmpty() || hanja.isEmpty()
+            }
+
+            if (hasEmptyField) {
+                Toast.makeText(
+                    this,
+                    "평가 모드에서는 모든 이름의 한글과 한자를 입력해야 합니다",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+
+            // 생년월일과 야자시 정보
+            val birthDateTime = formManager.getSelectedDate()
+            val birthDateTimeMillis = birthDateTime.timeInMillis
+            val isYajaTime = uiState.isYajaTime
+
+            // 이름 정보 구성
+            val givenNameKorean = currentNameData.joinToString("") { it.first }
+            val givenNameHanja = currentNameData.joinToString("") { it.second }
+
+            Log.d(TAG, "Evaluation data - Surname: ${surname.korean}/${surname.hanja}, Given: $givenNameKorean/$givenNameHanja")
+
+            // 평가 작업을 WorkManager에 추가
+            val evaluationTask = Task(
+                profileId = parentId,
+                type = TaskType.EVALUATION,
+                inputData = mapOf(
+                    "profileName" to (uiState.profileName.ifEmpty { config.getDefaultName() }),
+                    "birthDateTime" to birthDateTimeMillis.toString(),
+                    "isYajaTime" to isYajaTime,
+                    "surname" to mapOf(
+                        "korean" to surname.korean,
+                        "hanja" to surname.hanja
+                    ),
+                    "givenName" to mapOf(
+                        "korean" to givenNameKorean,
+                        "hanja" to givenNameHanja
+                    ),
+                    "nameCharCount" to currentNameData.size
+                )
+            )
+
+            taskWorkManager.enqueueTask(evaluationTask)
+            Toast.makeText(this, "평가 기록 생성", Toast.LENGTH_SHORT).show()
+
+            setResult(RESULT_OK)
+            finish()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         nameInputHandler.cleanup()
+        NameInputButtonUpdater.cleanup()
     }
 }

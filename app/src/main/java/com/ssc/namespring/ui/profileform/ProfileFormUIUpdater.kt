@@ -5,22 +5,34 @@ import android.annotation.SuppressLint
 import android.view.View
 import com.ssc.namespring.model.domain.entity.ProfileFormConfig
 import com.ssc.namespring.model.domain.entity.ProfileFormMode
+import com.ssc.namespring.model.domain.usecase.ProfileFormManager
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 
 class ProfileFormUIUpdater(
     private val uiComponents: ProfileFormUIComponents,
     private val nameInputHandler: ProfileFormNameInputHandler,
-    private val config: ProfileFormConfig
+    private val config: ProfileFormConfig,
+    private val formManager: ProfileFormManager
 ) {
     fun updateUI(state: ProfileFormUiState) {
         updateProfileName(state)
         updateBirthInfo(state)
         updateSurnameInfo(state)
         updateNameCharCount(state)
+
+        // 프로필 로드 여부 체크
+        val forceRecreate = formManager.profileLoaded.value == true
+
         nameInputHandler.refreshNameInputViews(
             uiComponents.nameInputContainer,
-            state
+            state,
+            forceRecreate
         )
+
+        // 프로필 로드 플래그 리셋
+        if (forceRecreate) {
+            formManager.resetProfileLoadedFlag()
+        }
     }
 
     private fun updateProfileName(state: ProfileFormUiState) {

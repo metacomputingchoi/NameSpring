@@ -17,6 +17,23 @@
     <color name="darker_gray">#555555</color>
     <color name="holo_blue_light">#FF33B5E5</color>
 
+    <!-- 배경 색상 -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="background_white">#FFFFFF</color>
+
+    <!-- 상태 색상 -->
+    <color name="success_green">#4CAF50</color>
+    <color name="error_red">#F44336</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="info_blue">#2196F3</color>
+
+    <!-- 버튼 색상 -->
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+
+    <!-- 기타 -->
+    <color name="black_overlay">#66000000</color>
+
     <!-- 배경/텍스트 색상 -->
     <color name="background">#FFFFFF</color>
     <color name="main_text">#2E5F30</color>

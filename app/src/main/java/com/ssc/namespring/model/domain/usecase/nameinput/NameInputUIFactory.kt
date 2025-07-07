@@ -30,7 +30,6 @@ class NameInputUIFactory(
         return view
     }
 
-    // ui/profileform/NameInputUIFactory.kt
     private fun setupViews(view: View, index: Int, data: NameCharData, context: Context) {
         val tvPosition = view.findViewById<TextView>(R.id.tvPosition)
         val etKorean = view.findViewById<EditText>(R.id.etKorean)
@@ -38,41 +37,40 @@ class NameInputUIFactory(
         val btnSearchHanja = view.findViewById<Button>(R.id.btnSearchHanja)
         val btnClearChar = view.findViewById<ImageButton>(R.id.btnClearChar)
 
-        // Set position label
         val positions = arrayOf("첫째", "둘째", "셋째", "넷째")
         tvPosition.text = positions[index]
 
-        // Remove existing text watchers
+        // 기존 리스너 제거
         stateManager.removeTextWatchers(index, etKorean, etHanja)
 
-        // Set initial values without text watchers
-        etKorean.setText(data.korean)
-        etHanja.setText(data.hanja)
-
-        // 초기 버튼 텍스트 설정
-        NameInputButtonUpdater.updateButtonText(
-            context,
-            btnSearchHanja,
-            data.korean,
-            data.hanja,
-            index
-        )
-
-        // Create and add new text watchers
+        // TextWatcher 생성
         val koreanWatcher = eventHandler.createKoreanTextWatcher(index, etHanja, btnSearchHanja, context)
         val hanjaWatcher = eventHandler.createHanjaTextWatcher(index, etKorean, btnSearchHanja, context)
 
+        // 리스너 먼저 등록
         etKorean.addTextChangedListener(koreanWatcher)
         etHanja.addTextChangedListener(hanjaWatcher)
-
         stateManager.addTextWatchers(index, koreanWatcher, hanjaWatcher)
 
-        // ⭐ 버튼 클릭 이벤트 추가 (누락된 부분)
+        // 값 설정은 리스너 등록 후에
+        etKorean.setText(data.korean)
+        etHanja.setText(data.hanja)
+
+        // 프로필 로드 후 버튼 강제 업데이트
+        etKorean.post {
+            NameInputButtonUpdater.updateButtonText(
+                context,
+                btnSearchHanja,
+                data.korean,
+                data.hanja,
+                index
+            )
+        }
+
         btnSearchHanja.setOnClickListener {
             eventHandler.handleHanjaSearchClick(index)
         }
 
-        // Clear button click listener
         btnClearChar.setOnClickListener {
             eventHandler.handleClearClick(index, etKorean, etHanja, btnSearchHanja)
         }

@@ -20,6 +20,10 @@ class ProfileFormEventHandler(
     private val config: ProfileFormConfig
 ) {
     fun setupListeners() {
+        uiComponents.btnLoadProfile?.setOnClickListener {
+            (activity as? ProfileFormActivity)?.loadParentProfileData()
+        }
+
         uiComponents.btnBack.setOnClickListener { activity.finish() }
 
         uiComponents.btnSelectDate.setOnClickListener {

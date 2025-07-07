@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.domain.service.factory.NamingEngineProvider
+import com.ssc.namespring.model.domain.service.workmanager.TaskWorkManager
 import com.ssc.namespring.model.data.source.DataLoader
 import com.ssc.namespring.utils.data.json.JsonLoader
 import kotlinx.coroutines.*
@@ -53,14 +54,21 @@ class SplashActivity : AppCompatActivity() {
                 }
                 Log.d(TAG, "ProfileManager initialized successfully")
 
-                // 2단계: JsonLoader 초기화 (20%)
+                // 2단계: TaskWorkManager 초기화 (15%)
+                updateProgress(15, "작업 매니저 초기화 중...")
+                withContext(Dispatchers.IO) {
+                    TaskWorkManager.getInstance(this@SplashActivity)
+                }
+                Log.d(TAG, "TaskWorkManager initialized successfully")
+
+                // 3단계: JsonLoader 초기화 (20%)
                 updateProgress(20, "JSON 데이터 로딩 중...")
                 withContext(Dispatchers.IO) {
                     JsonLoader.initialize(this@SplashActivity)
                 }
                 Log.d(TAG, "JsonLoader initialized successfully")
 
-                // 3단계: NamingEngine 초기화 (30-40%)
+                // 4단계: NamingEngine 초기화 (30-40%)
                 updateProgress(30, "작명 엔진 초기화 중...")
                 withContext(Dispatchers.IO) {
                     NamingEngineProvider.preInitialize()
@@ -68,7 +76,7 @@ class SplashActivity : AppCompatActivity() {
                 updateProgress(40, "작명 엔진 초기화 완료")
                 Log.d(TAG, "NamingEngine initialized successfully")
 
-                // 4단계: 나머지 데이터 로드 (40-90%)
+                // 5단계: 나머지 데이터 로드 (40-90%)
                 updateProgress(50, "이름 데이터 로딩 중...")
 
                 val loadingComplete = CompletableDeferred<Boolean>()
@@ -94,7 +102,7 @@ class SplashActivity : AppCompatActivity() {
                 // DataLoader 완료 대기
                 loadingComplete.await()
 
-                // 5단계: 최종 검증 (90-100%)
+                // 6단계: 최종 검증 (90-100%)
                 updateProgress(95, "초기화 완료 중...")
 
                 // 최소 스플래시 시간 보장

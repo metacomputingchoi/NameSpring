@@ -15,6 +15,15 @@ object NameInputButtonUpdater {
     private val updateScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val activeJobs = mutableMapOf<Int, Job?>()
 
+    // 프로필별 상태 추가
+    private val profileStates = mutableMapOf<String, MutableMap<Int, String>>()
+
+    fun cleanupForProfile(profileId: String?) {
+        profileId?.let {
+            profileStates.remove(it)
+        }
+    }
+
     fun updateButtonText(
         context: Context,
         button: Button,
@@ -104,9 +113,8 @@ object NameInputButtonUpdater {
     }
 
     fun cleanup() {
-        // scope 자체를 취소하지 않고 개별 job만 취소
         activeJobs.values.forEach { it?.cancel() }
         activeJobs.clear()
-        // updateScope.cancel() <- 이 줄 제거!
+        profileStates.clear()  // 상태도 정리
     }
 }

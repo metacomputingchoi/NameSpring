@@ -2,8 +2,11 @@
 package com.ssc.namespring.model.domain.usecase
 
 import android.util.Log
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.GivenNameInfo
 import com.ssc.namespring.model.presentation.components.ProfileFormUiState
 import com.ssc.namespring.model.domain.entity.Profile
@@ -25,9 +28,11 @@ class ProfileFormManager(private val profileId: String? = null) {
         private const val TAG = "ProfileFormManager"
     }
 
+    private var isSettingHanjaInfo = false
     private val _uiState = MutableLiveData<ProfileFormUiState>()
     val uiState: LiveData<ProfileFormUiState> = _uiState
-
+    private val _profileLoaded = MutableLiveData<Boolean>()
+    val profileLoaded: LiveData<Boolean> = _profileLoaded
     private val dateTimeManager = ProfileFormDateTimeManager()
     private val nameDataManager = NameDataManager()
     private val stateManager = ProfileFormStateManager()
@@ -74,6 +79,10 @@ class ProfileFormManager(private val profileId: String? = null) {
         updateUiState()
     }
 
+    fun resetProfileLoadedFlag() {
+        _profileLoaded.value = false
+    }
+
     fun addNameChar() {
         if (nameDataManager.canAddChar()) {
             nameDataManager.addChar()
@@ -94,26 +103,55 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     fun setHanjaInfo(position: Int, korean: String, hanja: String) {
-        Log.d(TAG, "setHanjaInfo: position=$position, korean='$korean', hanja='$hanja'")
+        if (isSettingHanjaInfo) return  // 이미 처리 중이면 무시
 
-        // NameDataManager에 데이터 설정
-        nameDataManager.setCharData(position, korean, hanja)
-
-        // INameDataService를 통해 CharTripleInfo 가져와서 설정
-        if (korean.isNotEmpty() && hanja.isNotEmpty()) {
-            nameDataService.getCharInfo(korean, hanja)?.let { info ->
-                nameDataManager.setHanjaInfo(position, info)
-            }
+        // 값이 같으면 업데이트 하지 않음
+        val currentData = nameDataManager.getCharData(position)
+        if (currentData?.korean == korean && currentData.hanja == hanja) {
+            return
         }
 
-        // UI 상태 업데이트
-        updateUiState()
+        isSettingHanjaInfo = true
+        try {
+            nameDataManager.setCharData(position, korean, hanja)
+
+            if (korean.isNotEmpty() && hanja.isNotEmpty()) {
+                nameDataService.getCharInfo(korean, hanja)?.let { info ->
+                    nameDataManager.setHanjaInfo(position, info)
+                }
+            }
+
+            // UI 업데이트는 한 번만
+            updateUiState()
+        } finally {
+            isSettingHanjaInfo = false
+        }
     }
 
     fun resetAllFields() {
         dateTimeManager.reset()
         nameDataManager.reset()
         stateManager.reset()
+        updateUiState()
+    }
+
+    fun syncWithUiValues(containerView: LinearLayout) {
+        // 현재 UI의 값을 직접 읽어서 NameDataManager 업데이트
+        for (i in 0 until containerView.childCount) {
+            val itemView = containerView.getChildAt(i)
+            val etKorean = itemView?.findViewById<EditText>(R.id.etKorean)
+            val etHanja = itemView?.findViewById<EditText>(R.id.etHanja)
+
+            if (etKorean != null) {
+                val korean = etKorean.text.toString()
+                val hanja = etHanja?.text?.toString() ?: ""
+
+                // 직접 NameDataManager 업데이트
+                nameDataManager.setCharData(i, korean, hanja)
+            }
+        }
+
+        // 상태 업데이트
         updateUiState()
     }
 
@@ -202,22 +240,19 @@ class ProfileFormManager(private val profileId: String? = null) {
         return true
     }
 
-    // 작명용 입력 생성 (입력된 정보는 유지, 빈 곳만 언더바 처리)
     fun createNamingInput(): NamingEngineInput? {
         val surname = getSurname() ?: return null
-
-        // 성씨 부분
         var userInput = "[${surname.korean}/${surname.hanja}]"
 
-        // 이름 부분 - 각 글자별로 입력된 정보 확인
-        val charDataList = nameDataManager.getCharDataList()
+        // UI의 현재 상태를 직접 가져오기 (NameDataManager 대신)
+        val currentUiState = _uiState.value ?: return null
 
         Log.d(TAG, "=== createNamingInput Debug ===")
         Log.d(TAG, "Surname: ${surname.korean}/${surname.hanja}")
-        Log.d(TAG, "CharDataList size: ${charDataList.size}")
+        Log.d(TAG, "UI State CharDataList size: ${currentUiState.nameCharDataList.size}")
 
-        charDataList.forEachIndexed { index, charData ->
-            Log.d(TAG, "CharData[$index]: korean='${charData.korean}', hanja='${charData.hanja}'")
+        currentUiState.nameCharDataList.forEachIndexed { index, charData ->
+            Log.d(TAG, "UI CharData[$index]: korean='${charData.korean}', hanja='${charData.hanja}'")
 
             val korean = if (charData.korean.isNotEmpty()) charData.korean else "_"
             val hanja = if (charData.hanja.isNotEmpty()) charData.hanja else "_"
@@ -243,6 +278,9 @@ class ProfileFormManager(private val profileId: String? = null) {
     }
 
     fun loadFromParentProfile(parentProfile: Profile) {
+        // UI 업데이트 일시 중지
+        val updates = mutableListOf<() -> Unit>()
+
         // 날짜/시간 정보 로드
         dateTimeManager.setDateTime(parentProfile.birthDate)
         stateManager.updateYajaTime(parentProfile.isYajaTime)
@@ -250,27 +288,39 @@ class ProfileFormManager(private val profileId: String? = null) {
         // 성씨 정보 로드
         stateManager.setSurname(parentProfile.surname)
 
-        // 이름 정보 로드 (길이까지 동일하게)
+        // 이름 정보 로드
         parentProfile.givenName?.let { givenName ->
-            // 기존 이름 데이터 리셋
             nameDataManager.reset()
 
-            // 부모 프로필의 이름 길이만큼 글자 추가
+            // 글자 수 맞추기
             val targetCount = givenName.charInfos.size
-            repeat(targetCount - 1) { // 기본 1글자이므로 targetCount-1만큼 추가
+            repeat(targetCount - 1) {
                 nameDataManager.addChar()
             }
 
-            // 각 글자의 한글과 한자 정보 설정
+            // 모든 데이터를 먼저 설정
             givenName.charInfos.forEachIndexed { index, charInfo ->
                 if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
-                    setHanjaInfo(index, charInfo.korean, charInfo.hanja)
+                    updates.add {
+                        nameDataManager.setCharData(index, charInfo.korean, charInfo.hanja)
+                        nameDataService.getCharInfo(charInfo.korean, charInfo.hanja)?.let { info ->
+                            nameDataManager.setHanjaInfo(index, info)
+                        }
+                    }
                 }
             }
         }
 
+        // 모든 업데이트 실행
+        updates.forEach { it() }
+
+        // 한 번만 UI 업데이트
         updateUiState()
+
+        // UI 재생성 플래그 설정
+        _profileLoaded.value = true
     }
+
 
     fun getSurname(): SurnameInfo? = stateManager.getSurname()
     fun isYajaTime(): Boolean = stateManager.isYajaTime()
@@ -319,11 +369,34 @@ class ProfileFormManager(private val profileId: String? = null) {
         return surnameInput + givenNameInput
     }
 
-    // 추가: 생년월일시 정보 가져오기
-    fun getBirthDateTime(): Calendar = dateTimeManager.getCalendar()
-
     // 추가: 이름 정보 가져오기
     fun getGivenNameInfo(): GivenNameInfo? = nameDataManager.createGivenNameInfo()
+
+    fun getGivenNameData(): GivenNameData {
+        val state = uiState.value ?: ProfileFormUiState()
+        val korean = state.nameCharDataList.joinToString("") { it.korean }
+        val hanja = state.nameCharDataList.joinToString("") { it.hanja }
+        val charInfos = state.nameCharDataList.map { charData ->
+            mapOf(
+                "korean" to charData.korean,
+                "hanja" to charData.hanja
+            )
+        }
+
+        return GivenNameData(
+            korean = korean,
+            hanja = hanja,
+            charInfos = charInfos,
+            charCount = state.nameCharCount
+        )
+    }
+
+    data class GivenNameData(
+        val korean: String,
+        val hanja: String,
+        val charInfos: List<Map<String, String>>,
+        val charCount: Int
+    )
 
     // NamingEngine 입력 데이터를 담는 data class
     data class NamingEngineInput(
@@ -342,5 +415,9 @@ class ProfileFormManager(private val profileId: String? = null) {
             nameCharCount = nameDataManager.getCharCount(),
             nameCharDataList = nameDataManager.getCharDataList()
         )
+    }
+
+    fun forceUpdateUiState() {
+        updateUiState()
     }
 }
