@@ -1,4 +1,4 @@
-// ui/history/adapter/components/NameListDiffCallback.kt
+// ui/history/components/NameListDiffCallback.kt
 package com.ssc.namespring.ui.history.adapter.components
 
 import androidx.recyclerview.widget.DiffUtil

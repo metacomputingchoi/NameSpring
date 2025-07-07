@@ -1,4 +1,4 @@
-// ui/history/adapter/components/NameListViewHolder.kt
+// ui/history/components/NameListViewHolder.kt
 package com.ssc.namespring.ui.history.adapter.components
 
 import android.view.View

@@ -1,4 +1,4 @@
-// ui/history/adapter/components/NameListFavoriteHandler.kt
+// ui/history/components/NameListFavoriteHandler.kt
 package com.ssc.namespring.ui.history.adapter.components
 
 import android.util.Log
