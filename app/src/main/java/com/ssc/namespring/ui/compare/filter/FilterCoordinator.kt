@@ -5,10 +5,10 @@ import android.content.Context
 import android.view.View
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.filter.FilterConfig
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 
 class FilterCoordinator(private val context: Context) {
-
+    // 나머지 코드는 동일
     private val filterHandlers = mutableListOf<IFilterHandler>()
 
     fun initialize(minScore: Int, maxScore: Int) {

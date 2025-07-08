@@ -7,7 +7,7 @@ import android.view.View
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.ssc.namespring.R
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType
 
 abstract class TextInputFilterStrategy(
     protected val context: Context,

@@ -4,8 +4,8 @@ package com.ssc.namespring.ui.compare.manager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ssc.namespring.model.data.repository.FavoriteName
-import com.ssc.namespring.ui.compare.CompareViewModel.SortInfo
-import com.ssc.namespring.ui.compare.CompareViewModel.SortType
+import com.ssc.namespring.ui.compare.SortInfo
+import com.ssc.namespring.ui.compare.SortType
 
 class SortingManager {
     private val gson = com.google.gson.Gson()

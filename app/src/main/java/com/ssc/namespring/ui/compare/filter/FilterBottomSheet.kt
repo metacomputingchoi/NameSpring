@@ -7,7 +7,7 @@ import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.ssc.namespring.R
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 import com.ssc.namespring.ui.compare.filter.FilterCoordinator
 import com.ssc.namespring.ui.compare.filter.FilterScoreCalculator
 
@@ -15,7 +15,7 @@ class FilterBottomSheet(
     context: Context,
     private val onFiltersApplied: (List<Pair<FilterType, Any>>) -> Unit
 ) : BottomSheetDialog(context) {
-
+    // 나머지 코드는 동일
     private val filterCoordinator = FilterCoordinator(context)
     private val scoreCalculator = FilterScoreCalculator(context)
 

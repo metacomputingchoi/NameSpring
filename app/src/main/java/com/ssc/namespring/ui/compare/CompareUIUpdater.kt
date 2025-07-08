@@ -71,7 +71,7 @@ class CompareUIUpdater(
         }
     }
 
-    fun updateFilterChips(filters: List<CompareViewModel.FilterInfo>) {
+    fun updateFilterChips(filters: List<FilterInfo>) {
         chipGroupFilters.removeAllViews()
 
         filters.forEach { filterInfo ->

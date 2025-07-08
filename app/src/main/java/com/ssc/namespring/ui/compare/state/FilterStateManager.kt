@@ -4,8 +4,9 @@ package com.ssc.namespring.ui.compare.state
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ssc.namespring.model.data.repository.FavoriteName
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterInfo
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterInfo
+import com.ssc.namespring.ui.compare.FilterType
+
 import com.ssc.namespring.ui.compare.filter.*
 import java.util.UUID
 

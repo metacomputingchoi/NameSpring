@@ -10,12 +10,12 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.filter.FilterConfig
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DateFilterHandler(private val context: Context) : IFilterHandler {
-
+    // 나머지 코드는 동일
     private var checkBox: CheckBox? = null
     private var btnStartDate: Button? = null
     private var btnEndDate: Button? = null
@@ -73,9 +73,9 @@ class DateFilterHandler(private val context: Context) : IFilterHandler {
                 set(Calendar.MILLISECOND, 0)
             }
             onDateSelected(selectedCalendar.timeInMillis)
-        }, calendar.get(Calendar.YEAR), 
-           calendar.get(Calendar.MONTH), 
-           calendar.get(Calendar.DAY_OF_MONTH)).show()
+        }, calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)).show()
     }
 
     private fun validateDateRange() {

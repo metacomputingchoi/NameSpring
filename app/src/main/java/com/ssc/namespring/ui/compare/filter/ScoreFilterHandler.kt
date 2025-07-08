@@ -9,13 +9,13 @@ import com.google.android.material.slider.RangeSlider
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.filter.FilterConfig
 import com.ssc.namespring.model.domain.filter.ScoreRange
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 
 class ScoreFilterHandler(
     private val minScore: Int,
     private val maxScore: Int
 ) : IFilterHandler {
-
+    // 나머지 코드는 동일
     private var checkBox: CheckBox? = null
     private var rangeSlider: RangeSlider? = null
     private var tvScoreRange: TextView? = null

@@ -9,7 +9,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.filter.FilterConfig
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 
 class TextInputFilterHandler(
     private val context: Context,
@@ -21,7 +21,7 @@ class TextInputFilterHandler(
     private val chipGroupId: Int,
     private val duplicateMessage: String
 ) : IFilterHandler {
-
+    // 나머지 코드는 동일
     private var checkBox: CheckBox? = null
     private var container: LinearLayout? = null
     private var editText: TextInputEditText? = null

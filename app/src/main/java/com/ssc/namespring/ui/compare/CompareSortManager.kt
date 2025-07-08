@@ -16,10 +16,10 @@ class CompareSortManager(
 ) {
     fun setupSortChips() {
         val sortOptions = listOf(
-            CompareViewModel.SortType.NAME to "이름순",
-            CompareViewModel.SortType.SCORE to "점수순",
-            CompareViewModel.SortType.BIRTH_DATE to "생년월일순",
-            CompareViewModel.SortType.ADDED_DATE to "추가일순"
+            SortType.NAME to "이름순",
+            SortType.SCORE to "점수순",
+            SortType.BIRTH_DATE to "생년월일순",
+            SortType.ADDED_DATE to "추가일순"
         )
 
         sortOptions.forEach { (sortType, label) ->
@@ -28,7 +28,7 @@ class CompareSortManager(
         }
     }
 
-    private fun createSortChip(sortType: CompareViewModel.SortType, label: String): View {
+    private fun createSortChip(sortType: SortType, label: String): View {
         val chipLayout = LayoutInflater.from(context)
             .inflate(R.layout.item_sort_chip, chipGroupSort, false)
 
@@ -60,7 +60,7 @@ class CompareSortManager(
         return chipLayout
     }
 
-    private fun updateSortButton(button: ImageButton, sortType: CompareViewModel.SortType) {
+    private fun updateSortButton(button: ImageButton, sortType: SortType) {
         val sorts = viewModel.activeSorts.value ?: return
         val sortInfo = sorts.find { it.type == sortType } ?: return
 
@@ -70,13 +70,13 @@ class CompareSortManager(
         )
     }
 
-    fun updateSortChips(sorts: List<CompareViewModel.SortInfo>) {
+    fun updateSortChips(sorts: List<SortInfo>) {
         for (i in 0 until chipGroupSort.childCount) {
             val chipLayout = chipGroupSort.getChildAt(i)
             val chip = chipLayout.findViewById<Chip>(R.id.chip)
             val btnSort = chipLayout.findViewById<ImageButton>(R.id.btnSort)
 
-            val sortType = chip.tag as? CompareViewModel.SortType ?: continue
+            val sortType = chip.tag as? SortType ?: continue
             val sortInfo = sorts.find { it.type == sortType }
 
             if (sortInfo != null) {

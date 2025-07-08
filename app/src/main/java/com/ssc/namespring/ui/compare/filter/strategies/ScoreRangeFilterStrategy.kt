@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import com.ssc.namespring.R
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType
 
 class ScoreRangeFilterStrategy(
     private val context: Context,

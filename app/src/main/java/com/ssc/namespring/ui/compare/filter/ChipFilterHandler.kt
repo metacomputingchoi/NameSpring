@@ -8,7 +8,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.filter.FilterConfig
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
+import com.ssc.namespring.ui.compare.FilterType  // 변경됨
 
 class ChipFilterHandler(
     private val context: Context,
@@ -17,7 +17,7 @@ class ChipFilterHandler(
     private val chipGroupId: Int,
     private val items: List<Pair<String, String>>
 ) : IFilterHandler {
-
+    // 나머지 코드는 동일
     private var checkBox: CheckBox? = null
     private var chipGroup: ChipGroup? = null
     private val selectedItems = mutableSetOf<String>()

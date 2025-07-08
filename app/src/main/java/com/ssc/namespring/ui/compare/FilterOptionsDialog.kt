@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.*
 import com.google.android.material.button.MaterialButton
 import com.ssc.namespring.R
-import com.ssc.namespring.ui.compare.CompareViewModel.FilterType
 import com.ssc.namespring.ui.compare.filter.FilterStrategyFactory
 import com.ssc.namespring.ui.compare.filter.strategies.FilterStrategy
 
