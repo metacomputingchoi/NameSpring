@@ -29,9 +29,9 @@ class ThemeService(private val context: Context) {
 
     fun getSproutAnimationDuration(): Long = transitionManager.getSproutAnimationDuration()
 
-    fun getThemeColors(theme: Theme): ThemeColors {
+    fun getThemeColors(theme: Theme): ThemeColorsService {
         val colors = colorProvider.getThemeColors(theme)
-        return ThemeColors(
+        return ThemeColorsService(
             primary = colors.primary,
             background = colors.background,
             textPrimary = colors.textPrimary,
@@ -77,7 +77,7 @@ class ThemeService(private val context: Context) {
     }
 
     // 기존 내부 data class 유지 (외부 호환성)
-    data class ThemeColors(
+    data class ThemeColorsService(
         val primary: Int,
         val background: Int,
         val textPrimary: Int,

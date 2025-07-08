@@ -17,8 +17,8 @@ class ProfileSearchService {
 
     private fun determineSearchStrategy(query: String): ProfileSearchStrategy {
         return when {
-            MixedPatternUtils.containsMixedPattern(query) -> MixedPatternSearchStrategy()
-            query.matches(Regex("^[ㄱ-ㅎ]+$")) -> ChosungSearchStrategy()
+            MixedPatternUtils.containsMixedPattern(query) -> ProfileMixedPatternSearchStrategy()
+            query.matches(Regex("^[ㄱ-ㅎ]+$")) -> ProfileChosungSearchStrategy()
             else -> GeneralSearchStrategy()
         }
     }
@@ -27,14 +27,14 @@ class ProfileSearchService {
         fun matches(profile: Profile, query: String, lowercaseQuery: String): Boolean
     }
 
-    private class MixedPatternSearchStrategy : ProfileSearchStrategy {
+    private class ProfileMixedPatternSearchStrategy : ProfileSearchStrategy {
         override fun matches(profile: Profile, query: String, lowercaseQuery: String): Boolean {
             return MixedPatternUtils.matchMixedPattern(profile.profileName, query) ||
                     MixedPatternUtils.matchMixedPattern(profile.getFullName(), query)
         }
     }
 
-    private class ChosungSearchStrategy : ProfileSearchStrategy {
+    private class ProfileChosungSearchStrategy : ProfileSearchStrategy {
         override fun matches(profile: Profile, query: String, lowercaseQuery: String): Boolean {
             return MixedPatternUtils.matchChosungPattern(profile.profileName, query) ||
                     MixedPatternUtils.matchChosungPattern(profile.getFullName(), query)

@@ -71,14 +71,14 @@ class NameListViewModel(
         applyFilterAndSort()
     }
 
-    fun updateSortOrder(sortOrder: NameSortManager.SortOrder) {
-        _uiState.value = _uiState.value.copy(sortOrder = sortOrder)
+    fun updateSortOrder(nameSortOrder: NameSortManager.NameSortOrder) {
+        _uiState.value = _uiState.value.copy(nameSortOrder = nameSortOrder)
         applyFilterAndSort()
     }
 
     private fun applyFilterAndSort() {
         val filtered = searchManager.filter(allNames, _uiState.value.searchQuery)
-        val sorted = sortManager.sort(filtered, _uiState.value.sortOrder)
+        val sorted = sortManager.sort(filtered, _uiState.value.nameSortOrder)
         _uiState.value = _uiState.value.copy(filteredNames = sorted)
     }
 }
@@ -89,6 +89,6 @@ data class NameListUiState(
     val allNames: List<GeneratedName> = emptyList(),
     val filteredNames: List<GeneratedName> = emptyList(),
     val searchQuery: String = "",
-    val sortOrder: NameSortManager.SortOrder = NameSortManager.SortOrder.SCORE_DESC,
+    val nameSortOrder: NameSortManager.NameSortOrder = NameSortManager.NameSortOrder.SCORE_DESC,
     val error: String? = null
 )

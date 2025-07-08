@@ -12,13 +12,13 @@ import com.ssc.namespring.model.domain.entity.HanjaSearchResult
 
 class HanjaSearchAdapter(
     private val onItemClick: (HanjaSearchResult) -> Unit
-) : RecyclerView.Adapter<HanjaSearchAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<HanjaSearchAdapter.HanjaViewHolder>() {
 
     private var results = listOf<HanjaSearchResult>()
     var onItemSelected: (() -> Unit)? = null
 
     init {
-        // ViewHolder 재활용 향상을 위한 고정 ID 설정
+        // SurnameViewHolder 재활용 향상을 위한 고정 ID 설정
         setHasStableIds(true)
     }
 
@@ -31,13 +31,13 @@ class HanjaSearchAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HanjaViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_hanja_search, parent, false)
-        return ViewHolder(view)
+        return HanjaViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: HanjaViewHolder, position: Int) {
         holder.bind(results[position])
     }
 
@@ -48,7 +48,7 @@ class HanjaSearchAdapter(
         return results[position].tripleKey.hashCode().toLong()
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HanjaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvHanja: TextView = itemView.findViewById(R.id.tvHanja)
         private val tvKorean: TextView = itemView.findViewById(R.id.tvKorean)
         private val tvMeaning: TextView = itemView.findViewById(R.id.tvMeaning)

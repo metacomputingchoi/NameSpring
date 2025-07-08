@@ -6,7 +6,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.*
 import com.ssc.namespring.model.data.repository.TaskRepository
 import com.ssc.namespring.model.domain.entity.Task
-import kotlinx.coroutines.launch
 
 class HistoryViewModel(
     private val context: Context,
@@ -64,8 +63,8 @@ class HistoryViewModel(
         applyFiltersAndSort()
     }
 
-    fun setSortOrder(order: HistoryFilterManager.SortOrder) {
-        filterManager.currentSortOrder = order
+    fun setSortOrder(order: HistoryFilterManager.HistorySortOrder) {
+        filterManager.currentHistorySortOrder = order
         paginationManager.reset()
         applyFiltersAndSort()
     }

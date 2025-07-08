@@ -72,9 +72,9 @@ class ProfileManagerImpl(
         return useCase.searchProfiles(query)
     }
 
-    override fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> {
+    override fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile> {
         ensureInitialized()
-        return useCase.getSortedProfiles(sortType)
+        return useCase.getSortedProfiles(profileSortType)
     }
 
     override fun getAllProfiles(): List<Profile> {

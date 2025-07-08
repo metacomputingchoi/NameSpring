@@ -28,20 +28,20 @@ class ProfileListLoadingManager {
 
     fun loadProfiles(
         currentQuery: String,
-        currentSortType: ProfileManager.SortType,
+        currentProfileManagerSortType: ProfileManager.ProfileManagerSortType,
         currentProfiles: List<Profile>
     ): Pair<List<Profile>, Boolean> {
         allProfiles = if (currentQuery.isEmpty()) {
-            profileManager.getSortedProfiles(currentSortType)
+            profileManager.getSortedProfiles(currentProfileManagerSortType)
         } else {
             profileManager.searchProfiles(currentQuery).let { searchResults ->
-                when (currentSortType) {
-                    ProfileManager.SortType.NAME_ASC -> searchResults.sortedBy { it.profileName }
-                    ProfileManager.SortType.NAME_DESC -> searchResults.sortedByDescending { it.profileName }
-                    ProfileManager.SortType.SCORE_DESC -> searchResults.sortedByDescending { it.nameBomScore }
-                    ProfileManager.SortType.SCORE_ASC -> searchResults.sortedBy { it.nameBomScore }
-                    ProfileManager.SortType.DATE_DESC -> searchResults.sortedByDescending { it.createdAt }
-                    ProfileManager.SortType.DATE_ASC -> searchResults.sortedBy { it.createdAt }
+                when (currentProfileManagerSortType) {
+                    ProfileManager.ProfileManagerSortType.NAME_ASC -> searchResults.sortedBy { it.profileName }
+                    ProfileManager.ProfileManagerSortType.NAME_DESC -> searchResults.sortedByDescending { it.profileName }
+                    ProfileManager.ProfileManagerSortType.SCORE_DESC -> searchResults.sortedByDescending { it.nameBomScore }
+                    ProfileManager.ProfileManagerSortType.SCORE_ASC -> searchResults.sortedBy { it.nameBomScore }
+                    ProfileManager.ProfileManagerSortType.DATE_DESC -> searchResults.sortedByDescending { it.createdAt }
+                    ProfileManager.ProfileManagerSortType.DATE_ASC -> searchResults.sortedBy { it.createdAt }
                 }
             }
         }
@@ -69,11 +69,11 @@ class ProfileListLoadingManager {
 
     fun loadAllAtOnce(
         currentQuery: String,
-        currentSortType: ProfileManager.SortType
+        currentProfileManagerSortType: ProfileManager.ProfileManagerSortType
     ): List<Profile> {
         hasMoreData = false
         return if (currentQuery.isEmpty()) {
-            profileManager.getSortedProfiles(currentSortType)
+            profileManager.getSortedProfiles(currentProfileManagerSortType)
         } else {
             profileManager.searchProfiles(currentQuery)
         }

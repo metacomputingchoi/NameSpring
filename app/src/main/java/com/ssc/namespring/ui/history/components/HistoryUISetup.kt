@@ -49,7 +49,7 @@ class HistoryUISetup(
         HistorySearchHelper.setupSearchView(activity, viewFinder.searchView, onQueryChanged)
     }
 
-    fun setupSort(onSortChanged: (HistoryFilterManager.SortOrder) -> Unit) {
+    fun setupSort(onSortChanged: (HistoryFilterManager.HistorySortOrder) -> Unit) {
         HistorySortHelper.setupSortSpinner(activity, viewFinder.sortSpinner, onSortChanged)
     }
 

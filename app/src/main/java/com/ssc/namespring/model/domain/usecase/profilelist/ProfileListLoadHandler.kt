@@ -18,7 +18,7 @@ class ProfileListLoadHandler(
 
         val (newProfiles, _) = loadingManager.loadProfiles(
             sortSearchManager.currentQuery,
-            sortSearchManager.currentSortType,
+            sortSearchManager.currentProfileManagerSortType,
             currentState.profiles
         )
 
@@ -43,7 +43,7 @@ class ProfileListLoadHandler(
         uiStateManager.updateLoadingState(true)
         val profiles = loadingManager.loadAllAtOnce(
             sortSearchManager.currentQuery,
-            sortSearchManager.currentSortType
+            sortSearchManager.currentProfileManagerSortType
         )
         uiStateManager.updateProfiles(profiles)
         return profiles

@@ -10,7 +10,7 @@ import com.ssc.namespring.model.domain.entity.Profile
  */
 interface ProfileManager {
 
-    enum class SortType {
+    enum class ProfileManagerSortType {
         NAME_ASC, NAME_DESC, SCORE_DESC, SCORE_ASC, DATE_DESC, DATE_ASC
     }
 
@@ -20,7 +20,7 @@ interface ProfileManager {
     fun deleteProfile(profileId: String)
     fun isDuplicateProfile(profile: Profile): Boolean
     fun searchProfiles(query: String): List<Profile>
-    fun getSortedProfiles(sortType: SortType): List<Profile>
+    fun getSortedProfiles(profileManagerSortType: ProfileManagerSortType): List<Profile>
     fun getAllProfiles(): List<Profile>
     fun getProfile(id: String): Profile?
     fun getCurrentProfile(): Profile?

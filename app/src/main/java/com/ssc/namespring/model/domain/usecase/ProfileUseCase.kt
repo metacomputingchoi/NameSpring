@@ -37,8 +37,8 @@ class ProfileUseCase(
 
     fun searchProfiles(query: String): List<Profile> = searchHandler.searchProfiles(query)
 
-    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> = 
-        searchHandler.getSortedProfiles(sortType)
+    fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile> =
+        searchHandler.getSortedProfiles(profileSortType)
 
     fun getAllProfiles(): List<Profile> = crudHandler.getAllProfiles()
 

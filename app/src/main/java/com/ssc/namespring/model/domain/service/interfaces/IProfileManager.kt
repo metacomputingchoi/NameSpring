@@ -11,7 +11,7 @@ interface IProfileManager {
     fun deleteProfile(profileId: String)
     fun isDuplicateProfile(profile: Profile): Boolean
     fun searchProfiles(query: String): List<Profile>
-    fun getSortedProfiles(sortType: SortType): List<Profile>
+    fun getSortedProfiles(profileSortType: ProfileSortType): List<Profile>
     fun getAllProfiles(): List<Profile>
     fun getProfile(id: String): Profile?
     fun getCurrentProfile(): Profile?
@@ -20,7 +20,7 @@ interface IProfileManager {
     fun getSelectedProfile(): Profile?
     fun switchProfile(id: String)
 
-    enum class SortType {
+    enum class ProfileSortType {
         NAME_ASC, NAME_DESC, SCORE_DESC, SCORE_ASC, DATE_DESC, DATE_ASC
     }
 }

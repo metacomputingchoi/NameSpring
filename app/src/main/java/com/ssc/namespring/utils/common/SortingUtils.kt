@@ -12,15 +12,15 @@ object SortingUtils {
     fun setupSortChips(
         chipGroup: ChipGroup,
         inflater: LayoutInflater,
-        onSortChanged: (ProfileManager.SortType) -> Unit
+        onSortChanged: (ProfileManager.ProfileManagerSortType) -> Unit
     ) {
         val sortOptions = listOf(
-            "최신순" to ProfileManager.SortType.DATE_DESC,
-            "오래된순" to ProfileManager.SortType.DATE_ASC,
-            "점수높은순" to ProfileManager.SortType.SCORE_DESC,
-            "점수낮은순" to ProfileManager.SortType.SCORE_ASC,
-            "이름순" to ProfileManager.SortType.NAME_ASC,
-            "이름역순" to ProfileManager.SortType.NAME_DESC
+            "최신순" to ProfileManager.ProfileManagerSortType.DATE_DESC,
+            "오래된순" to ProfileManager.ProfileManagerSortType.DATE_ASC,
+            "점수높은순" to ProfileManager.ProfileManagerSortType.SCORE_DESC,
+            "점수낮은순" to ProfileManager.ProfileManagerSortType.SCORE_ASC,
+            "이름순" to ProfileManager.ProfileManagerSortType.NAME_ASC,
+            "이름역순" to ProfileManager.ProfileManagerSortType.NAME_DESC
         )
 
         sortOptions.forEachIndexed { index, (label, sortType) ->

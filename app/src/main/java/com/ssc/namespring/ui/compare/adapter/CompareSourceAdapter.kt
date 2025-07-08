@@ -13,7 +13,7 @@ import com.ssc.namespring.ui.compare.adapter.helpers.CompareSourceViewHelper
 class CompareSourceAdapter(
     private val onItemClick: (FavoriteName) -> Unit,
     private val onFavoriteToggle: (FavoriteName) -> Unit
-) : ListAdapter<FavoriteName, CompareSourceViewHolder>(DiffCallback()) {
+) : ListAdapter<FavoriteName, CompareSourceViewHolder>(DiffCallbackSource()) {
 
     private val selectedItems = mutableSetOf<String>()
     private var showDeleted = false
@@ -42,7 +42,7 @@ class CompareSourceAdapter(
         holder.bind(item, isSelected, showDeleted)
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<FavoriteName>() {
+    class DiffCallbackSource : DiffUtil.ItemCallback<FavoriteName>() {
         override fun areItemsTheSame(oldItem: FavoriteName, newItem: FavoriteName): Boolean {
             return oldItem.getKey() == newItem.getKey()
         }

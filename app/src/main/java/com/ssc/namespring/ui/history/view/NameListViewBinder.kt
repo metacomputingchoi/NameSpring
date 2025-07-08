@@ -35,7 +35,7 @@ class NameListViewBinder(private val view: View) {
         searchView.setOnQueryTextListener(listener)
     }
 
-    fun setupSortSpinner(listener: (NameSortManager.SortOrder) -> Unit) {
+    fun setupSortSpinner(listener: (NameSortManager.NameSortOrder) -> Unit) {
         val sortOptions = arrayOf(
             "점수 높은순",
             "점수 낮은순", 
@@ -51,14 +51,14 @@ class NameListViewBinder(private val view: View) {
 
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val sortOrder = when (position) {
-                    0 -> NameSortManager.SortOrder.SCORE_DESC
-                    1 -> NameSortManager.SortOrder.SCORE_ASC
-                    2 -> NameSortManager.SortOrder.NAME_ASC
-                    3 -> NameSortManager.SortOrder.NAME_DESC
-                    else -> NameSortManager.SortOrder.SCORE_DESC
+                val nameSortOrder = when (position) {
+                    0 -> NameSortManager.NameSortOrder.SCORE_DESC
+                    1 -> NameSortManager.NameSortOrder.SCORE_ASC
+                    2 -> NameSortManager.NameSortOrder.NAME_ASC
+                    3 -> NameSortManager.NameSortOrder.NAME_DESC
+                    else -> NameSortManager.NameSortOrder.SCORE_DESC
                 }
-                listener(sortOrder)
+                listener(nameSortOrder)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}

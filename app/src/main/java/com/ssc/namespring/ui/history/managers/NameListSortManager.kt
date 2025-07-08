@@ -8,13 +8,13 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 
 class NameListSortManager(
-    private val onSortOrderChanged: (SortOrder) -> Unit
+    private val onSortOrderChanged: (NameListSortOrder) -> Unit
 ) {
     companion object {
         private const val TAG = "NameListSortManager"
     }
 
-    private var currentSortOrder = SortOrder.SCORE_DESC
+    private var currentNameListSortOrder = NameListSortOrder.SCORE_DESC
 
     fun setupSortSpinner(spinner: Spinner) {
         val sortOptions = arrayOf(
@@ -37,18 +37,18 @@ class NameListSortManager(
                 position: Int, 
                 id: Long
             ) {
-                val newSortOrder = when (position) {
-                    0 -> SortOrder.SCORE_DESC
-                    1 -> SortOrder.SCORE_ASC
-                    2 -> SortOrder.NAME_ASC
-                    3 -> SortOrder.NAME_DESC
-                    else -> SortOrder.SCORE_DESC
+                val newNameListSortOrder = when (position) {
+                    0 -> NameListSortOrder.SCORE_DESC
+                    1 -> NameListSortOrder.SCORE_ASC
+                    2 -> NameListSortOrder.NAME_ASC
+                    3 -> NameListSortOrder.NAME_DESC
+                    else -> NameListSortOrder.SCORE_DESC
                 }
 
-                if (currentSortOrder != newSortOrder) {
-                    currentSortOrder = newSortOrder
-                    Log.d(TAG, "Sort order changed to: $currentSortOrder")
-                    onSortOrderChanged(newSortOrder)
+                if (currentNameListSortOrder != newNameListSortOrder) {
+                    currentNameListSortOrder = newNameListSortOrder
+                    Log.d(TAG, "Sort order changed to: $currentNameListSortOrder")
+                    onSortOrderChanged(newNameListSortOrder)
                 }
             }
 
@@ -56,7 +56,7 @@ class NameListSortManager(
         }
     }
 
-    enum class SortOrder {
+    enum class NameListSortOrder {
         SCORE_DESC, SCORE_ASC, NAME_ASC, NAME_DESC
     }
 }

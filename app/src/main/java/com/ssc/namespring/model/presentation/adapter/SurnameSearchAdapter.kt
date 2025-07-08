@@ -11,7 +11,7 @@ import com.ssc.namespring.model.domain.entity.SurnameSearchResult
 
 class SurnameSearchAdapter(
     private val onItemClick: (SurnameSearchResult) -> Unit
-) : RecyclerView.Adapter<SurnameSearchAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SurnameSearchAdapter.SurnameViewHolder>() {
 
     private var results = listOf<SurnameSearchResult>()
     var onItemSelected: (() -> Unit)? = null
@@ -21,19 +21,19 @@ class SurnameSearchAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SurnameViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_surname_search, parent, false)
-        return ViewHolder(view)
+        return SurnameViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SurnameViewHolder, position: Int) {
         holder.bind(results[position])
     }
 
     override fun getItemCount() = results.size
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SurnameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvKorean: TextView = itemView.findViewById(R.id.tvKorean)
         private val tvHanja: TextView = itemView.findViewById(R.id.tvHanja)
         private val tvMeaning: TextView = itemView.findViewById(R.id.tvMeaning)

@@ -14,8 +14,8 @@ internal class ProfileSearchHandler(
     fun searchProfiles(query: String): List<Profile> = 
         service.searchProfiles(query)
 
-    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> = 
-        service.getSortedProfiles(sortType)
+    fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile> =
+        service.getSortedProfiles(profileSortType)
 
     fun isDuplicateProfile(profile: Profile): Boolean =
         service.getAllProfiles().any { it.equals(profile) && it.id != profile.id }

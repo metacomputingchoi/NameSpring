@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,19 +15,19 @@ import com.ssc.namespring.model.data.repository.FavoriteName
 
 class CompareTargetAdapter(
     private val onRemoveClick: (FavoriteName) -> Unit
-) : ListAdapter<FavoriteName, CompareTargetAdapter.ViewHolder>(DiffCallback()) {
+) : ListAdapter<FavoriteName, CompareTargetAdapter.CompareViewHolder>(DiffCallbackTarget()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CompareViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_compare_target, parent, false)
-        return ViewHolder(view)
+        return CompareViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CompareViewHolder, position: Int) {
         holder.bind(getItem(position), position + 1)
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CompareViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cardView: MaterialCardView = itemView.findViewById(R.id.cardView)
         private val tvOrder: TextView = itemView.findViewById(R.id.tvOrder)
         private val tvName: TextView = itemView.findViewById(R.id.tvName)
@@ -76,7 +75,7 @@ class CompareTargetAdapter(
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<FavoriteName>() {
+    class DiffCallbackTarget : DiffUtil.ItemCallback<FavoriteName>() {
         override fun areItemsTheSame(oldItem: FavoriteName, newItem: FavoriteName): Boolean {
             return oldItem.getKey() == newItem.getKey()
         }

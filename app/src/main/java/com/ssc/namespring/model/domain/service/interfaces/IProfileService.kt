@@ -13,7 +13,7 @@ interface IProfileService {
     fun getCurrentProfile(): Profile?
     fun switchProfile(id: String): Boolean
     fun searchProfiles(query: String): List<Profile>
-    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile>
+    fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile>
     fun hasProfiles(): Boolean
     fun setSelectedProfile(profile: Profile)
     fun getSelectedProfile(): Profile?

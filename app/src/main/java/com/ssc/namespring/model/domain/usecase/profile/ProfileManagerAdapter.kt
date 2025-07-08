@@ -30,16 +30,16 @@ internal class ProfileManagerAdapter(
     override fun searchProfiles(query: String): List<Profile> =
         implementation.searchProfiles(query)
 
-    override fun getSortedProfiles(sortType: ProfileManager.SortType): List<Profile> {
-        val implSortType = when (sortType) {
-            ProfileManager.SortType.NAME_ASC -> IProfileManager.SortType.NAME_ASC
-            ProfileManager.SortType.NAME_DESC -> IProfileManager.SortType.NAME_DESC
-            ProfileManager.SortType.SCORE_DESC -> IProfileManager.SortType.SCORE_DESC
-            ProfileManager.SortType.SCORE_ASC -> IProfileManager.SortType.SCORE_ASC
-            ProfileManager.SortType.DATE_DESC -> IProfileManager.SortType.DATE_DESC
-            ProfileManager.SortType.DATE_ASC -> IProfileManager.SortType.DATE_ASC
+    override fun getSortedProfiles(profileManagerSortType: ProfileManager.ProfileManagerSortType): List<Profile> {
+        val implProfileProfileManagerSortType = when (profileManagerSortType) {
+            ProfileManager.ProfileManagerSortType.NAME_ASC -> IProfileManager.ProfileSortType.NAME_ASC
+            ProfileManager.ProfileManagerSortType.NAME_DESC -> IProfileManager.ProfileSortType.NAME_DESC
+            ProfileManager.ProfileManagerSortType.SCORE_DESC -> IProfileManager.ProfileSortType.SCORE_DESC
+            ProfileManager.ProfileManagerSortType.SCORE_ASC -> IProfileManager.ProfileSortType.SCORE_ASC
+            ProfileManager.ProfileManagerSortType.DATE_DESC -> IProfileManager.ProfileSortType.DATE_DESC
+            ProfileManager.ProfileManagerSortType.DATE_ASC -> IProfileManager.ProfileSortType.DATE_ASC
         }
-        return implementation.getSortedProfiles(implSortType)
+        return implementation.getSortedProfiles(implProfileProfileManagerSortType)
     }
 
     override fun getAllProfiles(): List<Profile> =

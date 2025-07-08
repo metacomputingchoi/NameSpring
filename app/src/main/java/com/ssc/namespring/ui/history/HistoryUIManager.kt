@@ -27,7 +27,7 @@ class HistoryUIManager(
         onTabSelected: (HistoryFilterManager.TaskFilter) -> Unit,
         onChipChecked: () -> Unit,
         onSearchQueryChanged: (String) -> Unit,
-        onSortOrderChanged: (HistoryFilterManager.SortOrder) -> Unit,
+        onSortOrderChanged: (HistoryFilterManager.HistorySortOrder) -> Unit,
         onLoadAllClicked: () -> Unit
     ) {
         uiSetup.apply {

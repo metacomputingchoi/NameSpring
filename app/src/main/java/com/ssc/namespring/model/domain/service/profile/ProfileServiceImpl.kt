@@ -80,14 +80,14 @@ class ProfileServiceImpl : ProfileService {
         return searchService.search(profiles, query)
     }
 
-    fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> {
-        return when (sortType) {
-            IProfileManager.SortType.NAME_ASC -> profiles.sortedBy { it.profileName }
-            IProfileManager.SortType.NAME_DESC -> profiles.sortedByDescending { it.profileName }
-            IProfileManager.SortType.SCORE_DESC -> profiles.sortedByDescending { it.nameBomScore }
-            IProfileManager.SortType.SCORE_ASC -> profiles.sortedBy { it.nameBomScore }
-            IProfileManager.SortType.DATE_DESC -> profiles.sortedByDescending { it.createdAt }
-            IProfileManager.SortType.DATE_ASC -> profiles.sortedBy { it.createdAt }
+    fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile> {
+        return when (profileSortType) {
+            IProfileManager.ProfileSortType.NAME_ASC -> profiles.sortedBy { it.profileName }
+            IProfileManager.ProfileSortType.NAME_DESC -> profiles.sortedByDescending { it.profileName }
+            IProfileManager.ProfileSortType.SCORE_DESC -> profiles.sortedByDescending { it.nameBomScore }
+            IProfileManager.ProfileSortType.SCORE_ASC -> profiles.sortedBy { it.nameBomScore }
+            IProfileManager.ProfileSortType.DATE_DESC -> profiles.sortedByDescending { it.createdAt }
+            IProfileManager.ProfileSortType.DATE_ASC -> profiles.sortedBy { it.createdAt }
         }
     }
 

@@ -13,7 +13,7 @@ import com.ssc.namespring.ui.history.managers.NameSortManager
 class NameListDialogViewManager(
     private val rootView: View,
     private val onSearchQueryChanged: (String) -> Unit,
-    private val onSortOrderChanged: (NameSortManager.SortOrder) -> Unit,
+    private val onSortOrderChanged: (NameSortManager.NameSortOrder) -> Unit,
     private val onTaskInfoClicked: () -> Unit,
     private val onCloseClicked: () -> Unit
 ) {

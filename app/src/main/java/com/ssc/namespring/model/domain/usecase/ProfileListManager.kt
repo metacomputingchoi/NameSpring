@@ -37,8 +37,8 @@ class ProfileListManager {
         loadProfiles()
     }
 
-    fun setSortType(sortType: ProfileManager.SortType) {
-        sortSearchManager.updateSortType(sortType)
+    fun setSortType(profileManagerSortType: ProfileManager.ProfileManagerSortType) {
+        sortSearchManager.updateSortType(profileManagerSortType)
         loadingManager.resetPagination()
         loadProfiles()
     }

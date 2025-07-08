@@ -43,8 +43,8 @@ class NameListDialogDataManager(
         viewModel.updateSearchQuery(query)
     }
 
-    fun updateSortOrder(sortOrder: NameSortManager.SortOrder) {
-        viewModel.updateSortOrder(sortOrder)
+    fun updateSortOrder(nameSortOrder: NameSortManager.NameSortOrder) {
+        viewModel.updateSortOrder(nameSortOrder)
     }
 
     fun updateBirthInfo(task: Task) {

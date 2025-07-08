@@ -56,7 +56,7 @@ object ViewUtils {
     fun setupSortChips(
         chipGroup: ChipGroup,
         inflater: LayoutInflater,
-        onSortChanged: (ProfileManager.SortType) -> Unit
+        onSortChanged: (ProfileManager.ProfileManagerSortType) -> Unit
     ) = SortingUtils.setupSortChips(chipGroup, inflater, onSortChanged)
 
     fun updateLayoutManager(

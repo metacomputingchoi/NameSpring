@@ -16,7 +16,7 @@ class ProfileFormValidationHelper {
         private const val MAX_NAME_LENGTH = 4
     }
 
-    data class ValidationResult(
+    data class ProfileValidationResult(
         val isValid: Boolean,
         val message: String? = null
     )
@@ -24,45 +24,45 @@ class ProfileFormValidationHelper {
     fun validateForNaming(
         surname: SurnameInfo?,
         nameCharCount: Int
-    ): ValidationResult {
+    ): ProfileValidationResult {
 
         if (!isValidSurname(surname)) {
             val message = "작명 모드: 성씨 정보가 불완전합니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
         if (nameCharCount !in MIN_NAME_LENGTH..MAX_NAME_LENGTH) {
             val message = "작명 모드: 이름은 1~4글자여야 합니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
-        return ValidationResult(true)
+        return ProfileValidationResult(true)
     }
 
     fun validateForEvaluation(
         surname: SurnameInfo?,
         givenNameInfo: GivenNameInfo?
-    ): ValidationResult {
+    ): ProfileValidationResult {
 
         if (!isValidSurname(surname)) {
             val message = "평가 모드: 성씨 정보가 불완전합니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
         if (givenNameInfo == null || givenNameInfo.charInfos.isEmpty()) {
             val message = "평가 모드: 이름 정보가 없습니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
         val nameCharCount = givenNameInfo.charInfos.size
         if (nameCharCount !in MIN_NAME_LENGTH..MAX_NAME_LENGTH) {
             val message = "평가 모드: 이름은 1~4글자여야 합니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
         val allFilled = givenNameInfo.charInfos.all { charInfo ->
@@ -72,10 +72,10 @@ class ProfileFormValidationHelper {
         if (!allFilled) {
             val message = "평가 모드: 모든 이름의 한글과 한자가 입력되어야 합니다"
             Log.w(TAG, message)
-            return ValidationResult(false, message)
+            return ProfileValidationResult(false, message)
         }
 
-        return ValidationResult(true)
+        return ProfileValidationResult(true)
     }
 
     private fun isValidSurname(surname: SurnameInfo?): Boolean {

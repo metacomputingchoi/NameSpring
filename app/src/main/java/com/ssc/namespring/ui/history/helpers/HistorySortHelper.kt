@@ -12,7 +12,7 @@ object HistorySortHelper {
     fun setupSortSpinner(
         context: Context, 
         spinner: Spinner, 
-        onSortChanged: (HistoryFilterManager.SortOrder) -> Unit
+        onSortChanged: (HistoryFilterManager.HistorySortOrder) -> Unit
     ) {
         val sortOptions = arrayOf(
             "최신순", "오래된순",
@@ -23,8 +23,8 @@ object HistorySortHelper {
         spinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, sortOptions)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val sortOrder = HistoryFilterManager.SortOrder.values()[position]
-                onSortChanged(sortOrder)
+                val historySortOrder = HistoryFilterManager.HistorySortOrder.values()[position]
+                onSortChanged(historySortOrder)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}

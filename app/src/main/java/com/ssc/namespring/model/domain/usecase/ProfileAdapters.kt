@@ -40,8 +40,8 @@ internal class ProfileServiceAdapter(
     override fun getCurrentProfile(): Profile? = service.getCurrentProfile()
     override fun switchProfile(id: String): Boolean = service.switchProfile(id)
     override fun searchProfiles(query: String): List<Profile> = service.searchProfiles(query)
-    override fun getSortedProfiles(sortType: IProfileManager.SortType): List<Profile> =
-        service.getSortedProfiles(sortType)
+    override fun getSortedProfiles(profileSortType: IProfileManager.ProfileSortType): List<Profile> =
+        service.getSortedProfiles(profileSortType)
     override fun hasProfiles(): Boolean = service.hasProfiles()
     override fun setSelectedProfile(profile: Profile) = service.setSelectedProfile(profile)
     override fun getSelectedProfile(): Profile? = service.getSelectedProfile()

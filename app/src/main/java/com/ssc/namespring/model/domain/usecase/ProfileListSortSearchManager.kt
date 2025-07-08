@@ -2,13 +2,13 @@
 package com.ssc.namespring.model.domain.usecase
 
 class ProfileListSortSearchManager {
-    var currentSortType = ProfileManager.SortType.DATE_DESC
+    var currentProfileManagerSortType = ProfileManager.ProfileManagerSortType.DATE_DESC
         private set
     var currentQuery = ""
         private set
 
-    fun updateSortType(sortType: ProfileManager.SortType) {
-        currentSortType = sortType
+    fun updateSortType(profileManagerSortType: ProfileManager.ProfileManagerSortType) {
+        currentProfileManagerSortType = profileManagerSortType
     }
 
     fun updateSearchQuery(query: String) {

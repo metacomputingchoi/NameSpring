@@ -10,12 +10,12 @@ class HistoryFilterManager {
         ALL, COMPLETED, ACTIVE_QUEUE, CANCELLED, FAILED
     }
 
-    enum class SortOrder {
+    enum class HistorySortOrder {
         DATE_DESC, DATE_ASC, NAME_ASC, NAME_DESC, TYPE, STATUS
     }
 
     var currentFilter: TaskFilter = TaskFilter.ALL
-    var currentSortOrder: SortOrder = SortOrder.DATE_DESC
+    var currentHistorySortOrder: HistorySortOrder = HistorySortOrder.DATE_DESC
     var currentSearchQuery: String = ""
     var selectedTypes: Set<String> = emptySet()
 
@@ -70,13 +70,13 @@ class HistoryFilterManager {
     }
 
     private fun sortByOrder(tasks: List<Task>): List<Task> {
-        return when (currentSortOrder) {
-            SortOrder.DATE_DESC -> tasks.sortedByDescending { it.createdAt }
-            SortOrder.DATE_ASC -> tasks.sortedBy { it.createdAt }
-            SortOrder.NAME_ASC -> tasks.sortedBy { getTaskDisplayName(it) }
-            SortOrder.NAME_DESC -> tasks.sortedByDescending { getTaskDisplayName(it) }
-            SortOrder.TYPE -> tasks.sortedBy { it.type.name }
-            SortOrder.STATUS -> tasks.sortedBy { it.status.name }
+        return when (currentHistorySortOrder) {
+            HistorySortOrder.DATE_DESC -> tasks.sortedByDescending { it.createdAt }
+            HistorySortOrder.DATE_ASC -> tasks.sortedBy { it.createdAt }
+            HistorySortOrder.NAME_ASC -> tasks.sortedBy { getTaskDisplayName(it) }
+            HistorySortOrder.NAME_DESC -> tasks.sortedByDescending { getTaskDisplayName(it) }
+            HistorySortOrder.TYPE -> tasks.sortedBy { it.type.name }
+            HistorySortOrder.STATUS -> tasks.sortedBy { it.status.name }
         }
     }
 
