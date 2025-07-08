@@ -2,137 +2,81 @@
 package com.ssc.namespring.model.domain.service.theme
 
 import android.content.Context
-import android.graphics.Color
-import androidx.core.content.ContextCompat
-import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.Theme
 import com.ssc.namespring.model.domain.entity.SproutState
 import com.ssc.namespring.model.domain.entity.WeatherType
+import com.ssc.namespring.model.domain.service.theme.providers.*
 
+/**
+ * 기존 ThemeService의 모든 public 메서드를 유지하여 외부 호환성 보장
+ * 내부적으로는 각 책임을 전문 Provider들에게 위임
+ */
 class ThemeService(private val context: Context) {
 
+    // Provider 인스턴스들 (lazy 초기화로 성능 최적화)
+    private val colorProvider by lazy { ThemeColorProvider(context) }
+    private val sproutProvider by lazy { SproutStateProvider() }
+    private val weatherProvider by lazy { WeatherEffectProvider() }
+    private val messageProvider by lazy { ThemeMessageProvider() }
+    private val transitionManager by lazy { ThemeTransitionManager() }
+
+    // 기존 public API 유지
     fun getThemeByScore(score: Int): Theme {
         return Theme.getAll().find { score in it.scoreRange } ?: Theme.COLD_SPRING
     }
 
-    fun getThemeTransitionDuration(): Long = 600L
+    fun getThemeTransitionDuration(): Long = transitionManager.getThemeTransitionDuration()
 
-    fun getSproutAnimationDuration(): Long = 1000L
+    fun getSproutAnimationDuration(): Long = transitionManager.getSproutAnimationDuration()
 
     fun getThemeColors(theme: Theme): ThemeColors {
-        val textColor = when (theme.weatherType) {
-            WeatherType.SUNNY, WeatherType.WARM -> Color.BLACK
-            else -> Color.WHITE
-        }
-
-        val secondaryTextColor = when (theme.weatherType) {
-            WeatherType.SUNNY, WeatherType.WARM -> Color.DKGRAY
-            else -> Color.LTGRAY
-        }
-
-        val accentColor = when (theme.sproutState) {
-            SproutState.BLOOMING -> ContextCompat.getColor(context, R.color.flower_pink)
-            SproutState.GROWING -> ContextCompat.getColor(context, R.color.leaf_green)
-            SproutState.SPROUTING -> ContextCompat.getColor(context, R.color.sprout_green)
-            SproutState.SEED -> ContextCompat.getColor(context, R.color.seed_brown)
-            SproutState.DORMANT -> ContextCompat.getColor(context, R.color.dormant_gray)
-        }
-
+        val colors = colorProvider.getThemeColors(theme)
         return ThemeColors(
-            primary = ContextCompat.getColor(context, theme.primaryColor),
-            background = ContextCompat.getColor(context, theme.backgroundColor),
-            textPrimary = textColor,
-            textSecondary = secondaryTextColor,
-            accent = accentColor
+            primary = colors.primary,
+            background = colors.background,
+            textPrimary = colors.textPrimary,
+            textSecondary = colors.textSecondary,
+            accent = colors.accent
         )
     }
 
     fun shouldChangeTheme(oldScore: Int, newScore: Int): Boolean {
-        val oldTheme = getThemeByScore(oldScore)
-        val newTheme = getThemeByScore(newScore)
-        return oldTheme != newTheme
+        return transitionManager.shouldChangeTheme(oldScore, newScore)
     }
 
     fun getSproutIconText(state: SproutState): String {
-        return when (state) {
-            SproutState.DORMANT -> "🌰"
-            SproutState.SEED -> "🌱"
-            SproutState.SPROUTING -> "🌿"
-            SproutState.GROWING -> "🌳"
-            SproutState.BLOOMING -> "🌸"
-        }
+        return sproutProvider.getSproutIconText(state)
     }
 
     fun getSproutIconResource(state: SproutState): Int {
-        return when (state) {
-            SproutState.DORMANT -> R.drawable.ic_dormant_seed
-            SproutState.SEED -> R.drawable.ic_seed
-            SproutState.SPROUTING -> R.drawable.ic_sprout
-            SproutState.GROWING -> R.drawable.ic_sprout_bloom
-            SproutState.BLOOMING -> R.drawable.ic_flower_full
-        }
+        return sproutProvider.getSproutIconResource(state)
     }
 
     fun getSproutIconColor(state: SproutState): Int {
-        return when (state) {
-            SproutState.DORMANT -> R.color.dormant_gray
-            SproutState.SEED -> R.color.seed_brown
-            SproutState.SPROUTING -> R.color.sprout_green
-            SproutState.GROWING -> R.color.leaf_green
-            SproutState.BLOOMING -> R.color.flower_pink
-        }
+        return sproutProvider.getSproutIconColor(state)
     }
 
     fun getWeatherEffectText(weatherType: WeatherType): String? {
-        return when (weatherType) {
-            WeatherType.SUNNY -> null
-            WeatherType.WARM -> "✨"
-            WeatherType.CLOUDY -> "☁️"
-            WeatherType.RAINY -> "🌧️"
-            WeatherType.COLD -> "❄️"
-        }
+        return weatherProvider.getWeatherEffectText(weatherType)
     }
 
     fun getWeatherEffectDescription(weatherType: WeatherType): String {
-        return when (weatherType) {
-            WeatherType.SUNNY -> "맑은 하늘"
-            WeatherType.WARM -> "따뜻한 햇살이 비춥니다"
-            WeatherType.CLOUDY -> "구름이 끼어있습니다"
-            WeatherType.RAINY -> "봄비가 내립니다"
-            WeatherType.COLD -> "꽃샘추위가 있습니다"
-        }
+        return weatherProvider.getWeatherEffectDescription(weatherType)
     }
 
     fun getThemeMessage(theme: Theme, score: Int): String {
-        return when (theme) {
-            Theme.SUNNY_SPRING -> "🌸 화창한 봄날처럼 완벽한 이름입니다! (${score}점)"
-            Theme.WARM_SPRING -> "🌷 따뜻한 봄햇살 같은 좋은 이름입니다. (${score}점)"
-            Theme.CLOUDY_SPRING -> "🌫️ 구름 낀 봄날, 조금 더 개선할 수 있어요. (${score}점)"
-            Theme.RAINY_SPRING -> "🌧️ 봄비가 내리네요. 다른 이름도 고려해보세요. (${score}점)"
-            Theme.COLD_SPRING -> "❄️ 꽃샘추위가 심하네요. 새로운 이름을 찾아보세요. (${score}점)"
-            else -> "이름봄 점수: ${score}점"
-        }
+        return messageProvider.getThemeMessage(theme, score)
     }
 
     fun getSproutStateDescription(state: SproutState): String {
-        return when (state) {
-            SproutState.DORMANT -> "씨앗이 땅속에서 잠들어 있어요"
-            SproutState.SEED -> "씨앗이 심어졌어요"
-            SproutState.SPROUTING -> "새싹이 돋아나고 있어요"
-            SproutState.GROWING -> "무럭무럭 자라고 있어요"
-            SproutState.BLOOMING -> "아름다운 꽃이 피었어요"
-        }
+        return sproutProvider.getSproutStateDescription(state)
     }
 
     fun getThemeGradientColors(theme: Theme): Pair<Int, Int> {
-        val startColor = ContextCompat.getColor(context, theme.backgroundColor)
-        val endColor = theme.backgroundGradientEndColor?.let {
-            ContextCompat.getColor(context, it)
-        } ?: startColor
-
-        return startColor to endColor
+        return colorProvider.getThemeGradientColors(theme)
     }
 
+    // 기존 내부 data class 유지 (외부 호환성)
     data class ThemeColors(
         val primary: Int,
         val background: Int,
