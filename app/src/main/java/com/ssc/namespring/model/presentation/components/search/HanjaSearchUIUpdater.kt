@@ -13,7 +13,7 @@ import com.ssc.namespring.model.presentation.components.SearchDialogManager.Sear
 internal class HanjaSearchUIUpdater(
     private val dialogView: View,
     private val hasKoreanConstraint: Boolean,
-    private var baseResults: List<HanjaSearchResult>
+    internal var baseResults: List<HanjaSearchResult>
 ) {
 
     private val tvResultCount = dialogView.findViewById<TextView>(R.id.tvResultCount)
