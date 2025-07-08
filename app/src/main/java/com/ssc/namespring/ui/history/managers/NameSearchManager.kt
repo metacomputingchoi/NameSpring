@@ -1,5 +1,5 @@
-// ui/history/manager/NameSearchManager.kt
-package com.ssc.namespring.ui.history.manager
+// ui/history/managers/NameSearchManager.kt
+package com.ssc.namespring.ui.history.managers
 
 import com.ssc.namespring.ui.history.components.namelist.NameListSearchHelper
 import com.ssc.namingengine.data.GeneratedName

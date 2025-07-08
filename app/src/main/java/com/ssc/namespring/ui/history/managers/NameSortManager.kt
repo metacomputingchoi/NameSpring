@@ -1,5 +1,5 @@
-// ui/history/manager/NameSortManager.kt
-package com.ssc.namespring.ui.history.manager
+// ui/history/managers/NameSortManager.kt
+package com.ssc.namespring.ui.history.managers
 
 import com.ssc.namingengine.data.GeneratedName
 import java.text.Collator

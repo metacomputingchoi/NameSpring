@@ -8,7 +8,7 @@ import com.google.android.material.button.MaterialButton
 import com.ssc.namespring.R
 import com.ssc.namespring.model.domain.entity.Task
 import com.ssc.namespring.model.domain.entity.TaskType
-import com.ssc.namespring.ui.history.manager.NameSortManager
+import com.ssc.namespring.ui.history.managers.NameSortManager
 
 class NameListViewBinder(private val view: View) {
 

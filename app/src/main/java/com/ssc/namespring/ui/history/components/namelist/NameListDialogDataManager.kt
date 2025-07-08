@@ -5,8 +5,8 @@ import com.ssc.namespring.model.data.repository.FavoriteNameRepository
 import com.ssc.namespring.model.data.repository.TaskRepository
 import com.ssc.namespring.model.domain.entity.Task
 import com.ssc.namespring.ui.history.data.NameListDataLoader
-import com.ssc.namespring.ui.history.manager.NameSearchManager
-import com.ssc.namespring.ui.history.manager.NameSortManager
+import com.ssc.namespring.ui.history.managers.NameSearchManager
+import com.ssc.namespring.ui.history.managers.NameSortManager
 import com.ssc.namespring.ui.history.viewmodel.NameListViewModel
 import com.ssc.namingengine.data.GeneratedName
 import java.text.SimpleDateFormat

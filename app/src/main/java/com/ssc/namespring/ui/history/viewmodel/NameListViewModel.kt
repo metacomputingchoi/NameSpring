@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.ssc.namespring.model.domain.entity.Task
 import com.ssc.namespring.model.data.repository.TaskRepository
 import com.ssc.namespring.ui.history.data.NameListDataLoader
-import com.ssc.namespring.ui.history.manager.NameSearchManager
-import com.ssc.namespring.ui.history.manager.NameSortManager
+import com.ssc.namespring.ui.history.managers.NameSearchManager
+import com.ssc.namespring.ui.history.managers.NameSortManager
 import com.ssc.namingengine.data.GeneratedName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

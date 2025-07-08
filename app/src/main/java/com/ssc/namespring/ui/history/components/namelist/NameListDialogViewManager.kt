@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ssc.namespring.model.domain.entity.Task
 import com.ssc.namespring.ui.history.view.NameListViewBinder
-import com.ssc.namespring.ui.history.manager.NameSortManager
+import com.ssc.namespring.ui.history.managers.NameSortManager
 
 class NameListDialogViewManager(
     private val rootView: View,

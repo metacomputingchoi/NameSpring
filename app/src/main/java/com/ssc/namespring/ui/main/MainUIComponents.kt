@@ -6,91 +6,39 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.ssc.namespring.R
 
 class MainUIComponents(activity: Activity) {
-    val rootLayout: ConstraintLayout = activity.findViewById(R.id.rootLayout)
-    val tvProfileLabel: TextView = activity.findViewById(R.id.tvProfileLabel)
-    val tvScore: TextView = activity.findViewById(R.id.tvScore)
-    val tvScoreIcon: TextView = activity.findViewById(R.id.tvScoreIcon)
-    val scoreContainer: LinearLayout = activity.findViewById(R.id.scoreContainer)
-    val tvName: TextView = activity.findViewById(R.id.tvName)
-    val tvBirthInfo: TextView = activity.findViewById(R.id.tvBirthInfo)
-    val tvOhaengInfo: TextView = activity.findViewById(R.id.tvOhaengInfo)
+    private val viewRefs = MainViewReferences(activity)
+    private val buttonFinder = MainButtonViewFinder()
 
-    val ohaengContainers: List<LinearLayout> = listOf(
-        activity.findViewById(R.id.containerWood),
-        activity.findViewById(R.id.containerFire),
-        activity.findViewById(R.id.containerEarth),
-        activity.findViewById(R.id.containerMetal),
-        activity.findViewById(R.id.containerWater)
-    )
+    // View References 위임
+    val rootLayout: ConstraintLayout get() = viewRefs.rootLayout
+    val tvProfileLabel: TextView get() = viewRefs.tvProfileLabel
+    val tvScore: TextView get() = viewRefs.tvScore
+    val tvScoreIcon: TextView get() = viewRefs.tvScoreIcon
+    val scoreContainer: LinearLayout get() = viewRefs.scoreContainer
+    val tvName: TextView get() = viewRefs.tvName
+    val tvBirthInfo: TextView get() = viewRefs.tvBirthInfo
+    val tvOhaengInfo: TextView get() = viewRefs.tvOhaengInfo
+    val ohaengContainers: List<LinearLayout> get() = viewRefs.ohaengContainers
+    val ohaengCounts: List<TextView> get() = viewRefs.ohaengCounts
+    val btnNaming: CardView get() = viewRefs.btnNaming
+    val btnEvaluation: CardView get() = viewRefs.btnEvaluation
+    val btnCompare: CardView get() = viewRefs.btnCompare
+    val btnHistory: CardView get() = viewRefs.btnHistory
+    val serviceButtons: List<CardView> get() = viewRefs.serviceButtons
 
-    val ohaengCounts: List<TextView> = listOf(
-        activity.findViewById(R.id.tvWoodCount),
-        activity.findViewById(R.id.tvFireCount),
-        activity.findViewById(R.id.tvEarthCount),
-        activity.findViewById(R.id.tvMetalCount),
-        activity.findViewById(R.id.tvWaterCount)
-    )
+    // 버튼 내부 TextView들
+    val tvNamingText: TextView = buttonFinder.findTextView(btnNaming, "작명")
+    val tvEvaluationText: TextView = buttonFinder.findTextView(btnEvaluation, "평가")
+    val tvCompareText: TextView = buttonFinder.findTextView(btnCompare, "비교")
+    val tvHistoryText: TextView = buttonFinder.findTextView(btnHistory, "기록")
 
-    val btnNaming: CardView = activity.findViewById(R.id.btnNaming)
-    val btnEvaluation: CardView = activity.findViewById(R.id.btnEvaluation)
-    val btnCompare: CardView = activity.findViewById(R.id.btnCompare)
-    val btnHistory: CardView = activity.findViewById(R.id.btnHistory)
+    val tvNamingIcon: TextView = buttonFinder.findIconView(btnNaming)
+    val tvEvaluationIcon: TextView = buttonFinder.findIconView(btnEvaluation)
+    val tvCompareIcon: TextView = buttonFinder.findIconView(btnCompare)
+    val tvHistoryIcon: TextView = buttonFinder.findIconView(btnHistory)
 
-    val serviceButtons: List<CardView> = listOf(btnNaming, btnEvaluation, btnCompare, btnHistory)
-
-    // 버튼 내부의 텍스트 TextView들을 찾기
-    val tvNamingText: TextView = findButtonTextView(btnNaming, "작명")
-    val tvEvaluationText: TextView = findButtonTextView(btnEvaluation, "평가")
-    val tvCompareText: TextView = findButtonTextView(btnCompare, "비교")
-    val tvHistoryText: TextView = findButtonTextView(btnHistory, "기록")
-
-    // 버튼 내부의 아이콘 TextView들을 찾기 (선택사항)
-    val tvNamingIcon: TextView = findButtonIconView(btnNaming)
-    val tvEvaluationIcon: TextView = findButtonIconView(btnEvaluation)
-    val tvCompareIcon: TextView = findButtonIconView(btnCompare)
-    val tvHistoryIcon: TextView = findButtonIconView(btnHistory)
-
-    /**
-     * CardView 내부에서 텍스트를 표시하는 TextView를 찾는다
-     * CardView > LinearLayout > 두 번째 TextView (텍스트)
-     */
-    private fun findButtonTextView(cardView: CardView, defaultText: String): TextView {
-        val linearLayout = cardView.getChildAt(0) as? LinearLayout
-            ?: throw IllegalStateException("CardView must contain LinearLayout")
-
-        // LinearLayout의 두 번째 자식이 텍스트 TextView
-        val textView = linearLayout.getChildAt(1) as? TextView
-            ?: throw IllegalStateException("LinearLayout must contain TextView at index 1")
-
-        // 기본 텍스트 확인 (옵션)
-        if (textView.text.toString() != defaultText) {
-            // 로그 또는 경고 (필요시)
-        }
-
-        return textView
-    }
-
-    /**
-     * CardView 내부에서 아이콘을 표시하는 TextView를 찾는다
-     * CardView > LinearLayout > 첫 번째 TextView (아이콘)
-     */
-    private fun findButtonIconView(cardView: CardView): TextView {
-        val linearLayout = cardView.getChildAt(0) as? LinearLayout
-            ?: throw IllegalStateException("CardView must contain LinearLayout")
-
-        // LinearLayout의 첫 번째 자식이 아이콘 TextView
-        val iconView = linearLayout.getChildAt(0) as? TextView
-            ?: throw IllegalStateException("LinearLayout must contain TextView at index 0")
-
-        return iconView
-    }
-
-    /**
-     * 특정 버튼의 텍스트를 업데이트한다
-     */
     fun updateButtonText(buttonType: ButtonType, text: String) {
         when (buttonType) {
             ButtonType.NAMING -> tvNamingText.text = text
@@ -100,9 +48,6 @@ class MainUIComponents(activity: Activity) {
         }
     }
 
-    /**
-     * 특정 버튼의 아이콘을 업데이트한다
-     */
     fun updateButtonIcon(buttonType: ButtonType, emoji: String) {
         when (buttonType) {
             ButtonType.NAMING -> tvNamingIcon.text = emoji
@@ -112,9 +57,6 @@ class MainUIComponents(activity: Activity) {
         }
     }
 
-    /**
-     * 모든 버튼 텍스트를 기본값으로 재설정한다
-     */
     fun resetAllButtonTexts() {
         tvNamingText.text = "작명"
         tvEvaluationText.text = "평가"
