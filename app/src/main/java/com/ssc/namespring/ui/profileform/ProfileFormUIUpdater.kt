@@ -14,7 +14,17 @@ class ProfileFormUIUpdater(
     private val config: ProfileFormConfig,
     private val formManager: ProfileFormManager
 ) {
+    private var lastUpdateTime = 0L
+    private val UPDATE_DEBOUNCE_MS = 100L // 100ms 디바운싱
+
     fun updateUI(state: ProfileFormUiState) {
+        // 디바운싱: 너무 빈번한 업데이트 방지
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastUpdateTime < UPDATE_DEBOUNCE_MS) {
+            return
+        }
+        lastUpdateTime = currentTime
+
         updateProfileName(state)
         updateBirthInfo(state)
         updateSurnameInfo(state)
@@ -29,7 +39,7 @@ class ProfileFormUIUpdater(
             forceRecreate
         )
 
-        // 프로필 로드 플래그 리셋
+        // 프로필 로드 플래그 리셋 - 한 번만 forceRecreate가 true가 되도록
         if (forceRecreate) {
             formManager.resetProfileLoadedFlag()
         }

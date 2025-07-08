@@ -19,6 +19,10 @@ class NameDataService(
     }
 
     private var nameComposition = NameComposition()
+    private val profileLoader = NameDataProfileLoader(stateManager, nameDataService)
+    private val characterManager = NameDataCharacterManager(stateManager, updateService)
+    private val dataProvider = NameDataProvider(stateManager)
+    private val givenNameInfoFactory = GivenNameInfoFactory()
 
     fun initialize() {
         Log.d(TAG, "initialize()")
@@ -28,23 +32,9 @@ class NameDataService(
 
     fun loadFromProfile(profile: Profile) {
         Log.d(TAG, "loadFromProfile: profile=${profile.profileName}")
-
         nameComposition = NameComposition.fromGivenNameInfo(profile.givenName)
         stateManager.reset()
-
-        // 프로필에서 한자 정보 복원
-        profile.givenName?.charInfos?.forEachIndexed { index, charInfo ->
-            if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
-                // 현재 상태 저장
-                stateManager.updateCurrentState(index, charInfo.korean, charInfo.hanja)
-
-                // CharTripleInfo 복원 시도
-                nameDataService.getCharInfo(charInfo.korean, charInfo.hanja)?.let { info ->
-                    stateManager.addHanjaInfo(index, info)
-                    Log.d(TAG, "Loaded hanja info for position $index: ${charInfo.korean}/${charInfo.hanja}")
-                }
-            }
-        }
+        profileLoader.loadCharInfoFromProfile(profile, nameComposition)
     }
 
     fun canAddChar(): Boolean = nameComposition.canAddCharacter()
@@ -64,78 +54,33 @@ class NameDataService(
     }
 
     fun setCharData(position: Int, korean: String, hanja: String) {
-        nameComposition = updateService.updateCharacterData(
-            nameComposition,
-            position,
-            korean,
-            hanja
+        Log.d(TAG, "setCharData at $position: korean='$korean', hanja='$hanja'")
+        nameComposition = characterManager.updateCharacterData(
+            nameComposition, position, korean, hanja
         )
-        stateManager.updateComposition(nameComposition)
     }
 
     fun setHanjaInfo(position: Int, info: CharTripleInfo) {
-        nameComposition = updateService.updateCharacterWithHanjaInfo(
-            nameComposition,
-            position,
-            info
+        nameComposition = characterManager.updateCharacterWithHanjaInfo(
+            nameComposition, position, info
         )
-        stateManager.updateComposition(nameComposition)
     }
 
     fun removeHanjaInfo(position: Int) {
-        Log.d(TAG, "removeHanjaInfo: position=$position")
-        stateManager.removeHanjaInfo(position)
-        nameComposition = nameComposition.updateCharacter(position) { character ->
-            character.clearHanja()
-        }
+        nameComposition = characterManager.removeHanjaInfo(nameComposition, position)
     }
 
-    fun getCharDataList(): List<NameCharData> {
-        return (0 until nameComposition.visibleCount).map { index ->
-            val character = nameComposition.getCharacter(index)
-            NameCharData(
-                korean = character?.korean ?: "",
-                hanja = character?.hanja ?: ""
-            )
-        }
-    }
+    fun getCharDataList(): List<NameCharData> =
+        dataProvider.getCharDataList(nameComposition)
 
-    fun getCharData(position: Int): NameCharData? {
-        return nameComposition.getCharacter(position)?.let { character ->
-            NameCharData(
-                korean = character.korean,
-                hanja = character.hanja
-            )
-        }
-    }
+    fun getCharData(position: Int): NameCharData? =
+        dataProvider.getCharData(nameComposition, position)
 
-    fun getHanjaInfo(position: Int): CharTripleInfo? = stateManager.getHanjaInfo(position)
+    fun getHanjaInfo(position: Int): CharTripleInfo? =
+        stateManager.getHanjaInfo(position)
 
-    fun createGivenNameInfo(): GivenNameInfo? {
-        Log.d(TAG, "createGivenNameInfo called")
-
-        // 현재 상태 확인
-        Log.d(TAG, "Current state:")
-        val state = stateManager.getState()
-        state.currentStateMap.forEach { (pos, stateData) ->
-            Log.d(TAG, "  Position $pos: korean='${stateData.first}', hanja='${stateData.second}'")
-        }
-
-        val givenNameInfo = nameComposition.toGivenNameInfo()
-
-        if (givenNameInfo != null) {
-            Log.d(TAG, "Created GivenNameInfo: korean='${givenNameInfo.korean}', hanja='${givenNameInfo.hanja}'")
-            givenNameInfo.charInfos.forEachIndexed { index, charInfo ->
-                Log.d(TAG, "  CharInfo[$index]: korean='${charInfo.korean}', hanja='${charInfo.hanja}', " +
-                        "meaning='${charInfo.meaning}', strokes=${charInfo.strokes}, " +
-                        "ohaeng='${charInfo.ohaeng}', eumyang=${charInfo.eumyang}")
-            }
-        } else {
-            Log.d(TAG, "GivenNameInfo is null")
-        }
-
-        return givenNameInfo
-    }
+    fun createGivenNameInfo(): GivenNameInfo? =
+        givenNameInfoFactory.create(nameComposition, stateManager, ::getCharDataList)
 
     fun reset() {
         Log.d(TAG, "reset()")

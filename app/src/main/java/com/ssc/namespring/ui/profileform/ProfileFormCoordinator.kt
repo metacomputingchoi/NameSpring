@@ -26,6 +26,27 @@ class ProfileFormCoordinator(
         }
     }
 
+    suspend fun loadProfileForEdit(
+        profileId: String,
+        formManager: com.ssc.namespring.model.domain.usecase.ProfileFormManager,
+        uiComponents: ProfileFormUIComponents
+    ) {
+        profileManager.getProfile(profileId)?.let { profile ->
+            // 프로필 이름 설정 - profileName 사용
+            uiComponents.etProfileName.setText(profile.profileName)
+
+            // 프로필 데이터 로드
+            formManager.loadFromParentProfile(profile)
+
+            // UI 업데이트 강제 실행
+            delay(100)
+            formManager.forceUpdateUiState()
+        } ?: run {
+            Toast.makeText(activity, "프로필을 불러올 수 없습니다", Toast.LENGTH_SHORT).show()
+            activity.finish()
+        }
+    }
+
     fun loadParentProfileData(
         parentProfileId: String?,
         formManager: com.ssc.namespring.model.domain.usecase.ProfileFormManager,

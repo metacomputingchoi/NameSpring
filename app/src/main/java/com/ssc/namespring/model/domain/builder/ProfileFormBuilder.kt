@@ -57,7 +57,13 @@ class ProfileFormBuilder(
         uiState: ProfileFormUiState,
         calendar: Calendar,
         isYajaTime: Boolean
-    ): NamingEngineInput {
+    ): NamingEngineInput? {
+
+        // 최소한의 유효성 검사만 수행
+        if (surname.korean.isEmpty()) {
+            Log.w(TAG, "No surname Korean for naming")
+            return null
+        }
 
         var userInput = "[${surname.korean}/${surname.hanja}]"
 
@@ -68,6 +74,7 @@ class ProfileFormBuilder(
         uiState.nameCharDataList.forEachIndexed { index, charData ->
             Log.d(TAG, "UI CharData[$index]: korean='${charData.korean}', hanja='${charData.hanja}'")
 
+            // 빈 값도 허용
             val korean = if (charData.korean.isNotEmpty()) charData.korean else "_"
             val hanja = if (charData.hanja.isNotEmpty()) charData.hanja else "_"
             userInput += "[$korean/$hanja]"
@@ -87,7 +94,12 @@ class ProfileFormBuilder(
         givenNameInfo: GivenNameInfo?,
         calendar: Calendar,
         isYajaTime: Boolean
-    ): NamingEngineInput {
+    ): NamingEngineInput? {
+
+        if (givenNameInfo == null) {
+            Log.w(TAG, "No given name info for evaluation")
+            return null
+        }
 
         val userInput = buildUserInput(surname, givenNameInfo)
 
@@ -102,9 +114,14 @@ class ProfileFormBuilder(
         val surnameInput = "[${surname.korean}/${surname.hanja}]"
 
         val givenNameInput = givenNameInfo?.charInfos?.joinToString("") { charInfo ->
-            if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
-                "[${charInfo.korean}/${charInfo.hanja}]"
-            } else ""
+            // 한글만 있어도 처리
+            when {
+                charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty() ->
+                    "[${charInfo.korean}/${charInfo.hanja}]"
+                charInfo.korean.isNotEmpty() ->
+                    "[${charInfo.korean}/_]"  // 한자가 없으면 _ 사용
+                else -> ""
+            }
         } ?: ""
 
         return surnameInput + givenNameInput

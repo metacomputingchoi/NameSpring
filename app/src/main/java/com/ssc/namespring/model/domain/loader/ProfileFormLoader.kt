@@ -1,6 +1,7 @@
 // model/domain/loader/ProfileFormLoader.kt
 package com.ssc.namespring.model.domain.loader
 
+import android.util.Log
 import com.ssc.namespring.model.domain.entity.Profile
 import com.ssc.namespring.model.domain.service.interfaces.INameDataService
 import com.ssc.namespring.model.domain.usecase.NameDataManager
@@ -16,6 +17,9 @@ class ProfileFormLoader(
     private val stateManager: ProfileFormStateManager,
     private val nameDataService: INameDataService
 ) {
+    companion object {
+        private const val TAG = "ProfileFormLoader"
+    }
 
     fun loadProfileData(profile: Profile) {
         stateManager.loadFromProfile(profile)
@@ -43,11 +47,15 @@ class ProfileFormLoader(
                 nameDataManager.addChar()
             }
 
-            // 모든 데이터 준비
+            // 모든 데이터 준비 - 빈 값도 허용
             givenName.charInfos.forEachIndexed { index, charInfo ->
-                if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
-                    updates.add {
-                        nameDataManager.setCharData(index, charInfo.korean, charInfo.hanja)
+                Log.d(TAG, "Loading char at $index: korean='${charInfo.korean}', hanja='${charInfo.hanja}'")
+                updates.add {
+                    // 빈 값이어도 로드
+                    nameDataManager.setCharData(index, charInfo.korean, charInfo.hanja)
+
+                    // 한글과 한자가 모두 있는 경우에만 charInfo 설정
+                    if (charInfo.korean.isNotEmpty() && charInfo.hanja.isNotEmpty()) {
                         nameDataService.getCharInfo(charInfo.korean, charInfo.hanja)?.let { info ->
                             nameDataManager.setHanjaInfo(index, info)
                         }

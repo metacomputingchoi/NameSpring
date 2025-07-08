@@ -1,6 +1,8 @@
 // model/domain/entity/NameComposition.kt
 package com.ssc.namespring.model.domain.entity
 
+import com.ssc.namespring.model.domain.service.name.NameCompositionValidationHelper
+
 data class NameComposition(
     val characters: List<NameCharacter> = listOf(NameCharacter(0)),
     val visibleCount: Int = 1
@@ -70,35 +72,31 @@ data class NameComposition(
     }
 
     fun toGivenNameInfo(): GivenNameInfo? {
-        val visibleChars = visibleCharacters
+        // 보이는 캐릭터만 사용 (빈 값도 포함)
+        val visibleChars = characters.take(visibleCount)
 
-        // 빈 리스트인 경우만 null 반환
-        if (visibleChars.isEmpty()) {
+        // 모든 문자가 비어있는 경우만 null 반환
+        if (visibleChars.all { it.korean.isEmpty() && it.hanja.isEmpty() }) {
             return null
         }
 
-        // 빈 문자도 포함하여 CharInfo 생성
-        val charInfos = visibleChars.map { nameChar ->
-            nameChar.charInfo ?: CharInfo(
-                korean = nameChar.korean,
-                hanja = nameChar.hanja,
-                meaning = null,
-                strokes = 0,
-                ohaeng = null,
-                eumyang = 0
+        // 빈 값도 포함하여 문자열 생성
+        val korean = visibleChars.joinToString("") { it.korean }
+        val hanja = visibleChars.joinToString("") { it.hanja }
+
+        // 모든 visible characters를 CharInfo로 변환 (빈 값도 포함)
+        val charInfos = visibleChars.map { character ->
+            CharInfo(
+                korean = character.korean,
+                hanja = character.hanja,
+                meaning = character.charInfo?.meaning,
+                strokes = character.charInfo?.strokes ?: 0,
+                ohaeng = character.charInfo?.ohaeng,
+                eumyang = character.charInfo?.eumyang ?: 0
             )
         }
 
-        // 한글 이름: 빈 문자는 빈 문자열로 처리
-        val koreanName = visibleChars.joinToString("") { it.korean }
-        // 한자 이름: 빈 문자는 빈 문자열로 처리
-        val hanjaName = visibleChars.joinToString("") { it.hanja }
-
-        return GivenNameInfo(
-            korean = koreanName,
-            hanja = hanjaName,
-            charInfos = charInfos
-        )
+        return GivenNameInfo(korean, hanja, charInfos)
     }
 
     fun reset(): NameComposition {

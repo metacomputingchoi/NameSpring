@@ -24,6 +24,7 @@ class ProfileFormNameInputHandler(
     }
 
     private var nameInputManager: NameInputManager? = null
+    private var isRefreshing = false // 중복 실행 방지 플래그
 
     fun refreshNameInputViews(
         container: LinearLayout,
@@ -32,17 +33,25 @@ class ProfileFormNameInputHandler(
     ) {
         Log.d(TAG, "refreshNameInputViews: charCount=${state.nameCharCount}, forceRecreate=$forceRecreate")
 
+        // 이미 갱신 중이면 스킵
+        if (isRefreshing) {
+            Log.d(TAG, "Already refreshing, skip")
+            return
+        }
+
+        isRefreshing = true
         container.removeAllViews()
 
         // 프로필 로드 시 완전 초기화
         if (forceRecreate) {
             cleanup()  // 모든 것을 정리
-            container.postDelayed({
-                recreateViews(container, state)
-            }, 100)  // 약간의 지연 후 재생성
+            // postDelayed 제거하고 바로 실행
+            recreateViews(container, state)
         } else {
             recreateViews(container, state)
         }
+
+        isRefreshing = false
     }
 
     private fun recreateViews(container: LinearLayout, state: ProfileFormUiState) {
@@ -71,10 +80,6 @@ class ProfileFormNameInputHandler(
     }
 
     private fun handleHanjaSearch(context: Context, position: Int) {
-        // 문제: formManager.getNameDataManager().getCharData(position)를 사용
-        // 이것은 x버튼으로 UI를 초기화해도 여전히 이전 값을 가지고 있음
-
-        // 해결: 현재 UI의 EditText에서 직접 값을 가져와야 함
         val dataFromManager = formManager.getNameDataManager().getCharData(position)
         Log.d(TAG, "Data from Manager - korean: '${dataFromManager?.korean}', hanja: '${dataFromManager?.hanja}'")
 
@@ -109,6 +114,6 @@ class ProfileFormNameInputHandler(
         Log.d(TAG, "cleanup()")
         nameInputManager?.cleanup()
         nameInputManager = null
-        // cleanup은 Activity가 destroy될 때만 호출되도록
+        isRefreshing = false
     }
 }
