@@ -4,6 +4,7 @@ package com.ssc.namespring.model.domain.service.workmanager.workers
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.ssc.namespring.model.domain.service.workmanager.BaseWorker
+import com.ssc.namespring.model.domain.service.workmanager.WorkResult
 
 class ComparisonWorker(
     context: Context,

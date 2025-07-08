@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.WorkerParameters
 import com.ssc.namespring.model.domain.service.workmanager.BaseWorker
+import com.ssc.namespring.model.domain.service.workmanager.WorkResult
 
 class EvaluationWorker(
     context: Context,

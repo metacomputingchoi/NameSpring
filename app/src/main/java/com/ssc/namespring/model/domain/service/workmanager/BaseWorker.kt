@@ -7,14 +7,15 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.ssc.namespring.model.domain.entity.TaskResult
 import com.ssc.namespring.model.domain.entity.TaskStatus
-import com.ssc.namespring.model.domain.entity.TaskType
 import com.ssc.namespring.model.data.repository.TaskRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Worker의 기본 구현을 제공하는 추상 클래스
+ */
 abstract class BaseWorker(
     context: Context,
     params: WorkerParameters
@@ -22,106 +23,100 @@ abstract class BaseWorker(
 
     protected val gson = Gson()
     protected val taskRepository = TaskRepository.getInstance(applicationContext)
+    private val dataHelper = WorkerDataHelper(inputData)
 
-    protected val taskId: String
-        get() = inputData.getString("task_id") ?: ""
-
-    protected val profileId: String
-        get() = inputData.getString("profile_id") ?: ""
-
-    protected val taskType: TaskType
-        get() = TaskType.valueOf(inputData.getString("task_type") ?: TaskType.EVALUATION.name)
-
-    protected fun getInputDataMap(): Map<String, Any> {
-        val jsonString = inputData.getString("input_data") ?: "{}"
-        val type = object : TypeToken<Map<String, Any>>() {}.type
-        return gson.fromJson(jsonString, type)
-    }
+    // 기존 속성들을 dataHelper로 위임
+    protected val taskId: String get() = dataHelper.taskId
+    protected val profileId: String get() = dataHelper.profileId
+    protected val taskType get() = dataHelper.taskType
+    protected fun getInputDataMap() = dataHelper.getInputDataMap()
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            // Log input data for debugging
-            Log.d("BaseWorker", "Starting work for task: $taskId, type: $taskType")
-            Log.d("BaseWorker", "Input data: ${inputData.keyValueMap}")
-
-            // Update task status to RUNNING
-            taskRepository.updateTaskStatus(taskId, TaskStatus.RUNNING)
+            logInputData()
+            updateTaskStatus(TaskStatus.RUNNING)
             setProgressAsync(Data.Builder().putInt("progress", 0).build())
 
-            // Execute the actual work
             val result = performWork()
+            logResult(result)
 
-            // Log result
-            Log.d("BaseWorker", "Work result - success: ${result.success}, error: ${result.error}")
-
-            // Save result to repository
-            val taskResult = TaskResult(
-                taskId = taskId,
-                taskType = taskType,
-                success = result.success,
-                data = result.data,
-                rawData = result.rawData,
-                error = result.error
-            )
-
-            // 먼저 Repository에 저장
-            taskRepository.saveTaskResult(taskResult)
-            taskRepository.updateTaskStatus(
-                taskId,
-                if (result.success) TaskStatus.COMPLETED else TaskStatus.FAILED,
-                result.error
-            )
-
-            // WorkManager Result는 정말 최소한의 데이터만
-            if (result.success) {
-                Result.success(
-                    Data.Builder()
-                        .putString("task_id", taskId)
-                        .putBoolean("success", true)
-                        .build()  // 다른 데이터 제거
-                )
-            } else {
-                Result.failure(
-                    Data.Builder()
-                        .putString("task_id", taskId)
-                        .putString("error", result.error ?: "Unknown error")
-                        .build()
-                )
-            }
+            saveResult(result)
+            return@withContext createWorkerResult(result)
         } catch (e: Exception) {
-            Log.e("BaseWorker", "Worker failed with exception", e)
-
-            // 예외 발생 시에도 상태 업데이트
-            try {
-                taskRepository.updateTaskStatus(taskId, TaskStatus.FAILED, e.message)
-            } catch (updateError: Exception) {
-                Log.e("BaseWorker", "Failed to update task status", updateError)
-            }
-
-            Result.failure(
-                Data.Builder()
-                    .putString("task_id", taskId)
-                    .putString("error", e.message ?: "Unknown error")
-                    .build()
-            )
+            handleException(e)
+            return@withContext createFailureResult(e)
         }
     }
 
     protected abstract suspend fun performWork(): WorkResult
 
     protected suspend fun updateProgress(progress: Int) {
-        setProgressAsync(
-            Data.Builder()
-                .putInt("progress", progress)
-                .build()
-        )
+        setProgressAsync(Data.Builder().putInt("progress", progress).build())
         taskRepository.updateTaskProgress(taskId, progress)
     }
 
-    data class WorkResult(
-        val success: Boolean,
-        val data: Map<String, Any>? = null,
-        val rawData: String? = null,  // 대용량 데이터용
-        val error: String? = null
-    )
+    private fun logInputData() {
+        Log.d("BaseWorker", "Starting work for task: $taskId, type: $taskType")
+        Log.d("BaseWorker", "Input data: ${inputData.keyValueMap}")
+    }
+
+    private fun logResult(result: WorkResult) {
+        Log.d("BaseWorker", "Work result - success: ${result.success}, error: ${result.error}")
+    }
+
+    private suspend fun updateTaskStatus(status: TaskStatus, error: String? = null) {
+        taskRepository.updateTaskStatus(taskId, status, error)
+    }
+
+    private suspend fun saveResult(result: WorkResult) {
+        val taskResult = TaskResult(
+            taskId = taskId,
+            taskType = taskType,
+            success = result.success,
+            data = result.data,
+            rawData = result.rawData,
+            error = result.error
+        )
+        taskRepository.saveTaskResult(taskResult)
+        updateTaskStatus(
+            if (result.success) TaskStatus.COMPLETED else TaskStatus.FAILED,
+            result.error
+        )
+    }
+
+    private fun createWorkerResult(result: WorkResult): Result {
+        return if (result.success) {
+            Result.success(
+                Data.Builder()
+                    .putString("task_id", taskId)
+                    .putBoolean("success", true)
+                    .build()
+            )
+        } else {
+            Result.failure(
+                Data.Builder()
+                    .putString("task_id", taskId)
+                    .putString("error", result.error ?: "Unknown error")
+                    .build()
+            )
+        }
+    }
+
+    private suspend fun handleException(e: Exception) {
+        Log.e("BaseWorker", "Worker failed with exception", e)
+        try {
+            updateTaskStatus(TaskStatus.FAILED, e.message)
+        } catch (updateError: Exception) {
+            Log.e("BaseWorker", "Failed to update task status", updateError)
+        }
+    }
+
+    private fun createFailureResult(e: Exception): Result {
+        return Result.failure(
+            Data.Builder()
+                .putString("task_id", taskId)
+                .putString("error", e.message ?: "Unknown error")
+                .build()
+        )
+    }
 }

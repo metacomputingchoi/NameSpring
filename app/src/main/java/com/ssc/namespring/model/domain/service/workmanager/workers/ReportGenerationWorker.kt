@@ -8,6 +8,7 @@ import com.ssc.namespring.model.domain.usecase.ProfileManagerProvider
 import com.ssc.namespring.model.domain.service.report.builder.ReportBuilder
 import com.ssc.namespring.model.domain.service.report.generators.*
 import com.ssc.namespring.model.domain.service.report.utils.ReportMetadataProvider
+import com.ssc.namespring.model.domain.service.workmanager.WorkResult
 import kotlinx.coroutines.delay
 
 class ReportGenerationWorker(

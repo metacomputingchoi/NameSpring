@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.WorkerParameters
 import com.ssc.namespring.model.domain.service.workmanager.BaseWorker
+import com.ssc.namespring.model.domain.service.workmanager.WorkResult
 import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingInputParser
 import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingProcessor
 import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingResultBuilder
