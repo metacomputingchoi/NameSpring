@@ -4,159 +4,70 @@ package com.ssc.namespring.model.domain.service.workmanager.workers
 import android.content.Context
 import android.util.Log
 import androidx.work.WorkerParameters
-import com.google.gson.Gson
 import com.ssc.namespring.model.domain.service.workmanager.BaseWorker
-import com.ssc.namespring.model.domain.service.factory.NamingEngineProvider
-import com.ssc.namespring.model.domain.service.evaluation.ProfileScoreCalculator
-import com.ssc.namingengine.data.GeneratedName
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingInputParser
+import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingProcessor
+import com.ssc.namespring.model.domain.service.workmanager.workers.naming.NamingResultBuilder
 
+/**
+ * 이름 생성 작업을 처리하는 Worker
+ * SOLID 원칙에 따라 리팩토링됨
+ */
 class NamingWorker(
     context: Context,
     params: WorkerParameters
 ) : BaseWorker(context, params) {
+
     companion object {
         private const val TAG = "NamingWorker"
     }
 
-    private val localGson = Gson()
+    private val inputParser = NamingInputParser()
+    private val processor = NamingProcessor()
+    private val resultBuilder = NamingResultBuilder()
 
     override suspend fun performWork(): WorkResult {
-        try {
+        return try {
             Log.d(TAG, "Starting naming work for profile: $profileId")
 
+            // 1. 입력 데이터 파싱
             val inputData = getInputDataMap()
-
-            // Extract naming parameters
-            val birthDateTimeMillis = (inputData["birthDateTime"] as? String)?.toLongOrNull()
-                ?: return WorkResult(
-                    success = false,
-                    error = "Birth date time is required"
-                )
-
-            val isYajaTime = inputData["isYajaTime"] as? Boolean ?: true
-            val surnameData = inputData["surname"] as? Map<*, *>
-            val nameInputFormat = inputData["nameInputFormat"] as? String ?: ""
-            val nameCharCount = (inputData["nameCharCount"] as? Double)?.toInt() ?: 2
-
-            updateProgress(10)
-
-            // Convert timestamp to LocalDateTime
-            val birthDateTime = Instant.ofEpochMilli(birthDateTimeMillis)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime()
-
-            // Initialize naming engine
-            val namingEngine = NamingEngineProvider.getInstance()
-
+            val parsedInput = inputParser.parse(inputData)
             updateProgress(20)
 
-            // Build surname input string
-            val surnameKorean = surnameData?.get("korean")?.toString() ?: ""
-            val surnameHanja = surnameData?.get("hanja")?.toString() ?: ""
-
-            // ProfileFormActivity와 동일한 형식 사용
-            val surnameInput = if (surnameKorean.isNotEmpty() && surnameHanja.isNotEmpty()) {
-                "[$surnameKorean/$surnameHanja]"
-            } else {
-                return WorkResult(
-                    success = false,
-                    error = "Surname information is required"
-                )
-            }
-
-            // 이름 부분 추가 (비어있으면 [_/_] 형식)
-            val fullInput = if (nameInputFormat.isNotEmpty()) {
-                surnameInput + nameInputFormat
-            } else {
-                // nameCharCount에 따라 [_/_] 추가
-                surnameInput + "[_/_]".repeat(nameCharCount)
-            }
-
-            Log.d(TAG, "Full naming input: $fullInput")
-
-            updateProgress(30)
-
-            // Generate names using NamingEngine
-            val generatedNames = try {
-                namingEngine.generateNames(
-                    userInput = fullInput,
-                    birthDateTime = birthDateTime,
-                    useYajasi = isYajaTime,
-                    verbose = true,
-                    withoutFilter = false
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to generate names", e)
-                return WorkResult(
-                    success = false,
-                    error = "Failed to generate names: ${e.message}"
-                )
-            }
-
-            Log.d(TAG, "Generated ${generatedNames.size} names")
-
+            // 2. 이름 생성
+            val generatedNames = processor.generateNames(
+                fullInput = parsedInput.fullInput,
+                birthDateTime = parsedInput.birthDateTime,
+                isYajaTime = parsedInput.isYajaTime
+            )
             updateProgress(70)
 
-            // Take top 10 names for summary
-            val topNames = generatedNames.take(10)
-
-            // Convert to summary format
-            val nameSuggestions = topNames.map { generatedName ->
-                val score = ProfileScoreCalculator.calculateNamebomScore(generatedName)
-                val givenNameHanja = generatedName.combinedHanja.substring(generatedName.surnameHanja.length)
-                val givenNamePronunciation = generatedName.combinedPronounciation.substring(generatedName.surnameHangul.length)
-
-                mapOf(
-                    "korean" to givenNamePronunciation,
-                    "hanja" to givenNameHanja,
-                    "fullKorean" to generatedName.combinedPronounciation,
-                    "fullHanja" to generatedName.combinedHanja,
-                    "meaning" to buildMeaningString(generatedName),
-                    "score" to score,
-                    "totalScore" to (generatedName.analysisInfo?.totalScore ?: 0)
-                )
-            }
-
+            // 3. 결과 구성
+            val resultData = resultBuilder.buildResult(generatedNames, parsedInput)
             updateProgress(90)
 
-            // Serialize all GeneratedName objects for storage
-            val rawDataJson = localGson.toJson(generatedNames)
-
+            // 4. Raw 데이터 직렬화
+            val rawDataJson = resultBuilder.serializeRawData(generatedNames)
             updateProgress(100)
 
-            return WorkResult(
+            WorkResult(
                 success = true,
-                data = mapOf(
-                    "suggestions" to nameSuggestions,
-                    "totalCount" to generatedNames.size,
-                    "topCount" to topNames.size,
-                    "timestamp" to System.currentTimeMillis(),
-                    "parameters" to mapOf(
-                        "surname" to surnameInput,
-                        "fullInput" to fullInput,
-                        "birthDateTime" to birthDateTime.toString(),
-                        "isYajaTime" to isYajaTime
-                    )
-                ),
+                data = resultData,
                 rawData = rawDataJson
+            )
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "Invalid input: ${e.message}", e)
+            WorkResult(
+                success = false,
+                error = e.message ?: "Invalid input"
             )
         } catch (e: Exception) {
             Log.e(TAG, "Naming failed", e)
-            return WorkResult(
+            WorkResult(
                 success = false,
                 error = "Naming failed: ${e.message}"
             )
         }
-    }
-
-    private fun buildMeaningString(generatedName: GeneratedName): String {
-        return generatedName.hanjaDetails
-            .drop(1) // Skip surname
-            .mapNotNull { it.inmyongMeaning.takeIf { meaning -> meaning.isNotBlank() } }
-            .joinToString(", ")
-            .ifEmpty { "의미 정보 없음" }
     }
 }
