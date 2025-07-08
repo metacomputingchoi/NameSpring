@@ -1,4 +1,4 @@
-// ui/history/components/NameListViewHolder.kt
+// ui/history/components/NameListViewComponentsHolder.kt
 package com.ssc.namespring.ui.history.adapter.components
 
 import android.view.View
@@ -10,7 +10,7 @@ import com.google.android.material.button.MaterialButton
 import com.ssc.namespring.R
 import com.ssc.namingengine.data.GeneratedName
 
-class NameListViewHolder(
+class NameListViewComponentsHolder(
     itemView: View,
     private val birthDateTime: String,
     private val birthDateTimeMillis: Long,

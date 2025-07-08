@@ -1,9 +1,9 @@
-// model/domain/service/search/hanja/scoring/MeaningScoreCalculator.kt
+// model/domain/service/search/hanja/scoring/MeaningMatchScoreCalculator.kt
 package com.ssc.namespring.model.domain.service.search.hanja.scoring
 
 import com.ssc.namespring.model.domain.service.search.hanja.matchers.*
 
-class MeaningScoreCalculator {
+class MeaningMatchScoreCalculator {
     private val textMatcher = TextMatcher()
     private val chosungMatcher = ChosungMatcher()
     private val mixedPatternMatcher = MixedPatternMatcher()

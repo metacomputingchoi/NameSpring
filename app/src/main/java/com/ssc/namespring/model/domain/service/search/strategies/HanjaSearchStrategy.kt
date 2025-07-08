@@ -28,7 +28,7 @@ class HanjaSearchStrategy(store: SurnameStore) : BaseSearchStrategy(store) {
                     ))
                 }
             } catch (e: Exception) {
-                Log.w("HanjaSearchStrategy", "Skipping invalid entry: $key", e)
+                Log.w("IHanjaSearchStrategy", "Skipping invalid entry: $key", e)
             }
         }
     }

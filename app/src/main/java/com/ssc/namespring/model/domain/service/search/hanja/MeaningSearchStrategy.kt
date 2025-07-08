@@ -4,17 +4,17 @@ package com.ssc.namespring.model.domain.service.search.hanja
 import android.util.Log
 import com.ssc.namespring.model.data.mapper.OptimizedMapping
 import com.ssc.namespring.model.data.mapper.HanjaInfo
-import com.ssc.namespring.model.domain.service.search.hanja.scoring.MeaningScoreCalculator
+import com.ssc.namespring.model.domain.service.search.hanja.scoring.MeaningMatchScoreCalculator
 
 internal class MeaningSearchStrategy(
     private val optimizedMapping: OptimizedMapping
-) : HanjaSearchStrategy {
+) : IHanjaSearchStrategy {
 
     companion object {
         private const val TAG = "MeaningSearchStrategy"
     }
 
-    private val scoreCalculator = MeaningScoreCalculator()
+    private val scoreCalculator = MeaningMatchScoreCalculator()
 
     override fun search(query: String): List<HanjaInfo> {
         Log.d(TAG, "뜻 검색 모드: $query")

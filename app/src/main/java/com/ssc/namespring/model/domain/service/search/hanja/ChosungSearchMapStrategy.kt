@@ -1,16 +1,16 @@
-// model/domain/service/search/hanja/ChosungSearchStrategy.kt
+// model/domain/service/search/hanja/ChosungSearchMapStrategy.kt
 package com.ssc.namespring.model.domain.service.search.hanja
 
 import android.util.Log
 import com.ssc.namespring.model.data.mapper.OptimizedMapping
 import com.ssc.namespring.model.data.mapper.HanjaInfo
 
-internal class ChosungSearchStrategy(
+internal class ChosungSearchMapStrategy(
     private val optimizedMapping: OptimizedMapping
-) : HanjaSearchStrategy {
+) : IHanjaSearchStrategy {
 
     companion object {
-        private const val TAG = "ChosungSearchStrategy"
+        private const val TAG = "ChosungSearchMapStrategy"
     }
 
     override fun search(query: String): List<HanjaInfo> {

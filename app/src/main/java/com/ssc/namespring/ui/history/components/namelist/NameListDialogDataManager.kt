@@ -4,7 +4,7 @@ package com.ssc.namespring.ui.history.components.namelist
 import com.ssc.namespring.model.data.repository.FavoriteNameRepository
 import com.ssc.namespring.model.data.repository.TaskRepository
 import com.ssc.namespring.model.domain.entity.Task
-import com.ssc.namespring.ui.history.data.NameListDataLoader
+import com.ssc.namespring.ui.history.data.NameListRawRetLoader
 import com.ssc.namespring.ui.history.managers.NameSearchManager
 import com.ssc.namespring.ui.history.managers.NameSortManager
 import com.ssc.namespring.ui.history.viewmodel.NameListViewModel
@@ -29,7 +29,7 @@ class NameListDialogDataManager(
     init {
         viewModel = NameListViewModel(
             taskRepository = taskRepository,
-            dataLoader = NameListDataLoader(taskRepository),
+            dataLoader = NameListRawRetLoader(taskRepository),
             searchManager = NameSearchManager(),
             sortManager = NameSortManager()
         )

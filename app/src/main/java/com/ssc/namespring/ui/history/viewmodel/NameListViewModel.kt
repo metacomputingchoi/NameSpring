@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssc.namespring.model.domain.entity.Task
 import com.ssc.namespring.model.data.repository.TaskRepository
-import com.ssc.namespring.ui.history.data.NameListDataLoader
+import com.ssc.namespring.ui.history.data.NameListRawRetLoader
 import com.ssc.namespring.ui.history.managers.NameSearchManager
 import com.ssc.namespring.ui.history.managers.NameSortManager
 import com.ssc.namingengine.data.GeneratedName
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class NameListViewModel(
     private val taskRepository: TaskRepository,
-    private val dataLoader: NameListDataLoader,
+    private val dataLoader: NameListRawRetLoader,
     private val searchManager: NameSearchManager,
     private val sortManager: NameSortManager
 ) : ViewModel() {

@@ -4,14 +4,13 @@ package com.ssc.namespring.ui.history.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.google.gson.Gson
 import com.ssc.namespring.R
 import com.ssc.namespring.model.data.repository.FavoriteNameRepository
 import com.ssc.namespring.ui.history.adapter.components.NameListDiffCallback
 import com.ssc.namespring.ui.history.adapter.components.NameListFavoriteHandler
-import com.ssc.namespring.ui.history.adapter.components.NameListViewHolder
+import com.ssc.namespring.ui.history.adapter.components.NameListViewComponentsHolder
 import com.ssc.namingengine.data.GeneratedName
 
 class NameListAdapter(
@@ -20,7 +19,7 @@ class NameListAdapter(
     private val onNameClick: (GeneratedName) -> Unit,
     private val favoriteRepository: FavoriteNameRepository,
     private val lifecycleOwner: LifecycleOwner
-) : ListAdapter<GeneratedName, NameListViewHolder>(NameListDiffCallback()) {
+) : ListAdapter<GeneratedName, NameListViewComponentsHolder>(NameListDiffCallback()) {
 
     private val gson = Gson()
     private val favoriteHandler = NameListFavoriteHandler(
@@ -34,11 +33,11 @@ class NameListAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NameListViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NameListViewComponentsHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_name_result, parent, false)
 
-        return NameListViewHolder(
+        return NameListViewComponentsHolder(
             itemView = view,
             birthDateTime = birthDateTime,
             birthDateTimeMillis = birthDateTimeMillis,
@@ -47,7 +46,7 @@ class NameListAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: NameListViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NameListViewComponentsHolder, position: Int) {
         holder.bind(getItem(position), position + 1)
     }
 }

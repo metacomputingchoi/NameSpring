@@ -10,8 +10,8 @@ internal class HanjaQueryRouter(private val optimizedMapping: OptimizedMapping) 
         private const val TAG = "HanjaQueryRouter"
     }
 
-    private val chosungStrategy = ChosungSearchStrategy(optimizedMapping)
-    private val koreanStrategy = KoreanSearchStrategy(optimizedMapping)
+    private val chosungStrategy = ChosungSearchMapStrategy(optimizedMapping)
+    private val koreanStrategy = KoreanSearchMapStrategy(optimizedMapping)
     private val hanjaCharStrategy = HanjaCharSearchStrategy(optimizedMapping)
     private val meaningStrategy = MeaningSearchStrategy(optimizedMapping)
 

@@ -12,7 +12,6 @@ import com.ssc.namespring.ui.history.managers.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 class NameListDialog(
     private val activity: AppCompatActivity,
@@ -23,7 +22,7 @@ class NameListDialog(
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Main + job)
 
-    private lateinit var viewBinder: NameListViewBinder
+    private lateinit var viewBinder: NameListRecyclerViewBinder
     private lateinit var dataLoader: NameListDataLoader
     private lateinit var searchManager: NameListSearchManager
     private lateinit var sortManager: NameListSortManager
@@ -44,7 +43,7 @@ class NameListDialog(
     }
 
     private fun setupManagers() {
-        viewBinder = NameListViewBinder(this, activity, task)
+        viewBinder = NameListRecyclerViewBinder(this, activity, task)
         uiStateManager = NameListUIStateManager()
 
         dataLoader = NameListDataLoader(

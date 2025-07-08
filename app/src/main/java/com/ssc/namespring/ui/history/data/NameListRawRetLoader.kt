@@ -1,4 +1,4 @@
-// ui/history/data/NameListDataLoader.kt
+// ui/history/data/NameListRawRetLoader.kt
 package com.ssc.namespring.ui.history.data
 
 import com.google.gson.Gson
@@ -10,7 +10,7 @@ import com.ssc.namingengine.data.GeneratedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class NameListDataLoader(
+class NameListRawRetLoader(
     private val taskRepository: TaskRepository,
     private val gson: Gson = Gson()
 ) {

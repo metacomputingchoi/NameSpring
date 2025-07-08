@@ -7,7 +7,7 @@ import com.ssc.namespring.model.data.mapper.HanjaInfo
 
 internal class HanjaCharSearchStrategy(
     private val optimizedMapping: OptimizedMapping
-) : HanjaSearchStrategy {
+) : IHanjaSearchStrategy {
 
     companion object {
         private const val TAG = "HanjaCharSearchStrategy"

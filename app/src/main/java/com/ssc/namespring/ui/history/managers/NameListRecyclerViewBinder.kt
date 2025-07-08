@@ -1,4 +1,4 @@
-// ui/history/managers/NameListViewBinder.kt
+// ui/history/managers/NameListRecyclerViewBinder.kt
 package com.ssc.namespring.ui.history.managers
 
 import android.app.Dialog
@@ -11,7 +11,7 @@ import com.ssc.namespring.model.domain.entity.TaskType
 import com.ssc.namespring.ui.history.adapter.NameListAdapter
 import com.ssc.namingengine.data.GeneratedName
 
-class NameListViewBinder(
+class NameListRecyclerViewBinder(
     private val dialog: Dialog,
     private val activity: AppCompatActivity,
     private val task: Task
